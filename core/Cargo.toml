@@ -1,0 +1,27 @@
+[package]
+name = "vnkey-core"
+version = "0.1.0"
+edition = "2021"
+description = "Pure Rust Vietnamese IME engine — Telex & VNI input methods"
+license = "MIT"
+
+[lib]
+name = "vnkey_core"
+crate-type = ["rlib", "cdylib"]
+
+# ZERO external dependencies — chỉ dùng std
+# Optional: serde cho serialization nếu cần
+[dependencies]
+lazy_static = "1.5.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_LibraryLoader"] }
+
+[dev-dependencies]
+proptest = "1.0"
+criterion = "0.5"
+
+[[bench]]
+name = "engine_bench"
+harness = false

@@ -1,0 +1,569 @@
+﻿<Window x:Class="VNKey.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="VNKey" Height="430" Width="600"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Icon="Assets/VNKey.png">
+
+    <Window.Resources>
+        <!-- Theme Colors -->
+        <SolidColorBrush x:Key="AppBackground" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="AppControlBackground" Color="#252526"/>
+        <SolidColorBrush x:Key="AppAccent" Color="#00B7C3"/>
+        <SolidColorBrush x:Key="AppBorder" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="AppText" Color="#D4D4D4"/>
+        <SolidColorBrush x:Key="AppSecondaryText" Color="#969696"/>
+        <SolidColorBrush x:Key="AppButtonBackground" Color="#333333"/>
+        <SolidColorBrush x:Key="AppButtonHoverBackground" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="AppAccentForeground" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="AppAccentHoverBackground" Color="#80F2FF"/>
+        <SolidColorBrush x:Key="AppSidebarBackground" Color="Transparent"/>
+        <SolidColorBrush x:Key="AppCardBackground" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="AppScrollbarThumb" Color="#00E5FF"/>
+        <SolidColorBrush x:Key="AppInputBackground" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="AppInputForeground" Color="White"/>
+        <SolidColorBrush x:Key="AppAlternatingRow" Color="#05FFFFFF"/>
+
+        <!-- Slim Scrollbar Style -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="3"/>
+            <Setter Property="MinWidth" Value="3"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Style>
+                                        <Style TargetType="Thumb">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Thumb">
+                                                        <Border Background="{DynamicResource AppScrollbarThumb}" CornerRadius="2" Opacity="0.7"/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Thumb.Style>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Global text styles -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+            <Setter Property="Margin" Value="0,6"/>
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+        </Style>
+
+        <!-- Sidebar Nav Button -->
+        <Style x:Key="NavButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryText}"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Margin="4,2" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppControlBackground}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AppAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Card style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Button styles -->
+        <Style x:Key="AppButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource AppButtonBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppButtonHoverBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#007ACC"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource AppAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="0" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppAccentHoverBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#00B3CC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- DataGrid Styling -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource AppAlternatingRow}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource AppControlBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryText}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AppBorder}"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AppAccent}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{DynamicResource AppBackground}" CornerRadius="8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition x:Name="RowHorizontalNav" Height="0"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+
+            <!-- ═══ Title Bar ═══ -->
+            <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent" Cursor="Hand">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
+                    <TextBlock x:Name="LogoIcon" Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="Logo_MouseLeftButtonDown" ToolTip="Thu gọn/Mở rộng Menu"/>
+                    <TextBlock Text="VNKey" FontWeight="Bold" Foreground="{DynamicResource AppText}" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Text=" 2.0" Foreground="{DynamicResource AppSecondaryText}" FontSize="14" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Button Width="36" Height="34" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppSecondaryText}" Click="ThemeToggle_Click" Cursor="Arrow">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource AppBorder}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock x:Name="ThemeIcon" Text="&#xE706;" FontFamily="Segoe MDL2 Assets" FontSize="12" ToolTip="Chuyển chế độ Sáng/Tối"/>
+                    </Button>
+                    <Button Width="36" Height="34" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppSecondaryText}" Click="CloseButton_Click" Cursor="Arrow">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ Horizontal Nav Bar ═══ -->
+            <Border x:Name="HorizontalNavBorder" Grid.Row="1" Background="{DynamicResource AppSidebarBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,0,1" Visibility="Collapsed" Padding="10,0">
+                <!-- Content moved here via C# when in horizontal mode -->
+            </Border>
+
+            <!-- ═══ Main Content: Sidebar + Pages ═══ -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="ColSidebar" Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT SIDEBAR -->
+                <Border x:Name="SidebarBorder" Grid.Column="0" Background="{DynamicResource AppSidebarBackground}" CornerRadius="0,0,0,8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,1,0">
+                    <StackPanel x:Name="NavButtonsStack" Margin="0,5" Orientation="Vertical">
+                        <!-- Mode indicator -->
+                        <Border x:Name="SideModeIndicator" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="10,0,10,8" Padding="10,2">
+                            <StackPanel>
+                                <TextBlock Text="Chế độ" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="RadVietnamese" GroupName="Mode" IsChecked="True" Margin="0,0,8,0">
+                                        <TextBlock Text="VN" FontSize="11" FontWeight="Bold"/>
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadEnglish" GroupName="Mode">
+                                        <TextBlock Text="EN" FontSize="11" FontWeight="Bold"/>
+                                    </RadioButton>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Navigation buttons -->
+                        <RadioButton x:Name="NavInput" Style="{StaticResource NavButtonStyle}" IsChecked="True" GroupName="Nav" Checked="Nav_Checked">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" x:Name="NavInputText" Text="Bộ gõ" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </RadioButton>
+                        <RadioButton x:Name="NavShorthand" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Checked="Nav_Checked">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" x:Name="NavShorthandText" Text="Gõ tắt" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </RadioButton>
+                        <RadioButton x:Name="NavSystem" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Checked="Nav_Checked">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" x:Name="NavSystemText" Text="Hệ thống" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </RadioButton>
+                        <RadioButton x:Name="NavAbout" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Checked="Nav_Checked">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" x:Name="NavAboutText" Text="Thông tin" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            </Grid>
+                        </RadioButton>
+                    </StackPanel>
+                </Border>
+
+                <!-- RIGHT CONTENT AREA -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="18,6,18,6">
+                        <!-- ═══ PAGE: Bộ gõ ═══ -->
+                        <StackPanel x:Name="PageInput" Visibility="Visible">
+                            <TextBlock Text="Bộ gõ" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+
+                            <!-- Card: Input Method -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="PHƯƠNG THỨC NHẬP" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,10"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Kiểu gõ" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <ComboBox x:Name="ComboInputMethod" Grid.Column="1" SelectedIndex="0" Height="26" SelectionChanged="ComboInputMethod_SelectionChanged" ToolTip="Chọn quy tắc gõ tiếng Việt (Telex, VNI, VIQR). Telex là kiểu gõ phổ biến nhất.">
+                                            <ComboBoxItem Content="Telex"/>
+                                            <ComboBoxItem Content="VNI"/>
+                                            <ComboBoxItem Content="VIQR"/>
+                                            <ComboBoxItem Content="TelexEx"/>
+                                        </ComboBox>
+                                        <TextBlock Text="Bảng mã" Grid.Column="3" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <ComboBox x:Name="ComboEncoding" Grid.Column="4" SelectedIndex="0" Height="26" ToolTip="Bảng mã ký tự xuất ra. Unicode là chuẩn hiện đại tương thích với hầu hết ứng dụng.">
+                                            <ComboBoxItem Content="Unicode"/>
+                                            <ComboBoxItem Content="TCVN3"/>
+                                            <ComboBoxItem Content="VNI Windows"/>
+                                        </ComboBox>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card: Smart Features -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="TÍNH NĂNG THÔNG MINH" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                     <CheckBox x:Name="ChkModernTone" Content="Đặt dấu oà, uý (thay vì òa, úy)" ToolTip="Đặt dấu trên nguyên âm chính xác hơn (Ví dụ: hoành tráng (oà) vs hoành tráng (òa))."/>
+                                     <CheckBox x:Name="ChkAutoCapitalizeSentence" Content="Tự động viết hoa sau dấu chấm (., ?, !)" ToolTip="Tự động viết hoa chữ cái đầu tiên sau các dấu kết thúc câu (. ? !). Ví dụ: Chào bạn. Bạn khỏe không?"/>
+                                     <CheckBox x:Name="ChkAutoCapitalizeEnter" Content="Tự động viết hoa sau khi nhấn Enter" ToolTip="Tự động viết hoa chữ cái đầu tiên khi bạn nhấn Enter để xuống dòng mới."/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card: Spell Check -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="CHÍNH TẢ VÀ KHÔI PHỤC" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                     <CheckBox x:Name="ChkSpellCheck" Content="Kiểm tra chính tả" IsChecked="True" ToolTip="Ngăn chặn các tổ hợp vần lạ không tồn tại trong tiếng Việt (Ví dụ: qqw, hhh)."/>
+                                     <CheckBox x:Name="ChkAutoRestore" Content="Tự khôi phục phím với từ sai" IsChecked="True" ToolTip="Tự động trả lại các phím gốc nếu bạn gõ một từ sai chính tả hoặc sai quy tắc gõ."/>
+                                     <CheckBox x:Name="ChkSmartLiteralMode" Content="Tự động nhận diện tiếng Anh/Từ dài" IsChecked="True" ToolTip="Tự động nhận diện khi gõ tiếng Anh hoặc chuỗi dài (code, mật khẩu) để không bỏ dấu nhầm. Tắt nếu muốn gõ chuỗi dài vô tận."/>
+                                     <CheckBox x:Name="ChkAllowForeign" Content="Cho phép 'z w j f' làm phụ âm" IsChecked="True" ToolTip="Cho phép các phím z, w, j, f đứng ở đầu từ (Ví dụ: zui zẻ, win-win)."/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ═══ PAGE: Gõ tắt ═══ -->
+                        <StackPanel x:Name="PageShorthand" Visibility="Collapsed">
+                            <Grid Margin="0,0,0,8">
+                                <TextBlock Text="Gõ tắt" FontSize="18" FontWeight="Bold"/>
+                                <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource AppControlBackground}" CornerRadius="12" Padding="8,2" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="0,0,5,0" Opacity="0.5"/>
+                                        <TextBox x:Name="TxtSearchShorthand" Width="100" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="12" VerticalContentAlignment="Center" MaxLength="20" TextChanged="TxtSearchShorthand_TextChanged"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Quick Add Area -->
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="15"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="VIẾT TẮT" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="TxtMacro" Height="22" VerticalContentAlignment="Center" Background="{DynamicResource AppInputBackground}" BorderBrush="{DynamicResource AppBorder}" Foreground="{DynamicResource AppInputForeground}" Padding="5,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="THAY THẾ" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="TxtExpansion" Height="22" VerticalContentAlignment="Center" Background="{DynamicResource AppInputBackground}" BorderBrush="{DynamicResource AppBorder}" Foreground="{DynamicResource AppInputForeground}" Padding="5,0"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="3" x:Name="BtnAddShorthand" Content="Thêm" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="60" Height="22" Margin="10,13,0,0" VerticalAlignment="Top" Click="BtnAddShorthand_Click"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Main Table Area -->
+                            <Border Style="{StaticResource CardStyle}" Padding="0" VerticalAlignment="Stretch">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="180"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <DataGrid x:Name="GridShorthand" Grid.Row="0" 
+                                              ItemsSource="{Binding ShorthandList, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              AutoGenerateColumns="False" 
+                                              Background="Transparent" 
+                                              BorderThickness="0"
+                                              HeadersVisibility="Column"
+                                              RowHeight="28">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="VIẾT TẮT" Binding="{Binding Macro}" Width="100" IsReadOnly="True" />
+                                            <DataGridTextColumn Header="THAY THẾ BẰNG" Binding="{Binding Expansion}" Width="*" IsReadOnly="True" />
+                                            <DataGridTemplateColumn Width="32">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" 
+                                                                Background="Transparent" BorderThickness="0" 
+                                                                Foreground="#FF4444" FontSize="11"
+                                                                Click="BtnDeleteShorthand_Click" Cursor="Hand"
+                                                                ToolTip="Xóa mục này"/>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    
+                                    <!-- Options & Import/Export -->
+                                    <Border Grid.Row="1" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="12,8" CornerRadius="0,0,8,8">
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                                <CheckBox x:Name="ChkShorthandWhileOff" Content="Gõ tắt khi tắt TV" VerticalAlignment="Center" Margin="0,0,15,0" FontSize="10.5" ToolTip="Vẫn áp dụng các từ gõ tắt ngay cả khi bạn đang tắt chế độ gõ tiếng Việt."/>
+                                                <CheckBox x:Name="ChkShorthandAutoCase" Content="Tự động hoa/thường" VerticalAlignment="Center" IsChecked="True" FontSize="10.5" ToolTip="Tự động điều chỉnh viết hoa từ thay thế dựa trên cách bạn gõ từ viết tắt (Ví dụ: ko -> không, Ko -> Không)."/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <Button x:Name="BtnImport" Content="Nhập File" Style="{StaticResource AppButtonStyle}" Padding="10,2" FontSize="10" Margin="0,0,8,0" Click="BtnImport_Click"/>
+                                                <Button x:Name="BtnExport" Content="Xuất File" Style="{StaticResource AppButtonStyle}" Padding="10,2" FontSize="10" Click="BtnExport_Click"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ═══ PAGE: Hệ thống ═══ -->
+                        <StackPanel x:Name="PageSystem" Visibility="Collapsed">
+                            <TextBlock Text="Hệ thống" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+
+                            <!-- Card: Giao diện -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="GIAO DIỆN" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <RadioButton x:Name="RbNavVertical" Content="Menu dọc (trái)" IsChecked="True" GroupName="UINavLayout" Checked="UINavLayout_Checked" Margin="0,0,15,0"/>
+                                        <RadioButton x:Name="RbNavHorizontal" Content="Menu ngang (trên)" GroupName="UINavLayout" Checked="UINavLayout_Checked"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card: Phím tắt -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="PHÍM TẮT CHUYỂN NGÔN NGỮ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,8">
+                                        <RadioButton x:Name="RbHotkeyAltZ" Content="Alt + Z" GroupName="UIHotkey" Click="RbHotkey_Click" Margin="0,0,15,0" ToolTip="Sử dụng Alt + Z."/>
+                                        <RadioButton x:Name="RbHotkeyCtrlShift" Content="Ctrl + Shift" GroupName="UIHotkey" Click="RbHotkey_Click" Margin="0,0,15,0" ToolTip="Sử dụng Ctrl + Shift."/>
+                                        <RadioButton x:Name="RbHotkeyCustom" Content="Tùy chỉnh:" GroupName="UIHotkey" Click="RbHotkey_Click" Margin="0,0,5,0" ToolTip="Tự cài đặt phím tắt theo ý muốn."/>
+                                        <Button x:Name="BtnRecordHotkey" Content="Record" Style="{StaticResource AppButtonStyle}" Padding="8,2" FontSize="10" Click="BtnRecordHotkey_Click" IsEnabled="{Binding ElementName=RbHotkeyCustom, Path=IsChecked}"/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="ChkBeep" Content="Kêu beep khi chuyển ngôn ngữ" ToolTip="Phát âm thanh bíp ngắn khi bạn chuyển đổi giữa chế độ gõ Tiếng Việt và Tiếng Anh."/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card: Startup -->
+                            <Border Style="{StaticResource CardStyle}">
+                                <CheckBox x:Name="ChkRunAtStartup" Content="Khởi động cùng Windows (Beta)" ToolTip="VNKey sẽ tự động khởi chạy cùng Windows mỗi khi bạn mở máy."/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ═══ PAGE: Thông tin ═══ -->
+                        <StackPanel x:Name="PageAbout" Visibility="Collapsed">
+                            <TextBlock Text="Thông tin" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel HorizontalAlignment="Center" Margin="0,15">
+                                    <TextBlock Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                                    <TextBlock Text="VNKey version 2.0.2" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Phát triển bởi Van Quoc Bui" Margin="0,5" Foreground="{DynamicResource AppSecondaryText}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="VNKey.org" Foreground="{DynamicResource AppAccent}" Cursor="Hand" HorizontalAlignment="Center" Margin="0,5"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+
+
+
+            <!-- ═══ Bottom Bar ═══ -->
+            <Grid Grid.Row="3" Margin="20,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="BtnDefault" Style="{DynamicResource AppButtonStyle}" Width="95" Height="28" Click="BtnDefault_Click" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <ScaleTransform ScaleX="-1" />
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+                            <TextBlock Text="Mặc định" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{DynamicResource AppButtonStyle}" Width="80" Height="28" Click="ExitButton_Click" Margin="0,0,8,0">
+                        <TextBlock Text="Thoát" FontSize="11" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource AccentButtonStyle}" Width="80" Height="28" Click="CloseButton_Click">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Lưu" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
