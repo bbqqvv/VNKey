@@ -2,7 +2,6 @@
 ///
 /// This module contains all the static data tables used by the engine:
 /// tone marks, modifier rules, and vowel classification.
-
 /// Tone mark mapping: base vowel → (sắc, huyền, hỏi, ngã, nặng)
 /// Using escape sequences to ensure NFC (Precomposed) and avoid encoding issues.
 pub const TONE_MAP: &[(char, &str)] = &[

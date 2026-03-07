@@ -4,7 +4,6 @@
 /// the combinations of phonemes in the Vietnamese language.
 /// 
 /// A "Smart" IME must understand if a syllable is linguistically valid.
-
 use crate::syllable::Syllable;
 
 /// Valid Vietnamese Onsets (Âm đầu) - Sorted for binary search

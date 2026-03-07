@@ -9,7 +9,6 @@
 ///    - "gi" + "ia" → place on second vowel
 ///    - Otherwise → place on first
 /// 3. Three+ vowels → place on second (middle)
-
 use crate::unicode_map::{TONE_MAP, MODIFIED_VOWELS};
 use crate::syllable::is_vowel;
 
@@ -160,9 +159,8 @@ pub fn place_tone_with_style(
 
         if (lower_word.starts_with("qu") && ["ua", "uâ", "uơ", "uô"].contains(&pair.as_str()))
             || (lower_word.starts_with("gi") && pair == "ia")
+            || (has_modifier(chars[vowel_indices[0]]) && has_modifier(chars[vowel_indices[1]]))
         {
-            vowel_indices[1]
-        } else if has_modifier(chars[vowel_indices[0]]) && has_modifier(chars[vowel_indices[1]]) {
             vowel_indices[1]
         } else if has_modifier(chars[vowel_indices[0]]) {
             vowel_indices[0]

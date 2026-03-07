@@ -73,4 +73,3 @@ VNKey được xây dựng theo kiến trúc tách biệt giữa xử lý logic 
 
 ## 📜 Giấy Phép
 Dự án được phát triển bởi **Van Quoc Bui** và cung cấp dưới dạng mã nguồn mở. Vui lòng tôn trọng các quy định về bản quyền khi sử dụng và đóng góp cho dự án.
-

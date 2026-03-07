@@ -6,7 +6,7 @@ use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState, GetKeyboardState, GetKeyState, MapVirtualKeyW, SendInput, ToUnicode, INPUT,
     INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, KEYEVENTF_UNICODE, VIRTUAL_KEY,
-    VK_BACK, VK_ESCAPE, VK_LMENU, VK_RETURN, VK_RMENU, VK_Z,
+    VK_BACK, VK_ESCAPE, VK_LMENU, VK_RETURN, VK_RMENU,
     VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT, VK_DELETE,
     VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, // Added mouse button imports
     VK_SHIFT, VK_CAPITAL, VK_CONTROL, VK_MENU, VK_LSHIFT, VK_RSHIFT, VK_LCONTROL, VK_RCONTROL,

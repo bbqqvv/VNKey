@@ -137,7 +137,7 @@ fn resolve_remaining_w(input: &str) -> String {
                     } else {
                         // Nothing changed, apply fallback Smart W
                         let last_c = result.chars().last();
-                        let is_modified = last_c.map_or(false, |c|
+                        let is_modified = last_c.is_some_and(|c|
                             matches!(c, 'ư' | 'ơ' | 'ă' | 'â' | 'ê' | 'ô' | 'đ')
                         );
                         if is_modified {

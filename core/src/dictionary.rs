@@ -27,12 +27,21 @@ pub struct Dictionary {
 
 impl Dictionary {
     pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl Default for Dictionary {
+    fn default() -> Self {
         Self {
             root: TrieNode::default(),
             bigrams: HashMap::new(),
             trigrams: HashMap::new(),
         }
     }
+}
+
+impl Dictionary {
 
     pub fn insert(&mut self, word: &str) {
         let mut current = &mut self.root;
@@ -63,12 +72,10 @@ impl Dictionary {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        for line in reader.lines() {
-            if let Ok(word) = line {
-                let trimmed = word.trim();
-                if !trimmed.is_empty() {
-                    self.insert(trimmed);
-                }
+        for word in reader.lines().flatten() {
+            let trimmed = word.trim();
+            if !trimmed.is_empty() {
+                self.insert(trimmed);
             }
         }
         Ok(())

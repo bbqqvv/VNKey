@@ -1,19 +1,17 @@
 use serde::{Serialize, Deserialize};
 
 /// Tone placement style
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum TonePlacement {
     /// Modern/New style: tone on last vowel in diphthong
     /// Example: "hoà", "loà" (tone on 'a')
     Modern,
     /// Traditional/Old style: tone on first vowel in diphthong
     /// Example: "hòa", "lòa" (tone on 'o')
+    #[default]
     Traditional,
 }
 
-impl Default for TonePlacement {
-    fn default() -> Self { TonePlacement::Traditional }
-}
 
 /// Engine configuration — aligned with UniKey 4.6 options
 #[derive(Debug, Clone, Serialize, Deserialize)]

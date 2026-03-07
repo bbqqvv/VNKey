@@ -5,8 +5,7 @@
 /// - vowel:  vowel nucleus — e.g. "a", "iê", "ươ"
 /// - coda:   final consonant(s) — e.g. "n", "ng", "ch", "t"
 /// - tone:   tone mark index (0 = no tone, 1-5 = sắc/huyền/hỏi/ngã/nặng)
-
-
+///
 /// Represents a decomposed Vietnamese syllable.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Syllable {
@@ -49,6 +48,7 @@ pub fn is_modified_vowel(c: char) -> bool {
 /// Handles special Vietnamese onset rules:
 /// - "qu" + vowel → onset="qu", vowel starts after 'u'
 /// - "gi" + vowel → onset="gi", vowel starts after 'i'
+///
 /// Also handles vowel cluster normalization:
 /// - Duplicate trailing vowels (e.g. "yy") → extra goes to coda
 /// - Semi-vowel 'y' after 'a'/'â' diphthong → stays in vowel but handled by tone
@@ -102,11 +102,8 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
         }
 
         let mut has_inner_consonant = false;
-        for k in (v_start as usize)..=(v_end as usize) {
-            if !is_vowel(chars[k]) {
-                has_inner_consonant = true;
-                break;
-            }
+        if chars[v_start as usize..=v_end as usize].iter().any(|&c| !is_vowel(c)) {
+            has_inner_consonant = true;
         }
 
         if has_inner_consonant {

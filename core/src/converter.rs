@@ -4,15 +4,15 @@
 /// - Remove diacritics (Tiếng Việt → Tieng Viet)
 /// - Detect Vietnamese text
 /// - Unicode normalization
-
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
 /// Supported Vietnamese encodings — aligned with UniKey 4.6
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum VnEncoding {
     /// Unicode — the standard (NFC composed form)
+    #[default]
     Unicode,
     /// TCVN3 (ABC) — legacy encoding, single-byte
     Tcvn3,
@@ -34,9 +34,6 @@ pub enum VnEncoding {
     UnicodeCString,
 }
 
-impl Default for VnEncoding {
-    fn default() -> Self { VnEncoding::Unicode }
-}
 
 /// Raw map data for Vietnamese characters to their base (unaccented) form
 const VN_CHAR_MAP: &[(char, char)] = &[

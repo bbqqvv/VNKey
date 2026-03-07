@@ -3,7 +3,6 @@
 /// Implements the VNI input rules:
 /// - Tone keys: 1=sắc, 2=huyền, 3=hỏi, 4=ngã, 5=nặng, 0=remove tone
 /// - Modifiers: a6=â, e6=ê, o6=ô, d9=đ, a8=ă, o7=ơ, u7=ư
-
 use crate::syllable::is_vowel;
 use crate::unicode_map::VNI_MODIFIERS;
 
@@ -16,7 +15,7 @@ pub fn extract_tone(input: &str) -> (String, u8) {
     let mut tone: u8 = 0;
 
     for c in input.chars() {
-        let has_vowel = core.chars().any(|ch| is_vowel(ch));
+        let has_vowel = core.chars().any(is_vowel);
 
         if has_vowel && "12345".contains(c) {
             tone = c.to_digit(10).unwrap() as u8;

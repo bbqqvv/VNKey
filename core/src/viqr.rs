@@ -5,7 +5,6 @@
 /// - Modifiers: ^ = circumflex (â,ê,ô), + = horn (ơ,ư), ( = breve (ă), dd = đ
 ///
 /// Example: Vie^.t Nam → Việt Nam
-
 use crate::syllable::is_vowel;
 
 /// VIQR tone key mapping
@@ -24,7 +23,7 @@ pub fn extract_tone(input: &str) -> (String, u8) {
 
     for c in input.chars() {
         let mut is_tone = false;
-        let has_vowel = core.chars().any(|ch| is_vowel(ch));
+        let has_vowel = core.chars().any(is_vowel);
 
         if has_vowel {
             for &(key, tone_val) in VIQR_TONE_KEYS {

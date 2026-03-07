@@ -2,7 +2,6 @@
 ///
 /// Provides fast text expansion: type an abbreviation → get full text.
 /// Supports import/export shorthand lists as JSON.
-
 use std::collections::HashMap;
 
 /// The shorthand dictionary
