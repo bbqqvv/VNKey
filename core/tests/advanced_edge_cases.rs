@@ -446,23 +446,23 @@ fn phonology_validate_edge_cases() {
 
     // Empty syllable → score 0
     let empty = Syllable { onset: "".to_string(), vowel: "".to_string(), coda: "".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&empty), 0);
+    assert_eq!(validate_syllable(&empty, false), 0);
 
     // Onset only → 50 (partial)
     let onset_only = Syllable { onset: "th".to_string(), vowel: "".to_string(), coda: "".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&onset_only), 50);
+    assert_eq!(validate_syllable(&onset_only, false), 50);
 
     // Very long vowel (>3 chars) → 20
     let long_vowel = Syllable { onset: "b".to_string(), vowel: "aoai".to_string(), coda: "".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&long_vowel), 20);
+    assert_eq!(validate_syllable(&long_vowel, false), 20);
 
     // Invalid onset → 0
     let bad_onset = Syllable { onset: "z".to_string(), vowel: "a".to_string(), coda: "".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&bad_onset), 0);
+    assert_eq!(validate_syllable(&bad_onset, false), 0);
 
     // Invalid coda → 0
     let bad_coda = Syllable { onset: "b".to_string(), vowel: "a".to_string(), coda: "z".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&bad_coda), 0);
+    assert_eq!(validate_syllable(&bad_coda, false), 0);
 }
 
 // ============================================================
