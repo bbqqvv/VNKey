@@ -1,6 +1,6 @@
 pub const ONSETS: &[&str] = &[
-    "b", "c", "ch", "d", "đ", "g", "gh", "gi", "h", "k", "kh", "l", "m", "n", "ng", "ngh", "nh", "p",
-    "ph", "q", "r", "s", "t", "th", "tr", "v", "x", "",
+    "b", "c", "ch", "d", "đ", "g", "gh", "gi", "h", "k", "kh", "l", "m", "n", "ng", "ngh", "nh",
+    "p", "ph", "q", "r", "s", "t", "th", "tr", "v", "x", "",
 ];
 
 pub const VOWEL_CLUSTERS: &[&str] = &[

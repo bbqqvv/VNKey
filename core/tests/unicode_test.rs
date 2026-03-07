@@ -48,10 +48,10 @@ fn test_combining_marks_stability() {
     // Feed raw combining marks without base chars (should not panic)
     engine.reset();
     engine.feed_str("\u{0300}\u{0301}\u{0302}\u{0303}\u{0309}");
-    
+
     // Feed combining mark after a consonant (non-vowel)
     engine.reset();
-    engine.feed_str("b\u{0301}"); 
-    
+    engine.feed_str("b\u{0301}");
+
     // No panic is success
 }
