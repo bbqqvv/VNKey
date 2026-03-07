@@ -55,7 +55,7 @@ jobs:
     - name: Setup Native DLL for WPF
       run: |
         mkdir -p platforms/windows/VNKey.Windows/Native
-        cp core/target/release/vnkey_core.dll platforms/windows/VNKey.Windows/Native/
+        cp target/release/vnkey_core.dll platforms/windows/VNKey.Windows/Native/
       shell: bash
 
     - name: Restore dependencies
