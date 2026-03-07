@@ -79,14 +79,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore platforms/windows/VNKey.Windows/VNKey.Windows.csproj
 
-    - name: Build WPF Project
-      run: dotnet build platforms/windows/VNKey.Windows/VNKey.Windows.csproj --configuration Release --no-restore
+    - name: Build & Publish WPF Project
+      run: dotnet publish platforms/windows/VNKey.Windows/VNKey.Windows.csproj --configuration Release --no-restore -o publish
 
-    - name: Prepare Artifacts
-      run: |
-        mkdir -p publish
-        cp platforms/windows/VNKey.Windows/bin/Release/net9.0-windows/VNKey.exe publish/
-        cp target/release/vnkey_core.dll publish/
+    - name: Ensure Native DLL in Publish Folder
+      run: cp target/release/vnkey_core.dll publish/
       shell: bash
 
     - name: Upload Build Artifacts
