@@ -90,13 +90,13 @@ pub fn is_valid_spelling(onset: &str, vowel: &str) -> bool {
 pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
     if !is_valid_onset(&syl.onset, allow_foreign) { 
         #[cfg(test)] println!("Invalid onset: '{}'", syl.onset);
-        return 0; 
+        return 5; // Very low score for invalid onset
     }
     if !is_valid_coda(&syl.coda, allow_foreign) { 
         #[cfg(test)] println!("Invalid coda: '{}'", syl.coda);
-        return 0; 
+        return 8; // Low score for invalid coda (typo?)
     }
-    if !is_valid_spelling(&syl.onset, &syl.vowel) { return 10; } // Low score but not zero for typos
+    if !is_valid_spelling(&syl.onset, &syl.vowel) { return 10; } // Spelling mistake (standard)
     
     if syl.vowel.is_empty() {
         if syl.onset.is_empty() { return 0; }
@@ -123,7 +123,7 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
     }
 
     #[cfg(test)] println!("Invalid vowel cluster: '{}'", lower_vowel);
-    0 // Completely invalid phonology
+    2 // Completely invalid vowel cluster
 }
 
 /// Check if the syllable is 100% linguistically perfect.

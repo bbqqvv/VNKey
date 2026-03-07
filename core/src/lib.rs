@@ -381,11 +381,12 @@ impl Engine {
                 self.apply_shorthand_if_needed(&mut transformed);
             }
 
-            // UniKey Auto Restore: Restore if word is not in dictionary AND not a valid sound
+            // UniKey Auto Restore: Restore if word is not in dictionary AND is phonetically invalid
             if self.config.spell_check && self.config.auto_restore {
                 let is_in_dict = self.dictionary.contains(&transformed);
                 
-                if !is_in_dict && phonetic_score == 0 && self.buffer.len() > 1 {
+                // P13 FIX: Score < 10 marks anything linguistically suspicious (invalid onset/coda/vowel)
+                if !is_in_dict && phonetic_score < 10 && self.buffer.len() > 1 {
                     transformed = self.apply_case(&self.buffer);
                 }
             }
@@ -413,8 +414,26 @@ impl Engine {
         let coda_len = self.current_syllable.coda.chars().count();
 
         // 1. Structural checks (English-style clusters)
-        // Increased threshold to 3-4 to allow intermediate states like "tie", "uow", "tww"
-        if (onset_len > 3 || coda_len > 2) || (phonetic_score == 0 && self.buffer.len() > 3) || self.buffer.len() > 25 {
+        // Refined: 
+        // - Score 5 (Invalid onset) -> switch early (len > 3) - e.g. "staff", "blow"
+        // - Score 8 (Invalid coda) -> switch late (len > 8) - e.g. "hoafnng" (typo)
+        // - Score 2 (Garbage) -> switch very early (len > 2)
+        if (onset_len > 3 || coda_len > 4) || self.buffer.len() > 25 {
+            self.literal_mode = true;
+            return;
+        }
+
+        if phonetic_score <= 2 && self.buffer.len() > 2 {
+            self.literal_mode = true;
+            return;
+        }
+
+        if phonetic_score <= 5 && self.buffer.len() > 3 {
+            self.literal_mode = true;
+            return;
+        }
+
+        if phonetic_score <= 8 && self.buffer.len() > 8 {
             self.literal_mode = true;
             return;
         }

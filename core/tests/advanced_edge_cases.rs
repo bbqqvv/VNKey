@@ -456,13 +456,13 @@ fn phonology_validate_edge_cases() {
     let long_vowel = Syllable { onset: "b".to_string(), vowel: "aoai".to_string(), coda: "".to_string(), tone: 0 };
     assert_eq!(validate_syllable(&long_vowel, false), 20);
 
-    // Invalid onset → 0
+    // Invalid onset → 5
     let bad_onset = Syllable { onset: "z".to_string(), vowel: "a".to_string(), coda: "".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&bad_onset, false), 0);
+    assert_eq!(validate_syllable(&bad_onset, false), 5);
 
-    // Invalid coda → 0
+    // Invalid coda → 8
     let bad_coda = Syllable { onset: "b".to_string(), vowel: "a".to_string(), coda: "z".to_string(), tone: 0 };
-    assert_eq!(validate_syllable(&bad_coda, false), 0);
+    assert_eq!(validate_syllable(&bad_coda, false), 8);
 }
 
 // ============================================================
