@@ -390,7 +390,7 @@ impl Engine {
         self.case_map.push(final_key.is_uppercase());
         self.buffer.push(final_key);
 
-        let result = if self.config.vietnamese_mode {
+        if self.config.vietnamese_mode {
             self.parse_buffer();
             self.check_literal_mode_transition();
             
@@ -428,9 +428,7 @@ impl Engine {
                 self.apply_shorthand_if_needed(&mut transformed);
             }
             transformed
-        };
-
-        result
+        }
     }
 
     /// Smart Check: If the current syllable has an invalid phonetic structure,
@@ -510,7 +508,7 @@ impl Engine {
             self.last_committed_word.clear();
 
             // Only restore if the last committed was [word] + [single space/punct]
-            if last.ends_with(' ') || last.chars().last().map_or(false, |c| c.is_ascii_punctuation()) {
+            if last.ends_with(' ') || last.chars().last().is_some_and(|c| c.is_ascii_punctuation()) {
                 // We're "undoing" the reset() that happened on space.
                 // Restore the RAW buffer so the user can continue typing/modifying the word.
                 if !self.last_committed_buffer.is_empty() {
@@ -568,7 +566,7 @@ impl Engine {
             if let Some(expansion) = self.shorthand_dict.lookup(&macro_lower) {
                 // Determine casing mode based on the original macro_part
                 let is_all_caps = macro_part.chars().all(|c| !c.is_lowercase());
-                let is_title_case = macro_part.chars().next().map_or(false, |c| c.is_uppercase()) && !is_all_caps;
+                let is_title_case = macro_part.chars().next().is_some_and(|c| c.is_uppercase()) && !is_all_caps;
 
                 if is_all_caps {
                     expansion_found = Some(expansion.to_uppercase());

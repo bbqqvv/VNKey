@@ -30,6 +30,12 @@ pub extern "C" fn vnkey_engine_new(mode: u8) -> *mut Engine {
     Box::into_raw(engine)
 }
 
+/// Frees the Engine instance.
+///
+/// # Safety
+///
+/// The pointer `ptr` must be a valid pointer to an `Engine` allocated by `vnkey_engine_new`.
+/// Calling this multiple times on the same pointer or with an invalid pointer is undefined behavior.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_engine_free(ptr: *mut Engine) {
     if !ptr.is_null() {
@@ -39,6 +45,10 @@ pub unsafe extern "C" fn vnkey_engine_free(ptr: *mut Engine) {
 
 /// Processes a single character and returns the newly transformed word.
 /// String returned must be freed by C#.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_process_key(ptr: *mut Engine, c: u32) -> *mut c_char {
     if ptr.is_null() {
@@ -56,6 +66,11 @@ pub unsafe extern "C" fn vnkey_process_key(ptr: *mut Engine, c: u32) -> *mut c_c
 }
 
 /// Feed an entire string (e.g., from clipboard or fast typing lag repair)
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
+/// `input` must be a valid null-terminated C string.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_feed_str(ptr: *mut Engine, input: *const c_char) -> *mut c_char {
     if ptr.is_null() || input.is_null() {
@@ -68,6 +83,11 @@ pub unsafe extern "C" fn vnkey_feed_str(ptr: *mut Engine, input: *const c_char) 
     string_to_cstr(result)
 }
 
+/// Resets the engine state.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_reset(ptr: *mut Engine) {
     if !ptr.is_null() {
@@ -78,6 +98,10 @@ pub unsafe extern "C" fn vnkey_reset(ptr: *mut Engine) {
 
 /// Processes a Backspace key.
 /// Returns true if the engine handled it internally.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_process_backspace(ptr: *mut Engine) -> bool {
     if ptr.is_null() {
@@ -87,6 +111,11 @@ pub unsafe extern "C" fn vnkey_process_backspace(ptr: *mut Engine) -> bool {
     engine.process_backspace()
 }
 
+/// Sets the input mode.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_set_mode(ptr: *mut Engine, mode: u8) {
     if !ptr.is_null() {
@@ -101,6 +130,11 @@ pub unsafe extern "C" fn vnkey_set_mode(ptr: *mut Engine, mode: u8) {
     }
 }
 
+/// Sets the Vietnamese mode.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_set_vietnamese_mode(ptr: *mut Engine, enabled: bool) {
     if !ptr.is_null() {
@@ -110,6 +144,11 @@ pub unsafe extern "C" fn vnkey_set_vietnamese_mode(ptr: *mut Engine, enabled: bo
     }
 }
 
+/// Gets the diagnostic info as a JSON string.
+///
+/// # Safety
+///
+/// `ptr` must be a valid pointer to an `Engine`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_get_diagnostic_info(ptr: *mut Engine) -> *mut c_char {
     if ptr.is_null() {
@@ -122,6 +161,10 @@ pub unsafe extern "C" fn vnkey_get_diagnostic_info(ptr: *mut Engine) -> *mut c_c
 }
 
 /// Free strings allocated by Rust
+///
+/// # Safety
+///
+/// `s` must be a valid pointer to a C string allocated by `string_to_cstr`.
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_free_string(s: *mut c_char) {
     if !s.is_null() {
@@ -142,6 +185,11 @@ pub extern "C" fn vnkey_hook_stop() {
     crate::hook::stop_hook();
 }
 
+/// Sets the global engine mode.
+///
+/// # Safety
+///
+/// This function interacts with global state.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_set_mode(mode: u8) {
@@ -155,6 +203,11 @@ pub unsafe extern "C" fn vnkey_global_set_mode(mode: u8) {
     crate::hook::update_global_engine(|e| e.set_mode(input_mode));
 }
 
+/// Sets the global Vietnamese mode.
+///
+/// # Safety
+///
+/// This function interacts with global state.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_set_vietnamese_mode(enabled: bool) {
@@ -171,6 +224,11 @@ pub extern "C" fn vnkey_set_toggle_callback(cb: extern "C" fn(bool)) {
     crate::hook::set_toggle_callback(cb);
 }
 
+/// Sets the global engine configuration.
+///
+/// # Safety
+///
+/// `json` must be a valid null-terminated C string.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_set_config_json(json: *const c_char) {
@@ -180,6 +238,11 @@ pub unsafe extern "C" fn vnkey_global_set_config_json(json: *const c_char) {
     }
 }
 
+/// Sets the global shorthand configuration.
+///
+/// # Safety
+///
+/// `json` must be a valid null-terminated C string.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_set_shorthand_json(json: *const c_char) {
@@ -189,6 +252,11 @@ pub unsafe extern "C" fn vnkey_global_set_shorthand_json(json: *const c_char) {
     }
 }
 
+/// Loads a dictionary for the global engine.
+///
+/// # Safety
+///
+/// `path` must be a valid null-terminated C string.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_load_dictionary(path: *const c_char) {
@@ -198,6 +266,11 @@ pub unsafe extern "C" fn vnkey_global_load_dictionary(path: *const c_char) {
     });
 }
 
+/// Processes a backspace for the global engine.
+///
+/// # Safety
+///
+/// This function interacts with global state.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_process_backspace() -> bool {
@@ -208,6 +281,11 @@ pub unsafe extern "C" fn vnkey_global_process_backspace() -> bool {
     handled
 }
 
+/// Gets diagnostic info for the global engine.
+///
+/// # Safety
+///
+/// This function interacts with global state.
 #[no_mangle]
 #[cfg(windows)]
 pub unsafe extern "C" fn vnkey_global_get_diagnostic_info() -> *mut c_char {
