@@ -413,7 +413,8 @@ impl Engine {
         let coda_len = self.current_syllable.coda.chars().count();
 
         // 1. Structural checks (English-style clusters)
-        if (onset_len > 3 || coda_len > 2) || (phonetic_score == 0 && self.buffer.len() > 2) || self.buffer.len() > 20 {
+        // Increased threshold to 3-4 to allow intermediate states like "tie", "uow", "tww"
+        if (onset_len > 3 || coda_len > 2) || (phonetic_score == 0 && self.buffer.len() > 3) || self.buffer.len() > 25 {
             self.literal_mode = true;
             return;
         }

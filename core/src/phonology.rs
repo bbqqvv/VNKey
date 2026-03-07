@@ -20,13 +20,17 @@ pub const CODAS: &[&str] = &[
 
 /// Valid Vietnamese Vowel Clusters (Vần) - Sorted for binary search
 pub const VOWEL_CLUSTERS: &[&str] = &[
-    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iê", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "uê", "ui", "uôi", "uôn", "uông", "uô", "uy", "uya", "uyê", "uân", "uâng", "uất", "uất", "uơ", "uê", "uâ", "uă", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ă", "ê", "êu", "ô", "ôi", "ông", "ôn", "ô", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ươi", "ươn", "ương", "ươ", "ưu"
+    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "ie", "iê", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "ue", "uê", "ui", "uo", "uôi", "uôn", "uông", "uô", "uy", "uya", "uyê", "uân", "uâng", "uất", "uơ", "uâ", "uă", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ă", "ê", "êu", "ô", "ôi", "ông", "ôn", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ươi", "ươn", "ương", "ươ", "ưu"
 ];
 
 /// Check if an onset is linguistically valid.
 pub fn is_valid_onset(onset: &str, allow_foreign: bool) -> bool {
     let lower = onset.to_lowercase();
     if ONSETS.binary_search(&lower.as_str()).is_ok() {
+        return true;
+    }
+    // Optimization: Allow 'ww', 'dd', etc. as they might be intermediate Telex states
+    if matches!(lower.as_str(), "ww" | "dd" | "ss" | "ff" | "rr" | "xx" | "jj") {
         return true;
     }
     if allow_foreign {
