@@ -110,55 +110,68 @@ fn smart_w_advanced_cases() {
     // Case: 'w' after consonant (Smart ư/ă)
     let res = simulate_typing(&mut e, "tw");
     println!("'tw' -> '{}'", res);
-    assert_eq!(res, "tư"); e.reset();
+    assert_eq!(res, "tư");
+    e.reset();
     let res = simulate_typing(&mut e, "hw");
     println!("'hw' -> '{}'", res);
-    assert_eq!(res, "hư"); e.reset();
+    assert_eq!(res, "hư");
+    e.reset();
     let res = simulate_typing(&mut e, "sw");
     println!("'sw' -> '{}'", res);
-    assert_eq!(res, "sư"); e.reset();
+    assert_eq!(res, "sư");
+    e.reset();
     
     // Case: 'w' as modifier for vowels
     let res = simulate_typing(&mut e, "aw");
     println!("'aw' -> '{}'", res);
-    assert_eq!(res, "ă"); e.reset();
+    assert_eq!(res, "ă");
+    e.reset();
     let res = simulate_typing(&mut e, "uw");
     println!("'uw' -> '{}'", res);
     assert_eq!(res, "ư"); e.reset();
     let res = simulate_typing(&mut e, "ow");
     println!("'ow' -> '{}'", res);
-    assert_eq!(res, "ơ"); e.reset();
+    assert_eq!(res, "ơ");
+    e.reset();
     let res = simulate_typing(&mut e, "uow");
     println!("'uow' -> '{}'", res);
-    assert_eq!(res, "ươ"); e.reset();
+    assert_eq!(res, "ươ");
+    e.reset();
     
     // Case: 'w' at end of complex words
     let res = simulate_typing(&mut e, "thuw");
     println!("'thuw' -> '{}'", res);
-    assert_eq!(res, "thư"); e.reset();
+    assert_eq!(res, "thư");
+    e.reset();
     let res = simulate_typing(&mut e, "thawngs");
     println!("'thawngs' -> '{}'", res);
-    assert_eq!(res, "thắng"); e.reset();
+    assert_eq!(res, "thắng");
+    e.reset();
     
     // Case: Double 'w' -> literal 'w'
     let res = simulate_typing(&mut e, "ww");
     println!("'ww' -> '{}'", res);
-    assert_eq!(res, "w"); e.reset();
+    assert_eq!(res, "w");
+    e.reset();
 
     // New Case: Triple 'w' -> literal 'ww'
     let res = simulate_typing(&mut e, "www");
-    assert_eq!(res, "ww"); e.reset();
+    assert_eq!(res, "ww");
+    e.reset();
     
     // Case: 'uww' -> 'uw' (literal w)
     let res = simulate_typing(&mut e, "uww");
     println!("'uww' -> '{}'", res);
-    assert_eq!(res, "uw"); e.reset();
+    assert_eq!(res, "uw");
+    e.reset();
     
     // Case: Capital 'W' -> 'Ư' (preserving case)
     let res = simulate_typing(&mut e, "W");
     println!("'W' -> '{}'", res);
-    assert_eq!(res, "Ư"); e.reset();
+    assert_eq!(res, "Ư");
+    e.reset();
     let res = simulate_typing(&mut e, "TW");
     println!("'TW' -> '{}'", res);
-    assert_eq!(res, "TƯ"); e.reset();
+    assert_eq!(res, "TƯ");
+    e.reset();
 }
