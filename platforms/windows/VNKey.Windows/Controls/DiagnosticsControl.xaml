@@ -1,0 +1,205 @@
+<UserControl x:Class="VNKey.Windows.Controls.DiagnosticsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="400">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/ModernTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,10,0">
+                <Grid Margin="0,0,0,12">
+                    <TextBlock Text="Chẩn đoán hệ thống" FontSize="18" FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button x:Name="BtnPopOut" Background="Transparent" BorderThickness="0" Margin="0,0,10,0" ToolTip="Tách cửa sổ" Click="BtnPopOut_Click">
+                            <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AppSecondaryText}"/>
+                        </Button>
+                        <Border Background="#22FFCC00" Padding="8,2" CornerRadius="4">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE9D5;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFCC00" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="VIP Debug Active" FontSize="10" FontWeight="Bold" Foreground="#FFCC00" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <Border Style="{StaticResource CardStyle}" BorderBrush="{DynamicResource AppAccent}" BorderThickness="1">
+                    <StackPanel>
+                        <!-- Section: System Context -->
+                        <TextBlock Text="NGỮ CẢNH HỆ THỐNG" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                    <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Cửa sổ tiêu điểm" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding ActiveWindow, FallbackValue='-'}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Foreground="White"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                    <TextBlock Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Bố cục bàn phím" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding KeyboardLayout, FallbackValue='-'}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Background="{DynamicResource AppBorder}" Margin="0,0,0,15" Height="0.5"/>
+
+                        <!-- Section: Real-time Tracking -->
+                        <TextBlock Text="THEO DÕI THỜI GIAN THỰC (LOW-LEVEL)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="PHÍM VỪA NHẬN" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,2"/>
+                                <TextBlock Text="{Binding LastRawKey, FallbackValue='None'}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AppAccent}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="HÀNH ĐỘNG" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,2"/>
+                                <TextBlock Text="{Binding LastAction, FallbackValue='Initial'}" FontSize="12" FontWeight="Bold" Foreground="White" Opacity="0.9"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Background="{DynamicResource AppBorder}" Margin="0,0,0,15" Height="0.5"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.3*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <TextBlock Text="PHÂN TÁCH VẦN (ENGINE)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,8" />
+                                <TextBlock Text="{Binding Phonology, FallbackValue='[] + [] + [] (Tone: 0)'}" FontSize="13" FontWeight="Bold" FontFamily="Consolas" Margin="0,0,0,12"/>
+                                
+                                <Grid Margin="0,0,0,4">
+                                    <TextBlock Text="DỮ LIỆU THÔ (BUFFER)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="Latency: " FontSize="9" Foreground="{DynamicResource AppSecondaryText}"/>
+                                        <TextBlock Text="{Binding Latency, FallbackValue='0.00ms'}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="{Binding BufferText, FallbackValue='Eng: | Raw:'}" FontSize="11" FontFamily="Consolas" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,8"/>
+                                
+                                <TextBlock Text="KẾT QUẢ (RECONSTRUCTED)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,4,0,2" />
+                                <TextBlock Text="{Binding ReconstructedText, FallbackValue='-'}" FontSize="16" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="TRẠNG THÁI &amp; ĐIỂM" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding StateText, FallbackValue='Normal'}" FontSize="11" VerticalAlignment="Center"/>
+                                    <ProgressBar Value="{Binding Score}" Grid.Column="1" Maximum="100" Height="4" Margin="10,0,0,0" Background="{DynamicResource AppBorder}" Foreground="{DynamicResource AppAccent}" VerticalAlignment="Center"/>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8">
+                                    <Border Padding="8,2" CornerRadius="4" Margin="0,0,5,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#222"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsShorthandActive}" Value="True">
+                                                        <Setter Property="Background" Value="#44FFCC00"/> <!-- Light up with Accent background -->
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="GÕ TẮT" FontSize="9" FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#555"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsShorthandActive}" Value="True">
+                                                            <Setter Property="Foreground" Value="#FFCC00"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                    
+                                    <Border Padding="8,2" CornerRadius="4">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#222"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDictionaryActive}" Value="True">
+                                                        <Setter Property="Background" Value="#4400CCFF"/> <!-- Light up with Dictionary blue background -->
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="TỪ ĐIỂN" FontSize="9" FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#555"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDictionaryActive}" Value="True">
+                                                            <Setter Property="Foreground" Value="#00CCFF"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </StackPanel>
+                                
+                                <Border BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                    <TextBlock Text="{Binding ModesText, FallbackValue='Telex | V-Mode'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource AppAccent}"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,15,0,4">
+                            <TextBlock Text="NHẬT KÝ QUYẾT ĐỊNH (DECISION ENGINE)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}"/>
+                            <TextBlock Text="Deep Insight Active" FontSize="9" Foreground="{DynamicResource AppAccent}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <ListBox ItemsSource="{Binding DecisionLogs}" Height="100" Background="#111" BorderBrush="{DynamicResource AppBorder}" Foreground="#00FF41" FontSize="10" FontFamily="Consolas" Padding="5" Margin="0,0,0,15">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0,1"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+
+                        <TextBlock Text="LỊCH SỬ XỬ LÝ (EVENT LOG)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                        <ListBox ItemsSource="{Binding EventLogs}" Height="120" Background="{DynamicResource AppInputBackground}" BorderBrush="{DynamicResource AppBorder}" Foreground="{DynamicResource AppSecondaryText}" FontSize="10" Padding="5">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0,1"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
