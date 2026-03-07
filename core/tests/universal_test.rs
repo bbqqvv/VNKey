@@ -1,7 +1,7 @@
 mod universal_suite;
 
 use universal_suite::{generate_syllables, syllable_to_telex, Syllable};
-use vnkey_core::{Engine, InputMode, config, tone};
+use vnkey_core::{config, tone, Engine, InputMode};
 
 #[test]
 fn test_universal_telex_exhaustive() {
@@ -15,7 +15,7 @@ fn test_universal_telex_exhaustive() {
     engine.set_config(config);
 
     let mut pass_count = 0;
-    
+
     for s in &syllables {
         engine.reset();
         let typing_sequence = syllable_to_telex(s);
@@ -24,14 +24,20 @@ fn test_universal_telex_exhaustive() {
         let expected = calculate_expected(s, engine.config().modern_tone);
 
         if result != expected {
-            println!("FAIL: Syllable '{}{}{}' (Tone {}). Sequence: '{}'. Expected: '{}', Got: '{}'", 
-                s.onset, s.vowel, s.coda, s.tone, typing_sequence, expected, result);
+            println!(
+                "FAIL: Syllable '{}{}{}' (Tone {}). Sequence: '{}'. Expected: '{}', Got: '{}'",
+                s.onset, s.vowel, s.coda, s.tone, typing_sequence, expected, result
+            );
         } else {
             pass_count += 1;
         }
     }
 
-    println!("Exhaustive Test: {}/{} passed.", pass_count, syllables.len());
+    println!(
+        "Exhaustive Test: {}/{} passed.",
+        pass_count,
+        syllables.len()
+    );
     assert_eq!(pass_count, syllables.len(), "Not all syllables passed!");
 }
 
@@ -69,8 +75,13 @@ fn calculate_expected(s: &Syllable, modern_tone: bool) -> String {
         tone::place_tone_with_style(
             &core,
             s.tone,
-            if modern_tone { config::TonePlacement::Modern } else { config::TonePlacement::Traditional }
-        ).unwrap_or(core)
+            if modern_tone {
+                config::TonePlacement::Modern
+            } else {
+                config::TonePlacement::Traditional
+            },
+        )
+        .unwrap_or(core)
     } else {
         core
     };
