@@ -188,7 +188,8 @@ mod tests {
             coda: "z".to_string(),
             tone: 0,
         };
-        assert_eq!(validate_syllable(&invalid_coda, false), 0);
+        // P13: Invalid coda now returns 8 (suspicious but not garbage)
+        assert_eq!(validate_syllable(&invalid_coda, false), 8);
         assert_eq!(validate_syllable(&invalid_coda, true), 100); // Valid with foreign allow
     }
 }
