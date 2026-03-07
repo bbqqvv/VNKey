@@ -15,7 +15,7 @@ pub struct Suggestion {
     pub score: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Dictionary {
     root: TrieNode,
     /// Store pairs of words with (word, frequency, last_used_timestamp)
@@ -29,19 +29,6 @@ impl Dictionary {
     pub fn new() -> Self {
         Self::default()
     }
-}
-
-impl Default for Dictionary {
-    fn default() -> Self {
-        Self {
-            root: TrieNode::default(),
-            bigrams: HashMap::new(),
-            trigrams: HashMap::new(),
-        }
-    }
-}
-
-impl Dictionary {
 
     pub fn insert(&mut self, word: &str) {
         let mut current = &mut self.root;
@@ -72,7 +59,7 @@ impl Dictionary {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        for word in reader.lines().flatten() {
+        for word in reader.lines().map_while(Result::ok) {
             let trimmed = word.trim();
             if !trimmed.is_empty() {
                 self.insert(trimmed);
