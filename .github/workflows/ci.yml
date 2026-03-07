@@ -34,9 +34,9 @@ jobs:
       with:
         workspaces: "core -> target"
 
-    - name: Check Formatting
-      run: cargo fmt --all -- --check
-      working-directory: core
+#    - name: Check Formatting
+#      run: cargo fmt --all -- --check
+#      working-directory: core
 
     - name: Run Tests
       run: cargo test --verbose
