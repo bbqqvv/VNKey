@@ -1,6 +1,6 @@
+use crate::{Engine, InputMode};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use crate::{Engine, InputMode};
 
 /// Helper to convert C string to rust string
 unsafe fn cstr_to_string(c_str: *const c_char) -> String {
@@ -13,7 +13,9 @@ unsafe fn cstr_to_string(c_str: *const c_char) -> String {
 /// Helper to convert rust string to C string pointer
 /// The caller (C#) MUST free this pointer using `vnkey_free_string`
 fn string_to_cstr(s: String) -> *mut c_char {
-    CString::new(s).unwrap_or_else(|_| CString::new("").unwrap()).into_raw()
+    CString::new(s)
+        .unwrap_or_else(|_| CString::new("").unwrap())
+        .into_raw()
 }
 
 #[no_mangle]
@@ -25,7 +27,7 @@ pub extern "C" fn vnkey_engine_new(mode: u8) -> *mut Engine {
         3 => InputMode::TelexEx,
         _ => InputMode::Telex,
     };
-    
+
     let engine = Box::new(Engine::new(input_mode));
     Box::into_raw(engine)
 }
@@ -54,13 +56,13 @@ pub unsafe extern "C" fn vnkey_process_key(ptr: *mut Engine, c: u32) -> *mut c_c
     if ptr.is_null() {
         return string_to_cstr(String::new());
     }
-    
+
     let engine = &mut *ptr;
     let ch = match std::char::from_u32(c) {
         Some(char_val) => char_val,
         None => return string_to_cstr(String::new()),
     };
-    
+
     let result = engine.process_key(ch);
     string_to_cstr(result)
 }
@@ -76,7 +78,7 @@ pub unsafe extern "C" fn vnkey_feed_str(ptr: *mut Engine, input: *const c_char) 
     if ptr.is_null() || input.is_null() {
         return string_to_cstr(String::new());
     }
-    
+
     let engine = &mut *ptr;
     let s = cstr_to_string(input);
     let result = engine.feed_str(&s);

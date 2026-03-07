@@ -29,33 +29,33 @@
 //!                       [unicode_map.rs]
 //! ```
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-pub mod telex;
-pub mod vni;
-pub mod viqr;
-pub mod syllable;
-pub mod tone;
-pub mod unicode_map;
 pub mod config;
-pub mod shorthand;
 pub mod converter;
-pub mod phonology;
-pub mod error;
 pub mod dictionary;
+pub mod error;
 pub mod ffi;
 #[cfg(windows)]
 pub mod hook;
+pub mod phonology;
+pub mod shorthand;
+pub mod syllable;
+pub mod telex;
+pub mod tone;
+pub mod unicode_map;
+pub mod viqr;
+pub mod vni;
 
 // Re-exports for convenience
+pub use config::{EngineConfig, TonePlacement};
+pub use converter::{is_vietnamese, remove_diacritics, VnEncoding};
+pub use dictionary::{Dictionary, Suggestion};
+pub use error::{EngineError, EngineResult};
+pub use phonology::{is_perfect, validate_syllable};
+pub use shorthand::ShorthandDict;
 pub use syllable::Syllable;
 pub use tone::ToneMark;
-pub use config::{EngineConfig, TonePlacement};
-pub use shorthand::ShorthandDict;
-pub use converter::{remove_diacritics, is_vietnamese, VnEncoding};
-pub use phonology::{validate_syllable, is_perfect};
-pub use error::{EngineError, EngineResult};
-pub use dictionary::{Dictionary, Suggestion};
 
 use std::collections::HashMap;
 
@@ -171,17 +171,20 @@ impl Engine {
     /// Get the current internal state of the engine.
     pub fn get_state(&self) -> EngineState {
         let score = if self.config.spell_check && self.config.vietnamese_mode {
-            phonology::validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants)
+            phonology::validate_syllable(
+                &self.current_syllable,
+                self.config.allow_foreign_consonants,
+            )
         } else {
             100 // Default to 100 (perfect) if validation is disabled or in English mode
         };
-        
+
         let transformed = if self.config.vietnamese_mode && !self.literal_mode {
             self.reconstruct()
         } else {
             self.apply_case(&self.buffer)
         };
-        
+
         EngineState {
             transformed,
             buffer: self.buffer.clone(),
@@ -289,11 +292,11 @@ impl Engine {
     /// Returns the expanded shorthand if any, otherwise an empty string.
     pub fn on_enter(&mut self) -> String {
         let result = self.process_key('\n');
-        
+
         if self.config.auto_capitalize_enter {
             self.capitalize_next = true;
         }
-        
+
         // Remove the trailing newline since the hook handles the Enter key itself
         if result.ends_with('\n') {
             result[..result.len() - 1].to_string()
@@ -315,13 +318,14 @@ impl Engine {
         }
 
         // Optimized: Avoid string creation if possible
-        if key.is_whitespace() || (key.is_ascii_punctuation() && !self.is_special_punctuation(key)) {
+        if key.is_whitespace() || (key.is_ascii_punctuation() && !self.is_special_punctuation(key))
+        {
             let mut transformed = if self.config.vietnamese_mode && !self.literal_mode {
                 self.reconstruct()
             } else {
                 self.apply_case(&self.buffer)
             };
-            
+
             // P7 FIX: Push separator to buffer so shorthand logic sees the trigger
             self.buffer.push(key);
             self.case_map.push(key.is_uppercase());
@@ -329,13 +333,13 @@ impl Engine {
             if self.is_shorthand_active() {
                 let old_len = self.buffer.chars().count();
                 self.apply_shorthand_if_needed(&mut transformed);
-                
+
                 // If shorthand expanded, it cleared the buffer and updated `transformed` (including trigger)
                 if self.buffer.is_empty() && old_len > 0 {
                     return transformed;
                 }
             }
-            
+
             // If no shorthand match, handle as normal word termination
             // Save for backspace restoration
             self.last_committed_word = transformed.clone();
@@ -355,7 +359,8 @@ impl Engine {
         }
 
         // Handle progressive Z (Telex/TelexEx only)
-        if self.config.vietnamese_mode && (self.mode == InputMode::Telex || self.mode == InputMode::TelexEx)
+        if self.config.vietnamese_mode
+            && (self.mode == InputMode::Telex || self.mode == InputMode::TelexEx)
             && key == 'z'
             && !self.buffer.is_empty()
             && self.current_syllable.has_vowel()
@@ -393,17 +398,20 @@ impl Engine {
         if self.config.vietnamese_mode {
             self.parse_buffer();
             self.check_literal_mode_transition();
-            
+
             if self.literal_mode {
                 return self.apply_case(&self.buffer);
             }
 
-            let phonetic_score = phonology::validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants);
+            let phonetic_score = phonology::validate_syllable(
+                &self.current_syllable,
+                self.config.allow_foreign_consonants,
+            );
 
             if self.config.spell_check {
                 self.apply_smart_spelling_corrections();
             }
-            
+
             let mut transformed = self.reconstruct();
 
             // P5 FIX: Apply shorthand (Gõ tắt)
@@ -414,7 +422,7 @@ impl Engine {
             // UniKey Auto Restore: Restore if word is not in dictionary AND is phonetically invalid
             if self.config.spell_check && self.config.auto_restore {
                 let is_in_dict = self.dictionary.contains(&transformed);
-                
+
                 // P13 FIX: Score < 10 marks anything linguistically suspicious (invalid onset/coda/vowel)
                 if !is_in_dict && phonetic_score < 10 && self.buffer.chars().count() > 1 {
                     transformed = self.apply_case(&self.buffer);
@@ -434,10 +442,13 @@ impl Engine {
     /// Smart Check: If the current syllable has an invalid phonetic structure,
     /// and it's not a known Vietnamese exception, switch to literal mode.
     fn check_literal_mode_transition(&mut self) {
-        if !self.config.smart_literal_mode || self.buffer.is_empty() || self.literal_mode { return; }
+        if !self.config.smart_literal_mode || self.buffer.is_empty() || self.literal_mode {
+            return;
+        }
 
-        let phonetic_score = validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants);
-        
+        let phonetic_score =
+            validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants);
+
         let onset_len = self.current_syllable.onset.chars().count();
         let coda_len = self.current_syllable.coda.chars().count();
 
@@ -464,14 +475,25 @@ impl Engine {
         }
 
         // 2. Dictionary-aware short word check (Special focus on English collisions like of, is, as)
-        if self.config.spell_check && self.buffer.chars().count() == 2 && self.current_syllable.tone != 0 {
-            let core = format!("{}{}", self.current_syllable.onset, self.current_syllable.vowel);
+        if self.config.spell_check
+            && self.buffer.chars().count() == 2
+            && self.current_syllable.tone != 0
+        {
+            let core = format!(
+                "{}{}",
+                self.current_syllable.onset, self.current_syllable.vowel
+            );
             let toned = if self.current_syllable.tone > 0 {
                 tone::place_tone_with_style(
                     &core,
                     self.current_syllable.tone,
-                    if self.config.modern_tone { config::TonePlacement::Modern } else { config::TonePlacement::Traditional },
-                ).unwrap_or(core)
+                    if self.config.modern_tone {
+                        config::TonePlacement::Modern
+                    } else {
+                        config::TonePlacement::Traditional
+                    },
+                )
+                .unwrap_or(core)
             } else {
                 core
             };
@@ -508,7 +530,12 @@ impl Engine {
             self.last_committed_word.clear();
 
             // Only restore if the last committed was [word] + [single space/punct]
-            if last.ends_with(' ') || last.chars().last().is_some_and(|c| c.is_ascii_punctuation()) {
+            if last.ends_with(' ')
+                || last
+                    .chars()
+                    .last()
+                    .is_some_and(|c| c.is_ascii_punctuation())
+            {
                 // We're "undoing" the reset() that happened on space.
                 // Restore the RAW buffer so the user can continue typing/modifying the word.
                 if !self.last_committed_buffer.is_empty() {
@@ -523,7 +550,7 @@ impl Engine {
                 }
             }
         }
-        
+
         false
     }
 
@@ -536,37 +563,45 @@ impl Engine {
     }
 
     fn is_shorthand_active(&self) -> bool {
-        self.config.macro_enabled && (self.config.vietnamese_mode || self.config.shorthand_while_off)
+        self.config.macro_enabled
+            && (self.config.vietnamese_mode || self.config.shorthand_while_off)
     }
 
     fn apply_shorthand_if_needed(&mut self, transformed: &mut String) {
-        if self.buffer.is_empty() { return; }
+        if self.buffer.is_empty() {
+            return;
+        }
 
         // Determine if the last character is a trigger (space or punctuation)
         let last_char = self.buffer.chars().last().unwrap();
         let has_trigger = last_char == ' ' || last_char.is_ascii_punctuation();
-        
+
         // P6 FIX: ONLY expand shorthand if a trigger character is pressed (Space/Punctuation)
-        if !has_trigger { return; }
+        if !has_trigger {
+            return;
+        }
 
         // The potential macro is the buffer minus the trigger
         let macro_part = &self.buffer[..self.buffer.len() - last_char.len_utf8()];
 
-        if macro_part.is_empty() { return; }
+        if macro_part.is_empty() {
+            return;
+        }
 
         let mut expansion_found = None;
 
         // 1. Try exact match first
         if let Some(expansion) = self.shorthand_dict.lookup(macro_part) {
             expansion_found = Some(expansion.to_string());
-        } 
+        }
         // 2. Fallback to smart casing if enabled
         else if self.config.macro_auto_case {
             let macro_lower = macro_part.to_lowercase();
             if let Some(expansion) = self.shorthand_dict.lookup(&macro_lower) {
                 // Determine casing mode based on the original macro_part
                 let is_all_caps = macro_part.chars().all(|c| !c.is_lowercase());
-                let is_title_case = macro_part.chars().next().is_some_and(|c| c.is_uppercase()) && !is_all_caps;
+                let is_title_case =
+                    macro_part.chars().next().is_some_and(|c| c.is_uppercase()) && !is_all_caps;
 
                 if is_all_caps {
                     expansion_found = Some(expansion.to_uppercase());
@@ -603,34 +638,44 @@ impl Engine {
     }
 
     /// Automatically correct spelling mistakes based on Vietnamese phonotactics.
-    /// 
+    ///
     /// P3 FIX: Refined rules with proper gi/ghi handling
-    /// Rules: 
+    /// Rules:
     /// - c → k before i, e, ê, y (e.g., "ci" → "ki" is correct)
     /// - g → gh before e, ê (NOT before i — "gi" is its own onset)
     /// - ng → ngh before i, e, ê
     /// - Reverse: k → c, gh → g, ngh → ng before back vowels (a, o, u, ô, ơ, ă, â, ư)
     fn apply_smart_spelling_corrections(&mut self) {
-        if self.current_syllable.vowel.is_empty() { return; }
-        
-        let first_v = self.current_syllable.vowel.chars().next().unwrap().to_lowercase().next().unwrap();
+        if self.current_syllable.vowel.is_empty() {
+            return;
+        }
+
+        let first_v = self
+            .current_syllable
+            .vowel
+            .chars()
+            .next()
+            .unwrap()
+            .to_lowercase()
+            .next()
+            .unwrap();
         let is_front = matches!(first_v, 'i' | 'e' | 'ê' | 'y');
-        
+
         let onset = self.current_syllable.onset.to_lowercase();
-        
+
         match onset.as_str() {
             "c" if is_front => self.current_syllable.onset = "k".to_string(),
             // P3 FIX: "g" only becomes "gh" before e/ê (NOT i/y)
             // Because "gi" is a valid onset in Vietnamese (giá, giờ, giêng)
             "g" if matches!(first_v, 'e' | 'ê') => self.current_syllable.onset = "gh".to_string(),
             "ng" if is_front => self.current_syllable.onset = "ngh".to_string(),
-            
+
             "k" if !is_front => self.current_syllable.onset = "c".to_string(),
             // P3 FIX: "gh" stays "gh" before i (ghi là hợp lệ: ghi chép, ghi nhớ)
             // Only revert to "g" before back vowels
             "gh" if !is_front => self.current_syllable.onset = "g".to_string(),
             "ngh" if !is_front => self.current_syllable.onset = "ng".to_string(),
-            
+
             _ => {}
         }
     }
@@ -656,11 +701,11 @@ impl Engine {
                     self.z_level = 1;
                     return self.handle_progressive_z();
                 }
-                
+
                 // Save state before first Z
                 self.pre_z_syllable = Some(self.current_syllable.clone());
                 self.pre_z_buffer = Some(self.buffer.clone());
-                
+
                 self.current_syllable.tone = 0;
                 self.z_level = 1;
                 self.sync_buffer_from_reconstruction()
@@ -668,25 +713,31 @@ impl Engine {
             1 => {
                 // Remove all modifiers
                 let demod = |s: &str| -> String {
-                    s.chars().map(|c| match c {
-                        'â' | 'ă' => 'a', 'ê' => 'e', 'ô' | 'ơ' => 'o',
-                        'ư' => 'u', 'đ' => 'd',
-                        _ => c,
-                    }).collect()
+                    s.chars()
+                        .map(|c| match c {
+                            'â' | 'ă' => 'a',
+                            'ê' => 'e',
+                            'ô' | 'ơ' => 'o',
+                            'ư' => 'u',
+                            'đ' => 'd',
+                            _ => c,
+                        })
+                        .collect()
                 };
-                
+
                 let demod_onset = demod(&self.current_syllable.onset);
                 let demod_vowel = demod(&self.current_syllable.vowel);
                 let demod_coda = demod(&self.current_syllable.coda);
-                
-                if demod_onset == self.current_syllable.onset &&
-                   demod_vowel == self.current_syllable.vowel &&
-                   demod_coda == self.current_syllable.coda {
+
+                if demod_onset == self.current_syllable.onset
+                    && demod_vowel == self.current_syllable.vowel
+                    && demod_coda == self.current_syllable.coda
+                {
                     // No modifiers found, skip to next level
                     self.z_level = 2;
                     return self.handle_progressive_z();
                 }
-                
+
                 self.current_syllable.onset = demod_onset;
                 self.current_syllable.vowel = demod_vowel;
                 self.current_syllable.coda = demod_coda;
@@ -742,13 +793,21 @@ impl Engine {
             return self.apply_case(&self.buffer);
         }
         // CRITICAL: Place tone ONLY on onset+vowel, then append coda.
-        let core = format!("{}{}", self.current_syllable.onset, self.current_syllable.vowel);
+        let core = format!(
+            "{}{}",
+            self.current_syllable.onset, self.current_syllable.vowel
+        );
         let toned_core = if self.current_syllable.tone > 0 {
             tone::place_tone_with_style(
                 &core,
                 self.current_syllable.tone,
-                if self.config.modern_tone { config::TonePlacement::Modern } else { config::TonePlacement::Traditional },
-            ).unwrap_or(core)
+                if self.config.modern_tone {
+                    config::TonePlacement::Modern
+                } else {
+                    config::TonePlacement::Traditional
+                },
+            )
+            .unwrap_or(core)
         } else {
             core
         };
@@ -945,7 +1004,7 @@ mod tests {
     }
 
     // ---- Casing Preservation ----
-    
+
     #[test]
     fn test_casing_preservation() {
         let mut e = Engine::new(InputMode::Telex);
@@ -960,7 +1019,7 @@ mod tests {
         e.reset();
         // viEejt -> lengths differ, falls back to first character capitalization check.
         // First char 'v' is lowercase, so the string falls back to lowercase -> việt
-        let vi_et = "vi\u{1EC7}t"; 
+        let vi_et = "vi\u{1EC7}t";
         assert_eq!(e.feed_str("viEejt"), vi_et);
         e.reset();
         assert_eq!(e.feed_str("VIEEJT"), "VI\u{1EC6}T");
@@ -1019,7 +1078,7 @@ mod tests {
 
         // "test" -> "thành công"
         assert_eq!(e.feed_str("test "), "th\u{00E0}nh c\u{00F4}ng ");
-        
+
         // Casing: "Test" -> "Thành công"
         e.reset();
         assert_eq!(e.feed_str("Test "), "Th\u{00E0}nh c\u{00F4}ng ");
@@ -1042,7 +1101,7 @@ mod tests {
 
         // "vn" -> "Việt Nam" even in E mode
         assert_eq!(e.feed_str("vn "), "Việt Nam ");
-        
+
         // Normal typing in E mode
         assert_eq!(e.feed_str("as"), "as");
     }
@@ -1051,14 +1110,14 @@ mod tests {
     fn test_modern_tone_placement() {
         let mut e = Engine::new(InputMode::Telex);
         let mut cfg = e.config().clone();
-        
+
         // Traditional (default): hóa, túy
         cfg.modern_tone = false;
         e.set_config(cfg.clone());
         assert_eq!(e.feed_str("hoas"), "h\u{00F3}a"); // hóa
         e.reset();
         assert_eq!(e.feed_str("tuys"), "t\u{00FA}y"); // túy (Traditional)
-        
+
         // Modern: hoá, tuý
         e.reset();
         cfg.modern_tone = true;
@@ -1079,7 +1138,7 @@ mod tests {
         // "bcdf" is completely unparseable (no vowel at all, buffer > 2)
         // The engine should restore the raw buffer
         assert_eq!(e.feed_str("bcdf"), "bcdf");
-        
+
         // Valid syllable should still transform
         e.reset();
         assert_eq!(e.feed_str("nguowif"), "người");
@@ -1100,4 +1159,3 @@ mod tests {
         assert_eq!(e.feed_str("www"), "ww");
     }
 }
-

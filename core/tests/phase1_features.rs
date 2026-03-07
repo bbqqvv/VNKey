@@ -4,9 +4,9 @@
 //! - Progressive Z (advanced tone removal)
 //! - Tone placement styles (Modern vs Traditional)
 
-use vnkey_core::{Engine, InputMode, TonePlacement, EngineConfig};
+use vnkey_core::{Engine, EngineConfig, InputMode, TonePlacement};
 
-fn telex() -> Engine { 
+fn telex() -> Engine {
     let mut e = Engine::new(InputMode::Telex);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -14,7 +14,7 @@ fn telex() -> Engine {
     e.set_config(cfg);
     e
 }
-fn telex_ex() -> Engine { 
+fn telex_ex() -> Engine {
     let mut e = Engine::new(InputMode::TelexEx);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -22,7 +22,7 @@ fn telex_ex() -> Engine {
     e.set_config(cfg);
     e
 }
-fn viqr() -> Engine { 
+fn viqr() -> Engine {
     let mut e = Engine::new(InputMode::Viqr);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -87,33 +87,33 @@ fn telex_vs_telex_ex_w_difference() {
 #[test]
 fn viqr_basic_tones() {
     let mut e = viqr();
-    assert_eq!(e.feed_str("a'"), "á");  // sắc
+    assert_eq!(e.feed_str("a'"), "á"); // sắc
     e.reset();
-    assert_eq!(e.feed_str("a`"), "à");  // huyền
+    assert_eq!(e.feed_str("a`"), "à"); // huyền
     e.reset();
-    assert_eq!(e.feed_str("a?"), "ả");  // hỏi
+    assert_eq!(e.feed_str("a?"), "ả"); // hỏi
     e.reset();
-    assert_eq!(e.feed_str("a~"), "ã");  // ngã
+    assert_eq!(e.feed_str("a~"), "ã"); // ngã
     e.reset();
-    assert_eq!(e.feed_str("a."), "ạ");  // nặng
+    assert_eq!(e.feed_str("a."), "ạ"); // nặng
 }
 
 #[test]
 fn viqr_modifiers() {
     let mut e = viqr();
-    assert_eq!(e.feed_str("a^"), "â");  // circumflex
+    assert_eq!(e.feed_str("a^"), "â"); // circumflex
     e.reset();
     assert_eq!(e.feed_str("e^"), "ê");
     e.reset();
     assert_eq!(e.feed_str("o^"), "ô");
     e.reset();
-    assert_eq!(e.feed_str("o+"), "ơ");  // horn
+    assert_eq!(e.feed_str("o+"), "ơ"); // horn
     e.reset();
     assert_eq!(e.feed_str("u+"), "ư");
     e.reset();
-    assert_eq!(e.feed_str("a("), "ă");  // breve
+    assert_eq!(e.feed_str("a("), "ă"); // breve
     e.reset();
-    assert_eq!(e.feed_str("dd"), "đ");  // stroke
+    assert_eq!(e.feed_str("dd"), "đ"); // stroke
 }
 
 #[test]
@@ -156,7 +156,7 @@ fn progressive_z_level_2_remove_modifiers() {
 fn progressive_z_level_3_literal_z() {
     let mut e = telex();
     assert_eq!(e.feed_str("aas"), "ấ"); // â + sắc
-    // Z level 1: remove tone → "â"
+                                        // Z level 1: remove tone → "â"
     let r1 = e.process_key('z');
     assert_eq!(r1, "â");
     // Z level 2: remove modifiers → "a"
@@ -172,7 +172,7 @@ fn progressive_z_resets_on_non_z_key() {
     let mut e = telex();
     assert_eq!(e.feed_str("as"), "á");
     e.process_key('z'); // Remove tone → "a"
-    // Type 'n' → Z state resets, normal processing continues
+                        // Type 'n' → Z state resets, normal processing continues
     let r = e.process_key('n');
     assert_eq!(r, "an");
 }

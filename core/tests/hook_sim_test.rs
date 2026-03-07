@@ -14,29 +14,44 @@ impl HookSim {
         cfg.spell_check = false;
         cfg.auto_restore = false;
         engine.set_config(cfg);
-        HookSim { engine, cw: String::new() }
+        HookSim {
+            engine,
+            cw: String::new(),
+        }
     }
-    
+
     fn press(&mut self, ch: char) -> String {
         let new_word = self.engine.process_key(ch);
         let should_clear = self.engine.get_state().buffer.is_empty();
-        
+
         let mut base_word = self.cw.clone();
         base_word.push(ch);
-        
+
         if new_word != base_word {
-            let cpx = self.cw.chars().zip(new_word.chars()).take_while(|(a,b)| a==b).count();
+            let cpx = self
+                .cw
+                .chars()
+                .zip(new_word.chars())
+                .take_while(|(a, b)| a == b)
+                .count();
             let bs = self.cw.chars().count() - cpx;
             let txt: String = new_word.chars().skip(cpx).collect();
-            println!("  '{}': cw='{}' -> new='{}' | SEND bs={} txt='{}'", ch, self.cw, new_word, bs, txt);
+            println!(
+                "  '{}': cw='{}' -> new='{}' | SEND bs={} txt='{}'",
+                ch, self.cw, new_word, bs, txt
+            );
         } else {
             println!("  '{}': cw='{}' -> new='{}' | PASS", ch, self.cw, new_word);
         }
-        
-        if should_clear { self.cw.clear(); } else { self.cw = new_word.clone(); }
+
+        if should_clear {
+            self.cw.clear();
+        } else {
+            self.cw = new_word.clone();
+        }
         new_word
     }
-    
+
     fn type_str(&mut self, s: &str) -> String {
         let mut last = String::new();
         for ch in s.chars() {
@@ -206,6 +221,11 @@ fn test_no_unexpected_u_horn() {
     println!("=== abcdef -> no ư ===");
     for ch in "abcdef".chars() {
         let word = sim.press(ch);
-        assert!(!word.contains('ư'), "Unexpected ư in '{}' after key '{}'", word, ch);
+        assert!(
+            !word.contains('ư'),
+            "Unexpected ư in '{}' after key '{}'",
+            word,
+            ch
+        );
     }
 }

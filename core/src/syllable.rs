@@ -80,7 +80,13 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
 
         // Special onset cases: GI and QU
         // "gi" + vowel(s)
-        if chars[..vowel_idx_start].iter().collect::<String>().to_lowercase() == "g" && chars[vowel_idx_start] == 'i' {
+        if chars[..vowel_idx_start]
+            .iter()
+            .collect::<String>()
+            .to_lowercase()
+            == "g"
+            && chars[vowel_idx_start] == 'i'
+        {
             // "gi" + optional vowels
             // If it's just "gi", we can treat 'i' as a vowel OR as part of onset.
             // Linguistics: "gì" (onset=gi, vowel=i - omitted), "già" (onset=gi, vowel=a).
@@ -92,7 +98,13 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
                 onset_idx += 1; // onset takes the 'i'
                 vowel_idx_start += 1;
             }
-        } else if chars[..vowel_idx_start].iter().collect::<String>().to_lowercase() == "q" && chars[vowel_idx_start] == 'u' {
+        } else if chars[..vowel_idx_start]
+            .iter()
+            .collect::<String>()
+            .to_lowercase()
+            == "q"
+            && chars[vowel_idx_start] == 'u'
+        {
             // "qu" + vowels (e.g. "quan", "quê")
             // Always treat "qu" as onset if there's at least one more vowel OR if it's the only vowel but has a coda
             if vowel_idx_start < v_end as usize || (v_end as usize + 1) < chars.len() {
@@ -102,7 +114,10 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
         }
 
         let mut has_inner_consonant = false;
-        if chars[v_start as usize..=v_end as usize].iter().any(|&c| !is_vowel(c)) {
+        if chars[v_start as usize..=v_end as usize]
+            .iter()
+            .any(|&c| !is_vowel(c))
+        {
             has_inner_consonant = true;
         }
 

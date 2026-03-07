@@ -10,9 +10,9 @@ fn test_terminal_escape_codes() {
     assert_eq!(engine.get_state().transformed, "tiếng");
 
     // Space resets and returns the word + space
-    let out = engine.process_key(' '); 
+    let out = engine.process_key(' ');
     assert_eq!(out, "tiếng ");
-    assert_eq!(engine.buffer(), ""); 
+    assert_eq!(engine.buffer(), "");
 
     engine.process_key('v');
     engine.process_key('i');
@@ -32,16 +32,16 @@ fn test_rich_text_formatting_markers() {
     // User hits bold marker '*' - non-alphanumeric should return "tiê*"
     let out = engine.process_key('*');
     assert_eq!(out, "tiê*");
-    assert_eq!(engine.buffer(), ""); 
+    assert_eq!(engine.buffer(), "");
 
     engine.feed_str("sng");
-    assert_eq!(engine.buffer(), "sng"); 
+    assert_eq!(engine.buffer(), "sng");
 }
 
 #[test]
 fn test_extremely_fast_typing_no_delay() {
     let mut engine = Engine::new(InputMode::Telex);
-    
+
     // Simulate a burst of keys with SPACES
     let burst = "tieesng vieetj hoafng ";
     let mut last_res = String::new();
@@ -50,5 +50,5 @@ fn test_extremely_fast_typing_no_delay() {
     }
 
     // Last char was space, so it returns "hòang "
-    assert_eq!(last_res, "hòang "); 
+    assert_eq!(last_res, "hòang ");
 }

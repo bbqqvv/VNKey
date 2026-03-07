@@ -10,7 +10,7 @@ use vnkey_core::{Engine, InputMode};
 // ============================================================
 // HELPER
 // ============================================================
-fn telex() -> Engine { 
+fn telex() -> Engine {
     let mut e = Engine::new(InputMode::Telex);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -19,7 +19,7 @@ fn telex() -> Engine {
     e.set_config(cfg);
     e
 }
-fn vni() -> Engine { 
+fn vni() -> Engine {
     let mut e = Engine::new(InputMode::Vni);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -35,8 +35,12 @@ fn vni() -> Engine {
 #[test]
 fn tone_sac_all_vowels() {
     let cases = [
-        ("as", "á"), ("es", "é"), ("is", "í"),
-        ("os", "ó"), ("us", "ú"), ("ys", "ý"),
+        ("as", "á"),
+        ("es", "é"),
+        ("is", "í"),
+        ("os", "ó"),
+        ("us", "ú"),
+        ("ys", "ý"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -47,8 +51,12 @@ fn tone_sac_all_vowels() {
 #[test]
 fn tone_huyen_all_vowels() {
     let cases = [
-        ("af", "à"), ("ef", "è"), ("if", "ì"),
-        ("of", "ò"), ("uf", "ù"), ("yf", "ỳ"),
+        ("af", "à"),
+        ("ef", "è"),
+        ("if", "ì"),
+        ("of", "ò"),
+        ("uf", "ù"),
+        ("yf", "ỳ"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -59,8 +67,12 @@ fn tone_huyen_all_vowels() {
 #[test]
 fn tone_hoi_all_vowels() {
     let cases = [
-        ("ar", "ả"), ("er", "ẻ"), ("ir", "ỉ"),
-        ("or", "ỏ"), ("ur", "ủ"), ("yr", "ỷ"),
+        ("ar", "ả"),
+        ("er", "ẻ"),
+        ("ir", "ỉ"),
+        ("or", "ỏ"),
+        ("ur", "ủ"),
+        ("yr", "ỷ"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -71,8 +83,12 @@ fn tone_hoi_all_vowels() {
 #[test]
 fn tone_nga_all_vowels() {
     let cases = [
-        ("ax", "ã"), ("ex", "ẽ"), ("ix", "ĩ"),
-        ("ox", "õ"), ("ux", "ũ"), ("yx", "ỹ"),
+        ("ax", "ã"),
+        ("ex", "ẽ"),
+        ("ix", "ĩ"),
+        ("ox", "õ"),
+        ("ux", "ũ"),
+        ("yx", "ỹ"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -83,8 +99,12 @@ fn tone_nga_all_vowels() {
 #[test]
 fn tone_nang_all_vowels() {
     let cases = [
-        ("aj", "ạ"), ("ej", "ẹ"), ("ij", "ị"),
-        ("oj", "ọ"), ("uj", "ụ"), ("yj", "ỵ"),
+        ("aj", "ạ"),
+        ("ej", "ẹ"),
+        ("ij", "ị"),
+        ("oj", "ọ"),
+        ("uj", "ụ"),
+        ("yj", "ỵ"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -99,9 +119,21 @@ fn tone_nang_all_vowels() {
 #[test]
 fn tone_on_circumflex_vowels() {
     let cases = [
-        ("aas", "ấ"), ("aaf", "ầ"), ("aar", "ẩ"), ("aax", "ẫ"), ("aaj", "ậ"),
-        ("ees", "ế"), ("eef", "ề"), ("eer", "ể"), ("eex", "ễ"), ("eej", "ệ"),
-        ("oos", "ố"), ("oof", "ồ"), ("oor", "ổ"), ("oox", "ỗ"), ("ooj", "ộ"),
+        ("aas", "ấ"),
+        ("aaf", "ầ"),
+        ("aar", "ẩ"),
+        ("aax", "ẫ"),
+        ("aaj", "ậ"),
+        ("ees", "ế"),
+        ("eef", "ề"),
+        ("eer", "ể"),
+        ("eex", "ễ"),
+        ("eej", "ệ"),
+        ("oos", "ố"),
+        ("oof", "ồ"),
+        ("oor", "ổ"),
+        ("oox", "ỗ"),
+        ("ooj", "ộ"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -112,9 +144,21 @@ fn tone_on_circumflex_vowels() {
 #[test]
 fn tone_on_breve_and_horn() {
     let cases = [
-        ("aws", "ắ"), ("awf", "ằ"), ("awr", "ẳ"), ("awx", "ẵ"), ("awj", "ặ"),
-        ("ows", "ớ"), ("owf", "ờ"), ("owr", "ở"), ("owx", "ỡ"), ("owj", "ợ"),
-        ("uws", "ứ"), ("uwf", "ừ"), ("uwr", "ử"), ("uwx", "ữ"), ("uwj", "ự"),
+        ("aws", "ắ"),
+        ("awf", "ằ"),
+        ("awr", "ẳ"),
+        ("awx", "ẵ"),
+        ("awj", "ặ"),
+        ("ows", "ớ"),
+        ("owf", "ờ"),
+        ("owr", "ở"),
+        ("owx", "ỡ"),
+        ("owj", "ợ"),
+        ("uws", "ứ"),
+        ("uwf", "ừ"),
+        ("uwr", "ử"),
+        ("uwx", "ữ"),
+        ("uwj", "ự"),
     ];
     for (input, expected) in cases {
         let mut e = telex();
@@ -147,11 +191,7 @@ fn common_words_telex() {
 
 #[test]
 fn complex_words_telex() {
-    let cases = [
-        ("tieesng", "tiếng"),
-        ("khoan", "khoan"),
-        ("ddaats", "đất"),
-    ];
+    let cases = [("tieesng", "tiếng"), ("khoan", "khoan"), ("ddaats", "đất")];
     for (input, expected) in cases {
         let mut e = telex();
         assert_eq!(e.feed_str(input), expected, "Failed for input: {}", input);
@@ -199,15 +239,20 @@ fn gi_words() {
 #[test]
 fn double_tap_cancel() {
     let cases = [
-        ("ass", "as"),  // double s → cancel sắc
-        ("aff", "af"),  // double f → cancel huyền
-        ("arr", "ar"),  // double r → cancel hỏi
-        ("axx", "ax"),  // double x → cancel ngã
-        ("ajj", "aj"),  // double j → cancel nặng
+        ("ass", "as"), // double s → cancel sắc
+        ("aff", "af"), // double f → cancel huyền
+        ("arr", "ar"), // double r → cancel hỏi
+        ("axx", "ax"), // double x → cancel ngã
+        ("ajj", "aj"), // double j → cancel nặng
     ];
     for (input, expected) in cases {
         let mut e = telex();
-        assert_eq!(e.feed_str(input), expected, "Failed for double-tap: {}", input);
+        assert_eq!(
+            e.feed_str(input),
+            expected,
+            "Failed for double-tap: {}",
+            input
+        );
     }
 }
 
@@ -218,13 +263,18 @@ fn double_tap_cancel() {
 #[test]
 fn z_removes_tone() {
     let cases = [
-        ("asz", "a"),   // add sắc then remove
-        ("afz", "a"),   // add huyền then remove
-        ("axz", "a"),   // add ngã then remove
+        ("asz", "a"), // add sắc then remove
+        ("afz", "a"), // add huyền then remove
+        ("axz", "a"), // add ngã then remove
     ];
     for (input, expected) in cases {
         let mut e = telex();
-        assert_eq!(e.feed_str(input), expected, "Failed for z-remove: {}", input);
+        assert_eq!(
+            e.feed_str(input),
+            expected,
+            "Failed for z-remove: {}",
+            input
+        );
     }
 }
 
@@ -376,8 +426,7 @@ fn duplicate_vowel_no_tone_jump() {
     let mut e = telex();
     let result = e.feed_str("thayys");
     // Tone must be on 'a' — result must NOT have ý (tone on y)
-    assert!(!result.contains('ý'),
-        "Tone jumped to 'y'! Got: {}", result);
+    assert!(!result.contains('ý'), "Tone jumped to 'y'! Got: {}", result);
 }
 
 // ============================================================
@@ -387,7 +436,11 @@ fn duplicate_vowel_no_tone_jump() {
 #[test]
 fn vni_all_tones() {
     let cases = [
-        ("a1", "á"), ("a2", "à"), ("a3", "ả"), ("a4", "ã"), ("a5", "ạ"),
+        ("a1", "á"),
+        ("a2", "à"),
+        ("a3", "ả"),
+        ("a4", "ã"),
+        ("a5", "ạ"),
     ];
     for (input, expected) in cases {
         let mut e = vni();
@@ -398,13 +451,22 @@ fn vni_all_tones() {
 #[test]
 fn vni_modifiers() {
     let cases = [
-        ("a6", "â"), ("e6", "ê"), ("o6", "ô"),
+        ("a6", "â"),
+        ("e6", "ê"),
+        ("o6", "ô"),
         ("d9", "đ"),
-        ("a8", "ă"), ("o7", "ơ"), ("u7", "ư"),
+        ("a8", "ă"),
+        ("o7", "ơ"),
+        ("u7", "ư"),
     ];
     for (input, expected) in cases {
         let mut e = vni();
-        assert_eq!(e.feed_str(input), expected, "VNI modifier failed: {}", input);
+        assert_eq!(
+            e.feed_str(input),
+            expected,
+            "VNI modifier failed: {}",
+            input
+        );
     }
 }
 
@@ -437,8 +499,10 @@ fn mode_switch_mid_session() {
 
 #[test]
 fn consonant_only() {
-    let cases = ["b", "c", "d", "g", "h", "k", "l", "m", "n", "p", "r", "t", "v",
-                 "th", "ch", "ng", "nh", "kh", "ph", "tr", "gi"];
+    let cases = [
+        "b", "c", "d", "g", "h", "k", "l", "m", "n", "p", "r", "t", "v", "th", "ch", "ng", "nh",
+        "kh", "ph", "tr", "gi",
+    ];
     for input in cases {
         let mut e = telex();
         assert_eq!(e.feed_str(input), input, "Consonant failed: {}", input);

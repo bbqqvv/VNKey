@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Tone placement style
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -11,7 +11,6 @@ pub enum TonePlacement {
     #[default]
     Traditional,
 }
-
 
 /// Engine configuration — aligned with UniKey 4.6 options
 #[derive(Debug, Clone, Serialize, Deserialize)]

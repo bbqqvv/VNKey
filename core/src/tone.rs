@@ -1,3 +1,4 @@
+use crate::syllable::is_vowel;
 /// Tone Placement — Vietnamese tone mark positioning algorithm
 ///
 /// Rules for placing tone marks on the correct vowel:
@@ -9,18 +10,17 @@
 ///    - "gi" + "ia" → place on second vowel
 ///    - Otherwise → place on first
 /// 3. Three+ vowels → place on second (middle)
-use crate::unicode_map::{TONE_MAP, MODIFIED_VOWELS};
-use crate::syllable::is_vowel;
+use crate::unicode_map::{MODIFIED_VOWELS, TONE_MAP};
 
 /// Tone mark identifiers
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToneMark {
-    None  = 0,
-    Sac   = 1, // sắc (acute)
+    None = 0,
+    Sac = 1,   // sắc (acute)
     Huyen = 2, // huyền (grave)
-    Hoi   = 3, // hỏi (hook above)
-    Nga   = 4, // ngã (tilde)
-    Nang  = 5, // nặng (dot below)
+    Hoi = 3,   // hỏi (hook above)
+    Nga = 4,   // ngã (tilde)
+    Nang = 5,  // nặng (dot below)
 }
 
 impl ToneMark {
@@ -52,31 +52,32 @@ fn has_modifier(c: char) -> bool {
 ///
 /// Returns `None` if no suitable vowel is found.
 pub fn place_tone(word: &str, tone: u8) -> Option<String> {
-    if tone == 0 { return Some(word.to_string()); }
+    if tone == 0 {
+        return Some(word.to_string());
+    }
 
     let mut chars: Vec<char> = word.chars().collect();
 
     // Collect vowel indices
-    let vowel_indices: Vec<usize> = chars.iter()
+    let vowel_indices: Vec<usize> = chars
+        .iter()
         .enumerate()
         .filter(|(_, &c)| is_vowel(c))
         .map(|(i, _)| i)
         .collect();
 
-    if vowel_indices.is_empty() { return None; }
+    if vowel_indices.is_empty() {
+        return None;
+    }
 
     // Helper: lowercase a char (handles both ASCII and Vietnamese)
-    let lower = |c: char| -> char {
-        c.to_lowercase().next().unwrap_or(c)
-    };
+    let lower = |c: char| -> char { c.to_lowercase().next().unwrap_or(c) };
 
     // Determine which vowel gets the tone
     let target = if vowel_indices.len() == 1 {
         vowel_indices[0]
     } else if vowel_indices.len() == 2 {
-        let pair: String = vowel_indices.iter()
-            .map(|&i| lower(chars[i]))
-            .collect();
+        let pair: String = vowel_indices.iter().map(|&i| lower(chars[i])).collect();
         let lower_word = word.to_lowercase();
 
         if (lower_word.starts_with("qu") && ["ua", "uâ", "uơ", "uô"].contains(&pair.as_str()))
@@ -92,7 +93,7 @@ pub fn place_tone(word: &str, tone: u8) -> Option<String> {
             vowel_indices[1]
         } else if ["oa", "oe", "uy", "ue", "uo", "uô"].contains(&pair.as_str()) {
             // place_tone default is traditional
-            if pair == "uy" || pair == "uô" || chars.len() > vowel_indices[1] + 1 { 
+            if pair == "uy" || pair == "uô" || chars.len() > vowel_indices[1] + 1 {
                 // if uy, uô OR if there's a coda consonant (e.g. oán, uý, uốn) -> second vowel
                 vowel_indices[1]
             } else {
@@ -133,28 +134,29 @@ pub fn place_tone_with_style(
     tone: u8,
     style: crate::config::TonePlacement,
 ) -> Option<String> {
-    if tone == 0 { return Some(word.to_string()); }
+    if tone == 0 {
+        return Some(word.to_string());
+    }
 
     let mut chars: Vec<char> = word.chars().collect();
 
-    let vowel_indices: Vec<usize> = chars.iter()
+    let vowel_indices: Vec<usize> = chars
+        .iter()
         .enumerate()
         .filter(|(_, &c)| is_vowel(c))
         .map(|(i, _)| i)
         .collect();
 
-    if vowel_indices.is_empty() { return None; }
+    if vowel_indices.is_empty() {
+        return None;
+    }
 
-    let lower = |c: char| -> char {
-        c.to_lowercase().next().unwrap_or(c)
-    };
+    let lower = |c: char| -> char { c.to_lowercase().next().unwrap_or(c) };
 
     let target = if vowel_indices.len() == 1 {
         vowel_indices[0]
     } else if vowel_indices.len() == 2 {
-        let pair: String = vowel_indices.iter()
-            .map(|&i| lower(chars[i]))
-            .collect();
+        let pair: String = vowel_indices.iter().map(|&i| lower(chars[i])).collect();
         let lower_word = word.to_lowercase();
 
         if (lower_word.starts_with("qu") && ["ua", "uâ", "uơ", "uô"].contains(&pair.as_str()))
@@ -172,7 +174,7 @@ pub fn place_tone_with_style(
                 vowel_indices[1] // if it has a coda consonant, tone always goes to 2nd (oán, oét, uýnh, uốn)
             } else {
                 match style {
-                    crate::config::TonePlacement::Modern => vowel_indices[1],    // hoà, tuý, thuý, xoè
+                    crate::config::TonePlacement::Modern => vowel_indices[1], // hoà, tuý, thuý, xoè
                     crate::config::TonePlacement::Traditional => vowel_indices[0], // hòa, túy, thúy, xòe
                 }
             }
@@ -219,18 +221,24 @@ mod tests {
     fn test_tone_on_modified_vowel() {
         assert_eq!(place_tone("bân", 1), Some("bấn".to_string()));
         // Both ư and ơ are modified; tone goes on second modified vowel if coda exists: ươn → ướn
-        assert_eq!(place_tone("\u{01B0}\u{01A1}n", 1), Some("\u{01B0}\u{1EDB}n".to_string()));
+        assert_eq!(
+            place_tone("\u{01B0}\u{01A1}n", 1),
+            Some("\u{01B0}\u{1EDB}n".to_string())
+        );
     }
 
     #[test]
     fn test_tone_oa_pair() {
         assert_eq!(place_tone("loan", 1), Some("loán".to_string()));
-        
+
         // Default place_tone should be Traditional
         assert_eq!(place_tone("hoa", 2), Some("hòa".to_string()));
-        
+
         // Modern Style
-        assert_eq!(place_tone_with_style("hoa", 2, crate::config::TonePlacement::Modern), Some("hoà".to_string()));
+        assert_eq!(
+            place_tone_with_style("hoa", 2, crate::config::TonePlacement::Modern),
+            Some("hoà".to_string())
+        );
     }
 
     #[test]
@@ -239,9 +247,15 @@ mod tests {
         // Modern style: tuý (index 2 is 'y')
         let t_style = crate::config::TonePlacement::Traditional;
         let m_style = crate::config::TonePlacement::Modern;
-        
-        assert_eq!(place_tone_with_style("tuy", 1, t_style).unwrap(), "t\u{00FA}y");
-        assert_eq!(place_tone_with_style("tuy", 1, m_style).unwrap(), "tu\u{00FD}");
+
+        assert_eq!(
+            place_tone_with_style("tuy", 1, t_style).unwrap(),
+            "t\u{00FA}y"
+        );
+        assert_eq!(
+            place_tone_with_style("tuy", 1, m_style).unwrap(),
+            "tu\u{00FD}"
+        );
     }
 
     #[test]

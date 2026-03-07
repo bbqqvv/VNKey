@@ -13,7 +13,9 @@ pub struct ShorthandDict {
 impl ShorthandDict {
     /// Create an empty dictionary
     pub fn new() -> Self {
-        Self { entries: HashMap::new() }
+        Self {
+            entries: HashMap::new(),
+        }
     }
 
     /// Create with built-in Vietnamese shorthand defaults
@@ -53,7 +55,8 @@ impl ShorthandDict {
 
     /// Add or update an entry
     pub fn add(&mut self, abbreviation: &str, expansion: &str) {
-        self.entries.insert(abbreviation.to_string(), expansion.to_string());
+        self.entries
+            .insert(abbreviation.to_string(), expansion.to_string());
     }
 
     /// Remove an entry
@@ -68,7 +71,9 @@ impl ShorthandDict {
 
     /// Get all entries as a sorted vector
     pub fn entries(&self) -> Vec<(&str, &str)> {
-        let mut v: Vec<_> = self.entries.iter()
+        let mut v: Vec<_> = self
+            .entries
+            .iter()
             .map(|(k, v)| (k.as_str(), v.as_str()))
             .collect();
         v.sort_by_key(|(k, _)| *k);
@@ -112,10 +117,14 @@ impl ShorthandDict {
         let inner = &trimmed[1..trimmed.len() - 1];
         for line in inner.lines() {
             let line = line.trim().trim_end_matches(',');
-            if line.is_empty() { continue; }
+            if line.is_empty() {
+                continue;
+            }
             // Parse "key": "value"
             let parts: Vec<&str> = line.splitn(2, ':').collect();
-            if parts.len() != 2 { continue; }
+            if parts.len() != 2 {
+                continue;
+            }
             let key = parts[0].trim().trim_matches('"');
             let val = parts[1].trim().trim_matches('"');
             if !key.is_empty() && !val.is_empty() {
@@ -138,7 +147,9 @@ impl ShorthandDict {
     pub fn import_csv(csv: &str) -> Result<Self, String> {
         let mut dict = Self::new();
         for (i, line) in csv.lines().enumerate() {
-            if i == 0 { continue; } // skip header
+            if i == 0 {
+                continue;
+            } // skip header
             let parts: Vec<&str> = line.splitn(2, '\t').collect();
             if parts.len() == 2 && !parts[0].is_empty() {
                 dict.add(parts[0], parts[1]);
@@ -157,9 +168,9 @@ impl Default for ShorthandDict {
 /// Escape special characters for JSON string
 fn escape_json(s: &str) -> String {
     s.replace('\\', "\\\\")
-     .replace('"', "\\\"")
-     .replace('\n', "\\n")
-     .replace('\t', "\\t")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+        .replace('\t', "\\t")
 }
 
 #[cfg(test)]

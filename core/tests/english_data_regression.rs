@@ -1,6 +1,6 @@
-use vnkey_core::{Engine, InputMode};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use vnkey_core::{Engine, InputMode};
 
 #[test]
 fn test_english_tone_failures_regression() {
@@ -10,7 +10,8 @@ fn test_english_tone_failures_regression() {
     cfg.auto_restore = true;
     engine.set_config(cfg);
 
-    let file = File::open("tests/data/english_100k_failures_tone.txt").expect("Failed to open test data");
+    let file =
+        File::open("tests/data/english_100k_failures_tone.txt").expect("Failed to open test data");
     let reader = BufReader::new(file);
 
     let mut total = 0;
@@ -24,7 +25,9 @@ fn test_english_tone_failures_regression() {
         }
 
         let parts: Vec<&str> = line.split('\t').collect();
-        if parts.len() < 2 { continue; }
+        if parts.len() < 2 {
+            continue;
+        }
 
         let word = parts[0];
         // let expected_fail = parts[1]; // What it used to fail to
@@ -38,7 +41,12 @@ fn test_english_tone_failures_regression() {
         } else {
             still_failing += 1;
             if still_failing < 50 {
-                println!("Still failing: [{}] -> [{}] (buffer: {})", word, output, engine.get_state().buffer);
+                println!(
+                    "Still failing: [{}] -> [{}] (buffer: {})",
+                    word,
+                    output,
+                    engine.get_state().buffer
+                );
             }
         }
     }
@@ -50,5 +58,8 @@ fn test_english_tone_failures_regression() {
     println!("Improvement: {:.2}%", (fixed as f32 / total as f32) * 100.0);
 
     // We expect some improvement, but not 100% since short words are hard
-    assert!(fixed > 0, "Literal mode should have fixed at least some words!");
+    assert!(
+        fixed > 0,
+        "Literal mode should have fixed at least some words!"
+    );
 }

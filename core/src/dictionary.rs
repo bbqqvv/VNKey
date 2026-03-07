@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -79,7 +79,7 @@ impl Dictionary {
     pub fn record_usage(&mut self, context: &[&str], current: &str) {
         let now = Self::get_now();
         let current_low = current.to_lowercase();
-        
+
         // Update Bigram (context[last])
         if let Some(&prev) = context.last() {
             let prev_low = prev.to_lowercase();
@@ -96,13 +96,15 @@ impl Dictionary {
                 let score_a = Self::calculate_score_internal(a, now_ts);
                 score_b.partial_cmp(&score_a).unwrap()
             });
-            if entries.len() > 20 { entries.truncate(20); }
+            if entries.len() > 20 {
+                entries.truncate(20);
+            }
         }
 
         // Update Trigram (context[last-1], context[last])
         if context.len() >= 2 {
-            let w1 = context[context.len()-2].to_lowercase();
-            let w2 = context[context.len()-1].to_lowercase();
+            let w1 = context[context.len() - 2].to_lowercase();
+            let w2 = context[context.len() - 1].to_lowercase();
             let key = format!("{}|{}", w1, w2);
             let entries = self.trigrams.entry(key).or_default();
             if let Some(entry) = entries.iter_mut().find(|(w, _, _)| w == &current_low) {
@@ -117,7 +119,9 @@ impl Dictionary {
                 let score_a = Self::calculate_score_internal(a, now_ts);
                 score_b.partial_cmp(&score_a).unwrap()
             });
-            if entries.len() > 10 { entries.truncate(10); }
+            if entries.len() > 10 {
+                entries.truncate(10);
+            }
         }
     }
 
@@ -126,9 +130,13 @@ impl Dictionary {
     pub fn calculate_score_internal(entry: &(String, u32, u64), now: u64) -> f64 {
         let freq = entry.1 as f64;
         let last_used = entry.2;
-        
+
         // Simple decay: score = freq / (1 + log10(1 + age_in_minutes))
-        let age = if now > last_used { (now - last_used) as f64 } else { 0.0 };
+        let age = if now > last_used {
+            (now - last_used) as f64
+        } else {
+            0.0
+        };
         let age_mins = age / 60.0;
         freq / (1.0 + (1.0 + age_mins).log10())
     }
@@ -141,8 +149,8 @@ impl Dictionary {
 
         // 1. Try Trigram if we have 2 words
         if context.len() >= 2 {
-            let w1 = context[context.len()-2].to_lowercase();
-            let w2 = context[context.len()-1].to_lowercase();
+            let w1 = context[context.len() - 2].to_lowercase();
+            let w2 = context[context.len() - 1].to_lowercase();
             let key = format!("{}|{}", w1, w2);
             if let Some(entries) = self.trigrams.get(&key) {
                 for entry in entries.iter().take(3) {
@@ -186,7 +194,13 @@ impl Dictionary {
 
         let mut results = Vec::new();
         self.collect_words(current, prefix.to_string(), &mut results);
-        results.into_iter().map(|w| Suggestion { word: w, score: 1.0 }).collect()
+        results
+            .into_iter()
+            .map(|w| Suggestion {
+                word: w,
+                score: 1.0,
+            })
+            .collect()
     }
 
     fn collect_words(&self, node: &TrieNode, prefix: String, results: &mut Vec<String>) {
@@ -215,28 +229,150 @@ impl Dictionary {
     /// Load a basic set of common Vietnamese words and bigrams
     pub fn load_common_words(&mut self) {
         let common_words = vec![
-            "anh", "ăn", "âm", "áp", "ác", "ai", "ao", "âu",
-            "ba", "bà", "bố", "mẹ", "em", "chị", "ông", "bà",
-            "con", "cái", "của", "cho", "chư", "chưa", "chẳng", "chỉ",
-            "đi", "đến", "đang", "đã", "được", "đây", "đó", "đâu",
-            "em", "ép", "êm", "ế", "ếch",
-            "không", "khá", "khi", "khác", "khó", "khu", "khuyên",
-            "là", "làm", "lên", "lấy", "lại", "luôn", "lòng",
-            "mình", "mà", "mới", "mỗi", "muốn", "mang", "mắt",
-            "người", "ngày", "nghĩ", "nghe", "ngon", "ngọt", "ngu",
-            "ở", "ơi", "ông", "ô", "ố",
-            "phải", "phần", "phát", "phòng", "phố", "phương",
-            "quá", "qua", "quanh", "quan", "quận", "quyết",
-            "rằng", "rồi", "rất", "ra", "riêng", "rừng",
-            "sẽ", "sau", "sang", "sáng", "sống", "sao",
-            "ta", "tôi", "tới", "từ", "tại", "thấy", "theo", "thì",
-            "uống", "uốn", "u", "ú",
-            "và", "với", "về", "vừa", "việc", "vẫn", "vậy",
-            "xem", "xuống", "xong", "xanh", "xấu", "xinh",
-            "yêu", "yếu", "ý", "yên",
-            "việt", "nam", "tiếng", "học", "tập", "chơi", "ngủ", "nghỉ",
-            "trường", "lớp", "bạn", "thầy", "cô", "giáo", "viên",
-            "cộng", "hòa", "xã", "hội", "chủ", "nghĩa",
+            "anh",
+            "ăn",
+            "âm",
+            "áp",
+            "ác",
+            "ai",
+            "ao",
+            "âu",
+            "ba",
+            "bà",
+            "bố",
+            "mẹ",
+            "em",
+            "chị",
+            "ông",
+            "bà",
+            "con",
+            "cái",
+            "của",
+            "cho",
+            "chư",
+            "chưa",
+            "chẳng",
+            "chỉ",
+            "đi",
+            "đến",
+            "đang",
+            "đã",
+            "được",
+            "đây",
+            "đó",
+            "đâu",
+            "em",
+            "ép",
+            "êm",
+            "ế",
+            "ếch",
+            "không",
+            "khá",
+            "khi",
+            "khác",
+            "khó",
+            "khu",
+            "khuyên",
+            "là",
+            "làm",
+            "lên",
+            "lấy",
+            "lại",
+            "luôn",
+            "lòng",
+            "mình",
+            "mà",
+            "mới",
+            "mỗi",
+            "muốn",
+            "mang",
+            "mắt",
+            "người",
+            "ngày",
+            "nghĩ",
+            "nghe",
+            "ngon",
+            "ngọt",
+            "ngu",
+            "ở",
+            "ơi",
+            "ông",
+            "ô",
+            "ố",
+            "phải",
+            "phần",
+            "phát",
+            "phòng",
+            "phố",
+            "phương",
+            "quá",
+            "qua",
+            "quanh",
+            "quan",
+            "quận",
+            "quyết",
+            "rằng",
+            "rồi",
+            "rất",
+            "ra",
+            "riêng",
+            "rừng",
+            "sẽ",
+            "sau",
+            "sang",
+            "sáng",
+            "sống",
+            "sao",
+            "ta",
+            "tôi",
+            "tới",
+            "từ",
+            "tại",
+            "thấy",
+            "theo",
+            "thì",
+            "uống",
+            "uốn",
+            "u",
+            "ú",
+            "và",
+            "với",
+            "về",
+            "vừa",
+            "việc",
+            "vẫn",
+            "vậy",
+            "xem",
+            "xuống",
+            "xong",
+            "xanh",
+            "xấu",
+            "xinh",
+            "yêu",
+            "yếu",
+            "ý",
+            "yên",
+            "việt",
+            "nam",
+            "tiếng",
+            "học",
+            "tập",
+            "chơi",
+            "ngủ",
+            "nghỉ",
+            "trường",
+            "lớp",
+            "bạn",
+            "thầy",
+            "cô",
+            "giáo",
+            "viên",
+            "cộng",
+            "hòa",
+            "xã",
+            "hội",
+            "chủ",
+            "nghĩa",
         ];
 
         for word in common_words {

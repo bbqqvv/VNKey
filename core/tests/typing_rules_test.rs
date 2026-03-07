@@ -29,11 +29,20 @@ fn create_engine() -> Engine {
 #[test]
 fn basic_tones() {
     let cases = [
-        ("as", "á"), ("af", "à"), ("ar", "ả"), ("ax", "ã"), ("aj", "ạ"),
+        ("as", "á"),
+        ("af", "à"),
+        ("ar", "ả"),
+        ("ax", "ã"),
+        ("aj", "ạ"),
     ];
     for (input, expected) in cases {
         let mut e = create_engine();
-        assert_eq!(simulate_typing(&mut e, input), expected, "Failed basic tone: {}", input);
+        assert_eq!(
+            simulate_typing(&mut e, input),
+            expected,
+            "Failed basic tone: {}",
+            input
+        );
     }
 }
 
@@ -41,11 +50,22 @@ fn basic_tones() {
 #[test]
 fn basic_modifiers() {
     let cases = [
-        ("aa", "â"), ("ee", "ê"), ("oo", "ô"), ("dd", "đ"), ("aw", "ă"), ("ow", "ơ"), ("uw", "ư"),
+        ("aa", "â"),
+        ("ee", "ê"),
+        ("oo", "ô"),
+        ("dd", "đ"),
+        ("aw", "ă"),
+        ("ow", "ơ"),
+        ("uw", "ư"),
     ];
     for (input, expected) in cases {
         let mut e = create_engine();
-        assert_eq!(simulate_typing(&mut e, input), expected, "Failed modifier: {}", input);
+        assert_eq!(
+            simulate_typing(&mut e, input),
+            expected,
+            "Failed modifier: {}",
+            input
+        );
     }
 }
 
@@ -53,11 +73,20 @@ fn basic_modifiers() {
 #[test]
 fn double_tap_remove_tone() {
     let cases = [
-        ("ass", "as"), ("aff", "af"), ("arr", "ar"), ("axx", "ax"), ("ajj", "aj"),
+        ("ass", "as"),
+        ("aff", "af"),
+        ("arr", "ar"),
+        ("axx", "ax"),
+        ("ajj", "aj"),
     ];
     for (input, expected) in cases {
         let mut e = create_engine();
-        assert_eq!(simulate_typing(&mut e, input), expected, "Failed double-tap remove: {}", input);
+        assert_eq!(
+            simulate_typing(&mut e, input),
+            expected,
+            "Failed double-tap remove: {}",
+            input
+        );
     }
 }
 
@@ -77,7 +106,12 @@ fn edge_cases_words() {
     ];
     for (input, expected) in cases {
         let mut e = create_engine();
-        assert_eq!(simulate_typing(&mut e, input), expected, "Failed word test: {}", input);
+        assert_eq!(
+            simulate_typing(&mut e, input),
+            expected,
+            "Failed word test: {}",
+            input
+        );
     }
 }
 
@@ -87,7 +121,7 @@ fn tone_placement_logic() {
     let mut e = create_engine();
     // testing "oa" + "f" -> "oà" (modern placement)
     assert_eq!(simulate_typing(&mut e, "hoafng"), "hoàng");
-    
+
     e.reset();
     // Thuy -> tone goes to y if modern
     assert_eq!(simulate_typing(&mut e, "thuys"), "thuý");
@@ -97,16 +131,17 @@ fn tone_placement_logic() {
 #[test]
 fn smart_w_advanced_cases() {
     let mut e = create_engine();
-    
+
     // Case: 'w' alone -> 'ư' (Standard Smart W)
     let res = simulate_typing(&mut e, "w");
     println!("'w' -> '{}'", res);
-    assert_eq!(res, "ư"); e.reset();
-    
+    assert_eq!(res, "ư");
+    e.reset();
+
     // Case: 'w' followed by vowel -> literal 'w' + vowel (some engines do this, but let's check current engine)
     // Based on apply_modifiers, "wa" -> "ư" processed then "a" added? Or "wa" -> "w" + "a"?
     // Let's test what the engine actually does.
-    
+
     // Case: 'w' after consonant (Smart ư/ă)
     let res = simulate_typing(&mut e, "tw");
     println!("'tw' -> '{}'", res);
@@ -120,7 +155,7 @@ fn smart_w_advanced_cases() {
     println!("'sw' -> '{}'", res);
     assert_eq!(res, "sư");
     e.reset();
-    
+
     // Case: 'w' as modifier for vowels
     let res = simulate_typing(&mut e, "aw");
     println!("'aw' -> '{}'", res);
@@ -128,7 +163,8 @@ fn smart_w_advanced_cases() {
     e.reset();
     let res = simulate_typing(&mut e, "uw");
     println!("'uw' -> '{}'", res);
-    assert_eq!(res, "ư"); e.reset();
+    assert_eq!(res, "ư");
+    e.reset();
     let res = simulate_typing(&mut e, "ow");
     println!("'ow' -> '{}'", res);
     assert_eq!(res, "ơ");
@@ -137,7 +173,7 @@ fn smart_w_advanced_cases() {
     println!("'uow' -> '{}'", res);
     assert_eq!(res, "ươ");
     e.reset();
-    
+
     // Case: 'w' at end of complex words
     let res = simulate_typing(&mut e, "thuw");
     println!("'thuw' -> '{}'", res);
@@ -147,7 +183,7 @@ fn smart_w_advanced_cases() {
     println!("'thawngs' -> '{}'", res);
     assert_eq!(res, "thắng");
     e.reset();
-    
+
     // Case: Double 'w' -> literal 'w'
     let res = simulate_typing(&mut e, "ww");
     println!("'ww' -> '{}'", res);
@@ -158,13 +194,13 @@ fn smart_w_advanced_cases() {
     let res = simulate_typing(&mut e, "www");
     assert_eq!(res, "ww");
     e.reset();
-    
+
     // Case: 'uww' -> 'uw' (literal w)
     let res = simulate_typing(&mut e, "uww");
     println!("'uww' -> '{}'", res);
     assert_eq!(res, "uw");
     e.reset();
-    
+
     // Case: Capital 'W' -> 'Ư' (preserving case)
     let res = simulate_typing(&mut e, "W");
     println!("'W' -> '{}'", res);

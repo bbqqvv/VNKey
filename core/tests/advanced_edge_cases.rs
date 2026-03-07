@@ -76,10 +76,13 @@ fn progressive_z_level3_appends_and_reparses() {
     e.process_key('z'); // Z1: "á" → "a"
     e.process_key('z'); // Z2: "a" → "a" (no modifiers to remove)
     let result = e.process_key('z'); // Z3: append literal 'z', re-parse buffer
-    // Level 3 appends 'z' to buffer and re-parses. The result depends on
-    // how the parser handles the new buffer. The key invariant is: no crash,
-    // and z_level resets to 0.
-    assert!(!result.is_empty(), "Z level 3 should produce non-empty output, got empty");
+                                     // Level 3 appends 'z' to buffer and re-parses. The result depends on
+                                     // how the parser handles the new buffer. The key invariant is: no crash,
+                                     // and z_level resets to 0.
+    assert!(
+        !result.is_empty(),
+        "Z level 3 should produce non-empty output, got empty"
+    );
     let state = e.get_state();
     assert_eq!(state.z_level, 0, "Z level should reset to 0 after level 3");
 }
@@ -89,8 +92,11 @@ fn progressive_z_on_complex_word() {
     let mut e = telex();
     e.feed_str("dduwowngf"); // → "đường"
     let z1 = e.process_key('z'); // Z1: removes tone (huyền) → "đương"
-    assert!(!z1.contains('ờ') && !z1.contains('ừ'),
-        "Z1 should remove tone from đường, got: {}", z1);
+    assert!(
+        !z1.contains('ờ') && !z1.contains('ừ'),
+        "Z1 should remove tone from đường, got: {}",
+        z1
+    );
 }
 
 // ============================================================
@@ -106,7 +112,10 @@ fn buffer_overflow_guard_resets_at_50() {
     }
     // 51st character should trigger reset
     let result = e.process_key('x');
-    assert_eq!(result, "x", "Buffer overflow guard should reset at 50 chars");
+    assert_eq!(
+        result, "x",
+        "Buffer overflow guard should reset at 50 chars"
+    );
 }
 
 #[test]
@@ -226,7 +235,7 @@ fn reset_mid_word_then_new_word() {
     e.process_key('t');
     e.process_key('i');
     e.reset(); // Reset mid-word
-    // New word should start clean
+               // New word should start clean
     assert_eq!(e.feed_str("as"), "á");
 }
 
@@ -270,7 +279,11 @@ fn shorthand_no_match_passes_through() {
     // feed_str returns last process_key result; space triggers word boundary
     let result = e.feed_str("abc ");
     // Result should be "abc " (word + space) since no shorthand match
-    assert!(result.contains("abc"), "Unmatched shorthand should pass through: {}", result);
+    assert!(
+        result.contains("abc"),
+        "Unmatched shorthand should pass through: {}",
+        result
+    );
 }
 
 // ============================================================
@@ -445,23 +458,48 @@ fn phonology_validate_edge_cases() {
     use vnkey_core::{validate_syllable, Syllable};
 
     // Empty syllable → score 0
-    let empty = Syllable { onset: "".to_string(), vowel: "".to_string(), coda: "".to_string(), tone: 0 };
+    let empty = Syllable {
+        onset: "".to_string(),
+        vowel: "".to_string(),
+        coda: "".to_string(),
+        tone: 0,
+    };
     assert_eq!(validate_syllable(&empty, false), 0);
 
     // Onset only → 50 (partial)
-    let onset_only = Syllable { onset: "th".to_string(), vowel: "".to_string(), coda: "".to_string(), tone: 0 };
+    let onset_only = Syllable {
+        onset: "th".to_string(),
+        vowel: "".to_string(),
+        coda: "".to_string(),
+        tone: 0,
+    };
     assert_eq!(validate_syllable(&onset_only, false), 50);
 
     // Very long vowel (>3 chars) → 20
-    let long_vowel = Syllable { onset: "b".to_string(), vowel: "aoai".to_string(), coda: "".to_string(), tone: 0 };
+    let long_vowel = Syllable {
+        onset: "b".to_string(),
+        vowel: "aoai".to_string(),
+        coda: "".to_string(),
+        tone: 0,
+    };
     assert_eq!(validate_syllable(&long_vowel, false), 20);
 
     // Invalid onset → 5
-    let bad_onset = Syllable { onset: "z".to_string(), vowel: "a".to_string(), coda: "".to_string(), tone: 0 };
+    let bad_onset = Syllable {
+        onset: "z".to_string(),
+        vowel: "a".to_string(),
+        coda: "".to_string(),
+        tone: 0,
+    };
     assert_eq!(validate_syllable(&bad_onset, false), 5);
 
     // Invalid coda → 8
-    let bad_coda = Syllable { onset: "b".to_string(), vowel: "a".to_string(), coda: "z".to_string(), tone: 0 };
+    let bad_coda = Syllable {
+        onset: "b".to_string(),
+        vowel: "a".to_string(),
+        coda: "z".to_string(),
+        tone: 0,
+    };
     assert_eq!(validate_syllable(&bad_coda, false), 8);
 }
 

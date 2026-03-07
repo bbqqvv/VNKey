@@ -29,7 +29,7 @@ fn test_backspace_basic() {
 fn test_backspace_exhaustion() {
     let mut engine = Engine::new(InputMode::Telex);
     engine.feed_str("abc");
-    
+
     assert!(engine.process_backspace()); // c
     assert!(engine.process_backspace()); // b
     assert!(engine.process_backspace()); // a
@@ -40,14 +40,14 @@ fn test_backspace_exhaustion() {
 fn test_state_snapshot_consistency() {
     let mut engine = Engine::new(InputMode::Telex);
     engine.feed_str("hoafng");
-    
+
     let state1 = engine.get_state();
     assert_eq!(state1.buffer, "hoafng");
     assert_eq!(state1.transformed, "hòang");
-    
+
     // Type more
     engine.feed_str(" ");
     let state2 = engine.get_state();
     assert_eq!(state2.buffer, ""); // Reset after space
-    assert_eq!(state2.transformed, ""); 
+    assert_eq!(state2.transformed, "");
 }

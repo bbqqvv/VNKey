@@ -4,7 +4,7 @@
 
 use vnkey_core::{Engine, InputMode};
 
-fn telex() -> Engine { 
+fn telex() -> Engine {
     let mut e = Engine::new(InputMode::Telex);
     let mut cfg = e.config().clone();
     cfg.spell_check = false;
@@ -63,8 +63,11 @@ fn freeform_w_with_tone() {
     // Add 's' for sắc → tone on ươ pair
     let r = e.process_key('s');
     // ươ pair: both modified, tone goes on first (ư)
-    assert!(r.contains('ứ') || r.contains('ớ'),
-        "Expected tone on ươ pair, got: {}", r);
+    assert!(
+        r.contains('ứ') || r.contains('ớ'),
+        "Expected tone on ươ pair, got: {}",
+        r
+    );
 }
 
 // ============================================================

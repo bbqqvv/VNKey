@@ -5,14 +5,14 @@ fn test_reproduce_bugs() {
     use std::fs::File;
     use std::io::Write;
     let mut log = File::create("actual_test_results.txt").unwrap();
-    
+
     let mut e = Engine::new(InputMode::Telex);
-    
+
     writeln!(log, "--- Testing 'w' logic ---").unwrap();
     // standalone 'w' -> 'ư'
     e.reset();
     writeln!(log, "w  -> expected 'ư', got '{}'", e.process_key('w')).unwrap();
-    
+
     // 'ww' -> 'w'
     e.reset();
     e.process_key('w');
@@ -48,7 +48,12 @@ fn test_reproduce_bugs() {
     e.process_key('a');
     e.process_key('s');
     let res = e.process_key(' ');
-    writeln!(log, "Hoas_space -> expected 'Hoá ' or 'Hóa ', got '{}'", res).unwrap();
+    writeln!(
+        log,
+        "Hoas_space -> expected 'Hoá ' or 'Hóa ', got '{}'",
+        res
+    )
+    .unwrap();
     // Case: 'viEejt'
     e.reset();
     let res = e.feed_str("viEejt");

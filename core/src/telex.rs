@@ -4,25 +4,64 @@ use crate::unicode_map::TELEX_MODIFIERS;
 pub fn extract_tone(input: &str) -> (String, u8) {
     let mut core = String::new();
     let mut tone: u8 = 0;
-    
+
     for c in input.chars() {
         let has_vowel = core.chars().any(is_vowel);
-        
+
         if has_vowel {
             match c {
-                's' => { if tone == 1 { tone = 0; core.push('s'); } else { tone = 1; } },
-                'f' => { if tone == 2 { tone = 0; core.push('f'); } else { tone = 2; } },
-                'r' => { if tone == 3 { tone = 0; core.push('r'); } else { tone = 3; } },
-                'x' => { if tone == 4 { tone = 0; core.push('x'); } else { tone = 4; } },
-                'j' => { if tone == 5 { tone = 0; core.push('j'); } else { tone = 5; } },
-                'z' => { tone = 0; },
-                _ => { core.push(c); }
+                's' => {
+                    if tone == 1 {
+                        tone = 0;
+                        core.push('s');
+                    } else {
+                        tone = 1;
+                    }
+                }
+                'f' => {
+                    if tone == 2 {
+                        tone = 0;
+                        core.push('f');
+                    } else {
+                        tone = 2;
+                    }
+                }
+                'r' => {
+                    if tone == 3 {
+                        tone = 0;
+                        core.push('r');
+                    } else {
+                        tone = 3;
+                    }
+                }
+                'x' => {
+                    if tone == 4 {
+                        tone = 0;
+                        core.push('x');
+                    } else {
+                        tone = 4;
+                    }
+                }
+                'j' => {
+                    if tone == 5 {
+                        tone = 0;
+                        core.push('j');
+                    } else {
+                        tone = 5;
+                    }
+                }
+                'z' => {
+                    tone = 0;
+                }
+                _ => {
+                    core.push(c);
+                }
             }
         } else {
             core.push(c);
         }
     }
-    
+
     (core, tone)
 }
 
@@ -45,7 +84,7 @@ pub fn apply_modifiers(input: &str) -> String {
 
     while i < chars.len() {
         let c = chars[i];
-        
+
         // Count consecutive identical chars
         let mut run = 0;
         while i + run < chars.len() && chars[i + run] == c {
@@ -62,27 +101,51 @@ pub fn apply_modifiers(input: &str) -> String {
                 }
                 cancelled = true;
                 done = true;
-            } 
+            }
             // Check for double-tap cycle
             else if run == 2 {
                 match c {
-                    'a' => { processed.push('â'); done = true; },
-                    'e' => { processed.push('ê'); done = true; },
-                    'o' => { processed.push('ô'); done = true; },
-                    'd' => { processed.push('đ'); done = true; },
+                    'a' => {
+                        processed.push('â');
+                        done = true;
+                    }
+                    'e' => {
+                        processed.push('ê');
+                        done = true;
+                    }
+                    'o' => {
+                        processed.push('ô');
+                        done = true;
+                    }
+                    'd' => {
+                        processed.push('đ');
+                        done = true;
+                    }
                     _ => {}
                 }
             }
-            
+
             // Check for w-modifiers (aw, ow, uw) - only if run == 1
-            if !done && run == 1 && i + 1 < chars.len() && chars[i+1] == 'w' {
+            if !done && run == 1 && i + 1 < chars.len() && chars[i + 1] == 'w' {
                 // Peek next to avoid run of w's
-                let is_w_run = i + 2 < chars.len() && chars[i+2] == 'w';
+                let is_w_run = i + 2 < chars.len() && chars[i + 2] == 'w';
                 if !is_w_run {
                     match c {
-                        'a' => { processed.push('ă'); i += 2; continue; },
-                        'o' => { processed.push('ơ'); i += 2; continue; },
-                        'u' => { processed.push('ư'); i += 2; continue; },
+                        'a' => {
+                            processed.push('ă');
+                            i += 2;
+                            continue;
+                        }
+                        'o' => {
+                            processed.push('ơ');
+                            i += 2;
+                            continue;
+                        }
+                        'u' => {
+                            processed.push('ư');
+                            i += 2;
+                            continue;
+                        }
                         _ => {}
                     }
                 }
@@ -94,7 +157,7 @@ pub fn apply_modifiers(input: &str) -> String {
                 processed.push(c);
             }
         }
-        
+
         i += run;
     }
 
@@ -137,9 +200,8 @@ fn resolve_remaining_w(input: &str) -> String {
                     } else {
                         // Nothing changed, apply fallback Smart W
                         let last_c = result.chars().last();
-                        let is_modified = last_c.is_some_and(|c|
-                            matches!(c, 'ư' | 'ơ' | 'ă' | 'â' | 'ê' | 'ô' | 'đ')
-                        );
+                        let is_modified = last_c
+                            .is_some_and(|c| matches!(c, 'ư' | 'ơ' | 'ă' | 'â' | 'ê' | 'ô' | 'đ'));
                         if is_modified {
                             result.push('w');
                         } else {
@@ -215,9 +277,18 @@ fn apply_late_w(s: &str) -> String {
     // Try single vowels (scan from right)
     for i in (0..len).rev() {
         match chars[i] {
-            'u' => { chars[i] = 'ư'; return chars.into_iter().collect(); }
-            'o' => { chars[i] = 'ơ'; return chars.into_iter().collect(); }
-            'a' => { chars[i] = 'ă'; return chars.into_iter().collect(); }
+            'u' => {
+                chars[i] = 'ư';
+                return chars.into_iter().collect();
+            }
+            'o' => {
+                chars[i] = 'ơ';
+                return chars.into_iter().collect();
+            }
+            'a' => {
+                chars[i] = 'ă';
+                return chars.into_iter().collect();
+            }
             _ => {}
         }
     }
@@ -449,20 +520,36 @@ mod tests {
     #[test]
     fn test_no_pua_leak_basic() {
         let result = apply_modifiers("aaa");
-        assert!(!result.contains('\u{E000}'), "PUA E000 leaked in: {}", result);
-        assert!(!result.contains('\u{E001}'), "PUA E001 leaked in: {}", result);
+        assert!(
+            !result.contains('\u{E000}'),
+            "PUA E000 leaked in: {}",
+            result
+        );
+        assert!(
+            !result.contains('\u{E001}'),
+            "PUA E001 leaked in: {}",
+            result
+        );
     }
 
     #[test]
     fn test_no_pua_leak_ww() {
         let result = apply_modifiers("ww");
-        assert!(!result.contains('\u{E000}'), "PUA E000 leaked in ww: {}", result);
+        assert!(
+            !result.contains('\u{E000}'),
+            "PUA E000 leaked in ww: {}",
+            result
+        );
     }
 
     #[test]
     fn test_no_pua_leak_www() {
         let result = apply_modifiers("www");
-        assert!(!result.contains('\u{E000}'), "PUA E000 leaked in www: {}", result);
+        assert!(
+            !result.contains('\u{E000}'),
+            "PUA E000 leaked in www: {}",
+            result
+        );
     }
 
     #[test]
@@ -470,9 +557,24 @@ mod tests {
         let inputs = ["abcw", "ddaw", "ooww", "aaww", "eeedd", "tuowng", "huongw"];
         for input in &inputs {
             let result = apply_modifiers(input);
-            assert!(!result.contains('\u{E000}'), "PUA E000 in '{}' → '{}'", input, result);
-            assert!(!result.contains('\u{E001}'), "PUA E001 in '{}' → '{}'", input, result);
-            assert!(!result.contains('\u{FFFE}'), "FFFE in '{}' → '{}'", input, result);
+            assert!(
+                !result.contains('\u{E000}'),
+                "PUA E000 in '{}' → '{}'",
+                input,
+                result
+            );
+            assert!(
+                !result.contains('\u{E001}'),
+                "PUA E001 in '{}' → '{}'",
+                input,
+                result
+            );
+            assert!(
+                !result.contains('\u{FFFE}'),
+                "FFFE in '{}' → '{}'",
+                input,
+                result
+            );
         }
     }
 

@@ -1,30 +1,34 @@
 /// Phonology — Vietnamese linguistic and phonological rules.
 ///
-/// This module implements "Phonotactics" — the study of the rules governing 
+/// This module implements "Phonotactics" — the study of the rules governing
 /// the combinations of phonemes in the Vietnamese language.
-/// 
+///
 /// A "Smart" IME must understand if a syllable is linguistically valid.
 use crate::syllable::Syllable;
 
 /// Valid Vietnamese Onsets (Âm đầu) - Sorted for binary search
 pub const ONSETS: &[&str] = &[
-    "", "b", "c", "ch", "d", "g", "gh", "gi", "h", "k", "kh", "l", "m", "n", 
-    "ng", "ngh", "nh", "p", "ph", "q", "qu", "r", "s", "t", "th", "tr", "v", "x", "đ"
+    "", "b", "c", "ch", "d", "g", "gh", "gi", "h", "k", "kh", "l", "m", "n", "ng", "ngh", "nh",
+    "p", "ph", "q", "qu", "r", "s", "t", "th", "tr", "v", "x", "đ",
 ];
 
 /// Valid Vietnamese Codas (Âm cuối) - Sorted for binary search
 pub const CODAS: &[&str] = &[
-    "", "c", "ch", "i", "m", "n", "ng", "nh", "o", "p", "t", "u", "y"
+    "", "c", "ch", "i", "m", "n", "ng", "nh", "o", "p", "t", "u", "y",
 ];
 
 /// Valid Vietnamese Vowel Clusters (Vần) - Sorted for binary search
 pub const VOWEL_CLUSTERS: &[&str] = &[
-    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iu", "iê", "iêu", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "ui", "uy", "uya", "uyê", "uâ", "uân", "uâng", "uê", "uô", "uôi", "uôn", "uông", "uă", "uơ", "uất", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ê", "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu", "ươ", "ươi", "ươn", "ương"
+    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iu", "iê", "iêu", "o", "oa", "oai", "oao",
+    "oay", "oe", "oi", "oo", "oă", "u", "ua", "ui", "uy", "uya", "uyê", "uâ", "uân", "uâng", "uê",
+    "uô", "uôi", "uôn", "uông", "uă", "uơ", "uất", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ê",
+    "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu", "ươ", "ươi",
+    "ươn", "ương",
 ];
 
 /// Intermediate Vowel Clusters - valid during typing but not as final words
 pub const INTERMEDIATE_VOWEL_CLUSTERS: &[&str] = &[
-    "ie", "uo", "ue", "uâ", "uye", "ưo", "iê", "uô", "ươ", "iêu", "ươi", "ye"
+    "ie", "uo", "ue", "uâ", "uye", "ưo", "iê", "uô", "ươ", "iêu", "ươi", "ye",
 ];
 
 /// Check if an onset is linguistically valid.
@@ -65,47 +69,53 @@ pub fn is_valid_coda(coda: &str, allow_foreign: bool) -> bool {
 pub fn is_valid_spelling(onset: &str, vowel: &str) -> bool {
     let lo = onset.to_lowercase();
     let lv = vowel.to_lowercase();
-    
-    if lv.is_empty() { return true; }
-    
+
+    if lv.is_empty() {
+        return true;
+    }
+
     let first_v = lv.chars().next().unwrap();
-    
+
     match lo.as_str() {
         "k" | "gh" | "ngh" => {
             // Must be followed by front vowels: i, e, ê
             matches!(first_v, 'i' | 'e' | 'ê' | 'y')
-        },
+        }
         "c" | "g" | "ng" => {
             // Cannot be followed by front vowels (except some loanwords, but standard VN rules say NO)
             !matches!(first_v, 'i' | 'e' | 'ê')
-        },
+        }
         "qu" => {
             // Usually not followed by 'u' (except maybe "quu" in some rare cases, but mostly no)
             first_v != 'u'
-        },
-        _ => true
+        }
+        _ => true,
     }
 }
 
 /// Detailed Syllable Integrity Check.
 /// Returns a score from 0 to 100.
 pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
-    if !is_valid_onset(&syl.onset, allow_foreign) { 
+    if !is_valid_onset(&syl.onset, allow_foreign) {
         return 5; // Very low score for invalid onset
     }
-    if !is_valid_coda(&syl.coda, allow_foreign) { 
+    if !is_valid_coda(&syl.coda, allow_foreign) {
         return 8; // Low score for invalid coda (typo?)
     }
-    if !is_valid_spelling(&syl.onset, &syl.vowel) { return 10; } // Spelling mistake (standard)
-    
+    if !is_valid_spelling(&syl.onset, &syl.vowel) {
+        return 10;
+    } // Spelling mistake (standard)
+
     if syl.vowel.is_empty() {
-        if syl.onset.is_empty() { return 0; }
+        if syl.onset.is_empty() {
+            return 0;
+        }
         return 50; // Partial syllable (just onset)
     }
 
     // Check for impossible vowel clusters (e.g., "aoa" is invalid, "oao" is valid)
     let lower_vowel = syl.vowel.to_lowercase();
-    
+
     // P13: Strict validation for perfection
     if VOWEL_CLUSTERS.binary_search(&lower_vowel.as_str()).is_ok() {
         return 100;
@@ -113,7 +123,7 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
 
     // P13: Leniency for intermediate typing states (ie, uo, ue)
     if INTERMEDIATE_VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
-        return 50; 
+        return 50;
     }
 
     // P13: Very long vowels are suspicious but common in English (e.g. "beautiful")
@@ -139,7 +149,7 @@ mod tests {
         assert!(is_valid_onset("ngh", false));
         assert!(is_valid_onset("tr", false));
         assert!(!is_valid_onset("z", false)); // 'z' is not a standard VN onset
-        assert!(is_valid_onset("z", true));  // 'z' is valid if allowed
+        assert!(is_valid_onset("z", true)); // 'z' is valid if allowed
         assert!(is_valid_onset("", false)); // Empty is valid (start with vowel)
     }
 

@@ -9,7 +9,7 @@ fn test_nfc_nfd_normalization_consistency() {
 
     // Testing if engine handles NFD input by treating it logically or normalizing.
     // Given the current architecture, NFD input might be processed char by char.
-    
+
     let nfc_e = "\u{1EBF}";
     let nfd_e = "ê\u{0301}";
 
