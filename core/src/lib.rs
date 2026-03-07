@@ -309,7 +309,7 @@ impl Engine {
     pub fn process_key(&mut self, key: char) -> String {
         // P1 FIX: Guard against buffer overflow (max 50 chars per word)
         // Longest valid Vietnamese word is ~10 chars; 50 is generous safety margin
-        if self.buffer.len() >= 50 {
+        if self.buffer.chars().count() >= 50 {
             self.reset();
             return key.to_string();
         }
@@ -327,7 +327,7 @@ impl Engine {
             self.case_map.push(key.is_uppercase());
 
             if self.is_shorthand_active() {
-                let old_len = self.buffer.len();
+                let old_len = self.buffer.chars().count();
                 self.apply_shorthand_if_needed(&mut transformed);
                 
                 // If shorthand expanded, it cleared the buffer and updated `transformed` (including trigger)
@@ -368,7 +368,7 @@ impl Engine {
         if self.literal_mode {
             // Smart break: If we are in literal mode (English/Non-VN) and type a CAPITAL letter,
             // or if the buffer is getting long, start a new word.
-            if key.is_uppercase() && self.buffer.len() > 1 {
+            if key.is_uppercase() && self.buffer.chars().count() > 1 {
                 self.reset_soft();
             } else {
                 self.buffer.push(key);
@@ -416,7 +416,7 @@ impl Engine {
                 let is_in_dict = self.dictionary.contains(&transformed);
                 
                 // P13 FIX: Score < 10 marks anything linguistically suspicious (invalid onset/coda/vowel)
-                if !is_in_dict && phonetic_score < 10 && self.buffer.len() > 1 {
+                if !is_in_dict && phonetic_score < 10 && self.buffer.chars().count() > 1 {
                     transformed = self.apply_case(&self.buffer);
                 }
             }
@@ -442,29 +442,29 @@ impl Engine {
         let coda_len = self.current_syllable.coda.chars().count();
 
         // Structural checks
-        if (onset_len > 5 || coda_len > 5) || self.buffer.len() > 30 {
+        if (onset_len > 5 || coda_len > 5) || self.buffer.chars().count() > 30 {
             self.literal_mode = true;
             return;
         }
 
         // Garbage scoring checks
-        if phonetic_score <= 2 && self.buffer.len() > 10 {
+        if phonetic_score <= 2 && self.buffer.chars().count() > 10 {
             self.literal_mode = true;
             return;
         }
 
-        if phonetic_score <= 5 && self.buffer.len() > 10 {
+        if phonetic_score <= 5 && self.buffer.chars().count() > 10 {
             self.literal_mode = true;
             return;
         }
 
-        if phonetic_score <= 8 && self.buffer.len() > 10 {
+        if phonetic_score <= 8 && self.buffer.chars().count() > 10 {
             self.literal_mode = true;
             return;
         }
 
         // 2. Dictionary-aware short word check (Special focus on English collisions like of, is, as)
-        if self.config.spell_check && self.buffer.len() == 2 && self.current_syllable.tone != 0 {
+        if self.config.spell_check && self.buffer.chars().count() == 2 && self.current_syllable.tone != 0 {
             let core = format!("{}{}", self.current_syllable.onset, self.current_syllable.vowel);
             let toned = if self.current_syllable.tone > 0 {
                 tone::place_tone_with_style(
@@ -833,7 +833,7 @@ mod tests {
                 if c == ' ' {
                     prop_assert!(engine.buffer.is_empty());
                 } else {
-                    prop_assert_eq!(engine.buffer.len(), engine.case_map().len());
+                    prop_assert_eq!(engine.buffer.chars().count(), engine.case_map().len());
                 }
             }
         }
