@@ -20,7 +20,12 @@ pub const CODAS: &[&str] = &[
 
 /// Valid Vietnamese Vowel Clusters (Vần) - Sorted for binary search
 pub const VOWEL_CLUSTERS: &[&str] = &[
-    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "ie", "iê", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "ue", "uê", "ui", "uo", "uôi", "uôn", "uông", "uô", "uy", "uya", "uyê", "uân", "uâng", "uất", "uơ", "uâ", "uă", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ă", "ê", "êu", "ô", "ôi", "ông", "ôn", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ươi", "ươn", "ương", "ươ", "ưu"
+    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iê", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "uê", "ui", "uôi", "uôn", "uông", "uô", "uy", "uya", "uyê", "uân", "uâng", "uất", "uơ", "uâ", "uă", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ă", "ê", "êu", "ô", "ôi", "ông", "ôn", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ươi", "ươn", "ương", "ươ", "ưu"
+];
+
+/// Intermediate Vowel Clusters - valid during typing but not as final words
+pub const INTERMEDIATE_VOWEL_CLUSTERS: &[&str] = &[
+    "ie", "uo", "ue", "uâ"
 ];
 
 /// Check if an onset is linguistically valid.
@@ -100,12 +105,25 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
 
     // Check for impossible vowel clusters (e.g., "aoa" is invalid, "oao" is valid)
     let lower_vowel = syl.vowel.to_lowercase();
-    if !VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
-        #[cfg(test)] println!("Invalid vowel cluster: '{}'", lower_vowel);
-        return 0; // Completely invalid phonology
-    }
     
-    100 // Looks like a real Vietnamese word
+    // P13: Strict validation for perfection
+    if VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
+        return 100;
+    }
+
+    // P13: Leniency for intermediate typing states (ie, uo, ue)
+    if INTERMEDIATE_VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
+        return 50; 
+    }
+
+    // P13: Very long vowels are suspicious but common in English (e.g. "beautiful")
+    if lower_vowel.chars().count() > 3 {
+        #[cfg(test)] println!("Long vowel cluster: '{}'", lower_vowel);
+        return 20;
+    }
+
+    #[cfg(test)] println!("Invalid vowel cluster: '{}'", lower_vowel);
+    0 // Completely invalid phonology
 }
 
 /// Check if the syllable is 100% linguistically perfect.
