@@ -1,0 +1,65 @@
+name: VNKey CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-rust-core:
+    name: Rust Core (Test & Lint)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "core -> target"
+
+    - name: Run Tests
+      run: cargo test --verbose
+      working-directory: core
+
+    - name: Run Clippy
+      run: cargo clippy -- -D warnings
+      working-directory: core
+
+  build-windows-wpf:
+    name: Windows Build Check (WPF)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Install Rust (Windows)
+      uses: dtolnay/rust-toolchain@stable
+      
+    - name: Build Rust Core DLL
+      run: cargo build --release
+      working-directory: core
+
+    - name: Setup Native DLL for WPF
+      run: |
+        mkdir -p platforms/windows/VNKey.Windows/Native
+        cp core/target/release/vnkey_core.dll platforms/windows/VNKey.Windows/Native/
+      shell: bash
+
+    - name: Restore dependencies
+      run: dotnet restore platforms/windows/VNKey.Windows/VNKey.Windows.csproj
+
+    - name: Build WPF Project
+      run: dotnet build platforms/windows/VNKey.Windows/VNKey.Windows.csproj --configuration Release --no-restore
