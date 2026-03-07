@@ -27,6 +27,7 @@ namespace VNKey.Windows.Core
         public bool ShowTrayNotify { get; set; } = true;
         public int NavLayout { get; set; } = 0; // 0: Vertical, 1: Horizontal
         public bool BeepOnSwitch { get; set; } = false;
+        public bool IsDevModeEnabled { get; set; } = false;
 
         // Auto capitalization
         public bool AutoCapitalizeSentence { get; set; } = false;

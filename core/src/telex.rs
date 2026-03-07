@@ -33,126 +33,73 @@ pub fn apply_modifiers(input: &str) -> String {
     res = res.replace('[', "ư").replace(']', "ơ");
 
     // Step 2: Compound modifiers
+    // Special case: quow -> quơ (to avoid qươ)
+    res = res.replace("quow", "quơ");
     res = res.replace("uow", "ươ");
 
-    // Step 3: Cycle modifiers (aa, ee, oo, dd)
-    res = apply_modifier_cycle(&res, 'a', 'â');
-    res = apply_modifier_cycle(&res, 'e', 'ê');
-    res = apply_modifier_cycle(&res, 'o', 'ô');
-    res = apply_modifier_cycle(&res, 'd', 'đ');
-
-    // Step 4: Aw, Ow, Uw modifiers
-    res = apply_w_modifiers(&res);
-
-    // Step 5: Resolve remaining W
-    let processed = resolve_remaining_w(&res);
-
-    processed
-}
-
-/// Process runs of the same character for modifier cycle.
-///
-/// Rules (no PUA markers):
-/// - Count=1: base char (e.g., 'a')
-/// - Count=2: modified (e.g., 'â')
-/// - Count=3: cancel → base+base (e.g., 'aa')
-/// - Count=4: modified + base (e.g., 'âa')
-/// - Count=5: base+base+base+base (e.g., 'aaaa') — cancel again
-/// Pattern: even runs → modified * (n/2), odd → cancel
-fn apply_modifier_cycle(input: &str, base: char, modified: char) -> String {
-    let mut result = String::new();
-    let chars: Vec<char> = input.chars().collect();
+    // Step 3: Sequential processing for cycles and cancellations
+    let mut processed = String::new();
+    let chars: Vec<char> = res.chars().collect();
     let mut i = 0;
+    let mut cancelled = false;
 
     while i < chars.len() {
-        if chars[i] == base {
-            // Count consecutive base chars
-            let mut run = 0;
-            while i + run < chars.len() && chars[i + run] == base {
-                run += 1;
-            }
-
-            // Apply cycle logic
-            result.push_str(&compute_modifier_cycle(run, base, modified));
-            i += run;
-        } else {
-            result.push(chars[i]);
-            i += 1;
+        let c = chars[i];
+        
+        // Count consecutive identical chars
+        let mut run = 0;
+        while i + run < chars.len() && chars[i + run] == c {
+            run += 1;
         }
-    }
 
-    result
-}
+        let mut done = false;
 
-/// Compute the output for a run of `count` consecutive `base` characters.
-///
-/// Cycle pattern:
-/// 1 → base (a)
-/// 2 → modified (â)
-/// 3 → base+base (aa) — cancel
-/// 4 → modified+base (âa)
-/// 5 → base+base+base+base (aaaa) — basically pairs
-/// General: pairs of 2 → modified, remainder 1 → base
-fn compute_modifier_cycle(count: usize, base: char, modified: char) -> String {
-    if count == 0 {
-        return String::new();
-    }
-    if count == 1 {
-        return base.to_string();
-    }
-    if count == 2 {
-        return modified.to_string();
-    }
-    
-    // P11 FINAL FIX: From 3rd tap onwards, ALWAYS return base characters only.
-    // Logic: 3 taps -> "aa" (count-1), 4 taps -> "aaa" (count-1), etc.
-    // This permanently cancels the modifier for this run.
-    let mut res = String::with_capacity(count - 1);
-    for _ in 0..(count - 1) {
-        res.push(base);
-    }
-    res
-}
-
-/// Apply w-modifiers (aw→ă, ow→ơ, uw→ư) but NOT when w is part of a ww run.
-fn apply_w_modifiers(input: &str) -> String {
-    let chars: Vec<char> = input.chars().collect();
-    let len = chars.len();
-    let mut result = String::new();
-    let mut i = 0;
-
-    while i < len {
-        if i + 1 < len && chars[i + 1] == 'w' {
-            // Check if w is followed by another w (that's a run, which is a cycle/cancel)
-            // A run of w's should always be handled by the W-cycle phase, not here.
-            let is_w_run = i + 2 < len && chars[i + 2] == 'w';
-
-            if !is_w_run {
-                match chars[i] {
-                    'a' => {
-                        result.push('ă');
-                        i += 2;
-                        continue;
-                    }
-                    'o' => {
-                        result.push('ơ');
-                        i += 2;
-                        continue;
-                    }
-                    'u' => {
-                        result.push('ư');
-                        i += 2;
-                        continue;
-                    }
+        if !cancelled {
+            // Check for triple-tap run on cycle keys (a, e, o, d)
+            if run >= 3 && matches!(c, 'a' | 'e' | 'o' | 'd') {
+                for _ in 0..(run - 1) {
+                    processed.push(c);
+                }
+                cancelled = true;
+                done = true;
+            } 
+            // Check for double-tap cycle
+            else if run == 2 {
+                match c {
+                    'a' => { processed.push('â'); done = true; },
+                    'e' => { processed.push('ê'); done = true; },
+                    'o' => { processed.push('ô'); done = true; },
+                    'd' => { processed.push('đ'); done = true; },
                     _ => {}
                 }
             }
+            
+            // Check for w-modifiers (aw, ow, uw) - only if run == 1
+            if !done && run == 1 && i + 1 < chars.len() && chars[i+1] == 'w' {
+                // Peek next to avoid run of w's
+                let is_w_run = i + 2 < chars.len() && chars[i+2] == 'w';
+                if !is_w_run {
+                    match c {
+                        'a' => { processed.push('ă'); i += 2; continue; },
+                        'o' => { processed.push('ơ'); i += 2; continue; },
+                        'u' => { processed.push('ư'); i += 2; continue; },
+                        _ => {}
+                    }
+                }
+            }
         }
-        result.push(chars[i]);
-        i += 1;
+
+        if !done {
+            for _ in 0..run {
+                processed.push(c);
+            }
+        }
+        
+        i += run;
     }
 
-    result
+    // Step 4: Final 'w' resolution (always handles its own runs)
+    resolve_remaining_w(&processed)
 }
 
 /// Resolve remaining 'w' characters in a single pass.

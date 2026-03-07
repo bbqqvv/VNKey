@@ -91,7 +91,7 @@ impl Default for EngineConfig {
             auto_restore: false,
             show_feedback: true,
             beep_on_switch: false,
-            allow_foreign_consonants: true,
+            allow_foreign_consonants: false,
             macro_enabled: false,
             shorthand_while_off: false,
             macro_auto_case: true,

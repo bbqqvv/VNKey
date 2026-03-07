@@ -518,7 +518,37 @@
 
                             <!-- Card: Startup -->
                             <Border Style="{StaticResource CardStyle}">
-                                <CheckBox x:Name="ChkRunAtStartup" Content="Khởi động cùng Windows (Beta)" ToolTip="VNKey sẽ tự động khởi chạy cùng Windows mỗi khi bạn mở máy."/>
+                                <StackPanel>
+                                    <CheckBox x:Name="ChkRunAtStartup" Content="Khởi động cùng Windows (Beta)" ToolTip="VNKey sẽ tự động khởi chạy cùng Windows mỗi khi bạn mở máy."/>
+                                    <CheckBox x:Name="ChkDevMode" Content="Chế độ nhà phát triển (Developer Mode)" Margin="0,8,0,0" ToolTip="Kích hoạt bảng chẩn đoán để xem dữ liệu ngữ âm và trạng thái bộ gõ."/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ═══ Dev Mode Diagnostics Panel ═══ -->
+                            <Border x:Name="DiagnosticsPanel" Style="{StaticResource CardStyle}" Visibility="Collapsed" Margin="0,8,0,0" BorderBrush="{DynamicResource AppAccent}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="CHẨN ĐOÁN HỆ THỐNG" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="Ngữ âm (Phonology)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                                            <TextBlock x:Name="TxtDiagPhonology" Text="-" FontSize="12" FontWeight="SemiBold"/>
+                                            
+                                            <TextBlock Text="Bộ đệm (Buffer)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="10,0,0,4" />
+                                            <TextBlock x:Name="TxtDiagBuffer" Text="-" FontSize="12" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Trạng thái (State)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
+                                            <TextBlock x:Name="TxtDiagState" Text="-" FontSize="11"/>
+                                            
+                                            <TextBlock Text="Điểm (Score)" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" Margin="0,10,0,4"/>
+                                            <ProgressBar x:Name="ProgDiagScore" Value="0" Maximum="100" Height="4" Background="{DynamicResource AppBorder}" Foreground="{DynamicResource AppAccent}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
                             </Border>
                         </StackPanel>
 

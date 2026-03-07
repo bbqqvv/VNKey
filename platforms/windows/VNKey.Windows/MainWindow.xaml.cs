@@ -20,6 +20,7 @@ namespace VNKey.Windows
         private KeyboardHook _hook;
         private System.Windows.Forms.NotifyIcon _notifyIcon;
         private bool _isRecordingHotkey = false;
+        private System.Windows.Threading.DispatcherTimer _diagTimer;
 
         // ObservableCollection cho DataGrid Gõ tắt
         public ObservableCollection<ShorthandItem> ShorthandList { get; set; }
@@ -54,6 +55,8 @@ namespace VNKey.Windows
                 };
                 // DataGridShorthand.ItemsSource = ShorthandList; // Will be added in shorthand tab if needed
                 
+                InitializeDiagnostics();
+
                 // Load cấu hình lên UI
                 LoadConfigToUi();
                 
@@ -179,6 +182,7 @@ namespace VNKey.Windows
 
             ChkAutoCapitalizeSentence.IsChecked = config.AutoCapitalizeSentence;
             ChkAutoCapitalizeEnter.IsChecked = config.AutoCapitalizeEnter;
+            ChkDevMode.IsChecked = config.IsDevModeEnabled;
 
             // Tab Gõ tắt
             ChkShorthandWhileOff.IsChecked = config.ShorthandWhileOff;
@@ -232,6 +236,7 @@ namespace VNKey.Windows
             ChkAllowForeign.Click += (s, e) => SyncAndSave();
             ChkAutoCapitalizeSentence.Click += (s, e) => SyncAndSave();
             ChkAutoCapitalizeEnter.Click += (s, e) => SyncAndSave();
+            ChkDevMode.Click += (s, e) => { SyncAndSave(); UpdateDiagnosticsVisibility(); };
 
             RadVietnamese.Click += (s, e) => SyncAndSave();
             RadEnglish.Click += (s, e) => SyncAndSave();
@@ -270,6 +275,7 @@ namespace VNKey.Windows
             config.AllowForeignConsonants = ChkAllowForeign.IsChecked ?? true;
             config.AutoCapitalizeSentence = ChkAutoCapitalizeSentence.IsChecked ?? false;
             config.AutoCapitalizeEnter = ChkAutoCapitalizeEnter.IsChecked ?? false;
+            config.IsDevModeEnabled = ChkDevMode.IsChecked ?? false;
             
             config.StartWithWindows = ChkRunAtStartup.IsChecked ?? false;
             config.BeepOnSwitch = ChkBeep.IsChecked ?? false;
@@ -323,6 +329,66 @@ namespace VNKey.Windows
             EngineWrapper.vnkey_global_set_shorthand_json(jsonShorthand);
 
             UpdateStatusUi(App.Config.IsVietnameseMode);
+            UpdateDiagnosticsVisibility();
+        }
+
+        private void InitializeDiagnostics()
+        {
+            _diagTimer = new System.Windows.Threading.DispatcherTimer();
+            _diagTimer.Interval = TimeSpan.FromMilliseconds(200);
+            _diagTimer.Tick += DiagTimer_Tick;
+            UpdateDiagnosticsVisibility();
+        }
+
+        private void UpdateDiagnosticsVisibility()
+        {
+            if (_diagTimer == null || DiagnosticsPanel == null) return;
+
+            if (App.Config.IsDevModeEnabled)
+            {
+                _diagTimer.Start();
+                DiagnosticsPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                _diagTimer.Stop();
+                DiagnosticsPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void DiagTimer_Tick(object sender, EventArgs e)
+        {
+            if (!App.Config.IsDevModeEnabled || _engine == null) return;
+
+            string json = _engine.GetDiagnosticInfo();
+            if (string.IsNullOrEmpty(json)) return;
+
+            try
+            {
+                using (var doc = System.Text.Json.JsonDocument.Parse(json))
+                {
+                    var root = doc.RootElement;
+                    string onset = root.GetProperty("onset").GetString();
+                    string vowel = root.GetProperty("vowel").GetString();
+                    string coda = root.GetProperty("coda").GetString();
+                    int tone = root.GetProperty("tone").GetInt32();
+                    int score = root.GetProperty("phonetic_score").GetInt32();
+                    string buffer = root.GetProperty("buffer").GetString();
+                    bool literal = root.GetProperty("literal_mode").GetBoolean();
+                    string mode = root.GetProperty("mode").GetString();
+
+                    TxtDiagPhonology.Text = $"[{onset}] + [{vowel}] + [{coda}] (Tone: {tone})";
+                    TxtDiagBuffer.Text = $"'{buffer}'";
+                    TxtDiagState.Text = $"Mode: {mode} | Literal: {literal}";
+                    ProgDiagScore.Value = score;
+
+                    // Color score based on validity
+                    if (score >= 10) ProgDiagScore.Foreground = (System.Windows.Media.Brush)this.Resources["AppAccent"];
+                    else if (score > 0) ProgDiagScore.Foreground = System.Windows.Media.Brushes.Orange;
+                    else ProgDiagScore.Foreground = System.Windows.Media.Brushes.Red;
+                }
+            }
+            catch { }
         }
 
         private void ShowWindow()

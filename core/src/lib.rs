@@ -86,6 +86,20 @@ pub struct EngineState {
     pub suggestions: Vec<Suggestion>,
 }
 
+/// Detailed diagnostic information for developer mode.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DiagnosticData {
+    pub buffer: String,
+    pub onset: String,
+    pub vowel: String,
+    pub coda: String,
+    pub tone: u8,
+    pub phonetic_score: u8,
+    pub literal_mode: bool,
+    pub z_level: u8,
+    pub mode: String,
+}
+
 /// Vietnamese IME Engine — the brain of the input method.
 ///
 /// Stateful: maintains an internal buffer for the current word being typed.
@@ -178,6 +192,22 @@ impl Engine {
             z_level: self.z_level,
             validity_score: score,
             suggestions: Vec::new(),
+        }
+    }
+
+    /// Get detailed diagnostic info for developer mode.
+    pub fn get_diagnostic_info(&self) -> DiagnosticData {
+        let score = validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants);
+        DiagnosticData {
+            buffer: self.buffer.clone(),
+            onset: self.current_syllable.onset.clone(),
+            vowel: self.current_syllable.vowel.clone(),
+            coda: self.current_syllable.coda.clone(),
+            tone: self.current_syllable.tone,
+            phonetic_score: score,
+            literal_mode: self.literal_mode,
+            z_level: self.z_level,
+            mode: format!("{:?}", self.mode),
         }
     }
 
@@ -413,27 +443,24 @@ impl Engine {
         let onset_len = self.current_syllable.onset.chars().count();
         let coda_len = self.current_syllable.coda.chars().count();
 
-        // 1. Structural checks (English-style clusters)
-        // Refined: 
-        // - Score 5 (Invalid onset) -> switch early (len > 3) - e.g. "staff", "blow"
-        // - Score 8 (Invalid coda) -> switch late (len > 8) - e.g. "hoafnng" (typo)
-        // - Score 2 (Garbage) -> switch very early (len > 2)
-        if (onset_len > 3 || coda_len > 4) || self.buffer.len() > 25 {
+        // Structural checks
+        if (onset_len > 5 || coda_len > 5) || self.buffer.len() > 30 {
             self.literal_mode = true;
             return;
         }
 
-        if phonetic_score <= 2 && self.buffer.len() > 2 {
+        // Garbage scoring checks
+        if phonetic_score <= 2 && self.buffer.len() > 10 {
             self.literal_mode = true;
             return;
         }
 
-        if phonetic_score <= 5 && self.buffer.len() > 3 {
+        if phonetic_score <= 5 && self.buffer.len() > 10 {
             self.literal_mode = true;
             return;
         }
 
-        if phonetic_score <= 8 && self.buffer.len() > 8 {
+        if phonetic_score <= 8 && self.buffer.len() > 10 {
             self.literal_mode = true;
             return;
         }

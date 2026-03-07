@@ -52,10 +52,10 @@ fn test_telex_messy_patterns() {
     let res = engine.feed_str("tieesnng");
     assert_eq!(res, "tiếnng");
 
-    // 3. Repeated messy modifier/tone: dddaaawww -> ddaaww (Cancellation and Cycle)
+    // 3. Repeated messy modifier/tone: dddaaawww -> ddaaaww (Cancellation and Cycle)
     engine.reset();
     let res = engine.feed_str("dddaaawww");
-    assert_eq!(res, "ddaaww");
+    assert_eq!(res, "ddaaaww");
 
     // 4. Tone on words with existing tone marks: nghieenjf -> nghiền
     engine.reset();

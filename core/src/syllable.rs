@@ -94,8 +94,8 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
             }
         } else if chars[..vowel_idx_start].iter().collect::<String>().to_lowercase() == "q" && chars[vowel_idx_start] == 'u' {
             // "qu" + vowels (e.g. "quan", "quê")
-            // Always treat "qu" as onset if there's at least one more vowel.
-            if vowel_idx_start < v_end as usize {
+            // Always treat "qu" as onset if there's at least one more vowel OR if it's the only vowel but has a coda
+            if vowel_idx_start < v_end as usize || (v_end as usize + 1) < chars.len() {
                 onset_idx += 1; // onset takes the 'u'
                 vowel_idx_start += 1; // remove 'u' from vowel
             }

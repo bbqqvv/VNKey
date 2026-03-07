@@ -10,7 +10,7 @@ use crate::syllable::Syllable;
 /// Valid Vietnamese Onsets (Âm đầu) - Sorted for binary search
 pub const ONSETS: &[&str] = &[
     "", "b", "c", "ch", "d", "g", "gh", "gi", "h", "k", "kh", "l", "m", "n", 
-    "ng", "ngh", "nh", "p", "ph", "qu", "r", "s", "t", "th", "tr", "v", "x", "đ"
+    "ng", "ngh", "nh", "p", "ph", "q", "qu", "r", "s", "t", "th", "tr", "v", "x", "đ"
 ];
 
 /// Valid Vietnamese Codas (Âm cuối) - Sorted for binary search
@@ -20,12 +20,12 @@ pub const CODAS: &[&str] = &[
 
 /// Valid Vietnamese Vowel Clusters (Vần) - Sorted for binary search
 pub const VOWEL_CLUSTERS: &[&str] = &[
-    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iê", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "uê", "ui", "uôi", "uôn", "uông", "uô", "uy", "uya", "uyê", "uân", "uâng", "uất", "uơ", "uâ", "uă", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ă", "ê", "êu", "ô", "ôi", "ông", "ôn", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ươi", "ươn", "ương", "ươ", "ưu"
+    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iu", "iê", "iêu", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "u", "ua", "ui", "uy", "uya", "uyê", "uâ", "uân", "uâng", "uê", "uô", "uôi", "uôn", "uông", "uă", "uơ", "uất", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ê", "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu", "ươ", "ươi", "ươn", "ương"
 ];
 
 /// Intermediate Vowel Clusters - valid during typing but not as final words
 pub const INTERMEDIATE_VOWEL_CLUSTERS: &[&str] = &[
-    "ie", "uo", "ue", "uâ"
+    "ie", "uo", "ue", "uâ", "uye", "ưo", "iê", "uô", "ươ", "iêu", "ươi", "ye"
 ];
 
 /// Check if an onset is linguistically valid.
@@ -35,8 +35,11 @@ pub fn is_valid_onset(onset: &str, allow_foreign: bool) -> bool {
         return true;
     }
     // Optimization: Allow 'ww', 'dd', etc. as they might be intermediate Telex states
-    if matches!(lower.as_str(), "ww" | "dd" | "ss" | "ff" | "rr" | "xx" | "jj") {
-        return true;
+    if !lower.is_empty() && lower.chars().all(|c| c == lower.chars().next().unwrap()) {
+        let first = lower.chars().next().unwrap();
+        if first == 'd' || first == 'w' {
+            return true;
+        }
     }
     if allow_foreign {
         return matches!(lower.as_str(), "z" | "w" | "j" | "f");
@@ -89,11 +92,9 @@ pub fn is_valid_spelling(onset: &str, vowel: &str) -> bool {
 /// Returns a score from 0 to 100.
 pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
     if !is_valid_onset(&syl.onset, allow_foreign) { 
-        #[cfg(test)] println!("Invalid onset: '{}'", syl.onset);
         return 5; // Very low score for invalid onset
     }
     if !is_valid_coda(&syl.coda, allow_foreign) { 
-        #[cfg(test)] println!("Invalid coda: '{}'", syl.coda);
         return 8; // Low score for invalid coda (typo?)
     }
     if !is_valid_spelling(&syl.onset, &syl.vowel) { return 10; } // Spelling mistake (standard)
@@ -107,7 +108,7 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
     let lower_vowel = syl.vowel.to_lowercase();
     
     // P13: Strict validation for perfection
-    if VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
+    if VOWEL_CLUSTERS.binary_search(&lower_vowel.as_str()).is_ok() {
         return 100;
     }
 
@@ -118,11 +119,9 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
 
     // P13: Very long vowels are suspicious but common in English (e.g. "beautiful")
     if lower_vowel.chars().count() > 3 {
-        #[cfg(test)] println!("Long vowel cluster: '{}'", lower_vowel);
         return 20;
     }
 
-    #[cfg(test)] println!("Invalid vowel cluster: '{}'", lower_vowel);
     2 // Completely invalid vowel cluster
 }
 

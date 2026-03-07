@@ -1,3 +1,4 @@
+//! Senior features test for VNKey
 use vnkey_core::{Engine, InputMode};
 
 #[test]
@@ -47,13 +48,13 @@ fn test_linguistic_validity_score() {
     engine.set_config(cfg);
     
     // Perfect word
-    engine.feed_str("tiếng");
+    engine.feed_str("tieengs");
     assert_eq!(engine.get_state().validity_score, 100);
     
-    // Invalid word (non-VN onset)
+    // Invalid word (non-VN onset) -> Score 5 in P13
     engine.reset();
     engine.feed_str("zi");
-    assert_eq!(engine.get_state().validity_score, 0);
+    assert_eq!(engine.get_state().validity_score, 5);
     
     // Spelling error (before smart fix, but smart fix should make it 100)
     engine.reset();

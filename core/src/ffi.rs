@@ -110,6 +110,17 @@ pub unsafe extern "C" fn vnkey_set_vietnamese_mode(ptr: *mut Engine, enabled: bo
     }
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn vnkey_get_diagnostic_info(ptr: *mut Engine) -> *mut c_char {
+    if ptr.is_null() {
+        return string_to_cstr(String::new());
+    }
+    let engine = &*ptr;
+    let info = engine.get_diagnostic_info();
+    let json = serde_json::to_string(&info).unwrap_or_else(|_| String::new());
+    string_to_cstr(json)
+}
+
 /// Free strings allocated by Rust
 #[no_mangle]
 pub unsafe extern "C" fn vnkey_free_string(s: *mut c_char) {
@@ -195,4 +206,15 @@ pub unsafe extern "C" fn vnkey_global_process_backspace() -> bool {
         handled = e.process_backspace();
     });
     handled
+}
+
+#[no_mangle]
+#[cfg(windows)]
+pub unsafe extern "C" fn vnkey_global_get_diagnostic_info() -> *mut c_char {
+    let mut json = String::new();
+    crate::hook::update_global_engine(|e| {
+        let info = e.get_diagnostic_info();
+        json = serde_json::to_string(&info).unwrap_or_else(|_| String::new());
+    });
+    string_to_cstr(json)
 }

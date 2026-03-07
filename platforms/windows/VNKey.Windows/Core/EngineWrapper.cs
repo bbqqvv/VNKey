@@ -47,6 +47,12 @@ namespace VNKey.Windows.Core
         [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void vnkey_global_load_dictionary([MarshalAs(UnmanagedType.LPUTF8Str)] string path);
 
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr vnkey_global_get_diagnostic_info();
+
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void vnkey_free_string(IntPtr s);
+
         public EngineWrapper(InputMode mode = InputMode.Telex)
         {
             vnkey_global_set_mode((byte)mode);
@@ -64,6 +70,22 @@ namespace VNKey.Windows.Core
 
         public void Reset()
         {
+        }
+
+        public string GetDiagnosticInfo()
+        {
+            IntPtr ptr = vnkey_global_get_diagnostic_info();
+            if (ptr == IntPtr.Zero) return string.Empty;
+
+            try
+            {
+                string json = Marshal.PtrToStringUTF8(ptr);
+                return json;
+            }
+            finally
+            {
+                vnkey_free_string(ptr);
+            }
         }
 
         public void Dispose()
