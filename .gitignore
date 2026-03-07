@@ -34,6 +34,7 @@ openspec/
 *.bak
 *.swp
 *.txt
+!core/tests/data/*.txt
 
 # Antigravity
 antigravity-awesome-skills/
