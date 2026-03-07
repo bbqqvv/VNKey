@@ -156,7 +156,7 @@ pub unsafe extern "C" fn vnkey_get_diagnostic_info(ptr: *mut Engine) -> *mut c_c
     if ptr.is_null() {
         return string_to_cstr(String::new());
     }
-    let engine = &*ptr;
+    let engine = &mut *ptr;
     let info = engine.get_diagnostic_info();
     let json = serde_json::to_string(&info).unwrap_or_else(|_| String::new());
     string_to_cstr(json)
@@ -281,6 +281,19 @@ pub unsafe extern "C" fn vnkey_global_process_backspace() -> bool {
         handled = e.process_backspace();
     });
     handled
+}
+
+/// Resets the global engine state.
+///
+/// # Safety
+///
+/// This function interacts with global state.
+#[no_mangle]
+#[cfg(windows)]
+pub unsafe extern "C" fn vnkey_global_reset() {
+    crate::hook::update_global_engine(|e| {
+        e.reset();
+    });
 }
 
 /// Gets diagnostic info for the global engine.

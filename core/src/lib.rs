@@ -30,6 +30,12 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
+use std::time::Instant;
+
+#[cfg(windows)]
+use windows::Win32::UI::Input::KeyboardAndMouse::GetKeyboardLayout;
+#[cfg(windows)]
+use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextW};
 
 pub mod config;
 pub mod converter;
@@ -90,6 +96,7 @@ pub struct EngineState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiagnosticData {
     pub buffer: String,
+    pub reconstructed: String,
     pub onset: String,
     pub vowel: String,
     pub coda: String,
@@ -98,6 +105,19 @@ pub struct DiagnosticData {
     pub literal_mode: bool,
     pub z_level: u8,
     pub mode: String,
+    pub is_shorthand: bool,
+    pub in_dictionary: bool,
+    pub last_buffer: String,
+    pub last_reconstructed: String,
+    pub raw_history: String,
+    pub is_dev_password_matched: bool,
+    pub active_window: String,
+    pub keyboard_layout: String,
+    pub last_raw_key: String,
+    pub last_action: String,
+    pub processing_time_ms: f64,
+    pub decision_log: Vec<String>,
+    pub vietnamese_mode: bool,
 }
 
 /// Vietnamese IME Engine — the brain of the input method.
@@ -131,6 +151,11 @@ pub struct Engine {
     /// Triggered for long nonsense strings or foreign words.
     literal_mode: bool,
     dictionary: Dictionary,
+    /// VIP Diagnostics: reasoning and performance
+    pub processing_time_ms: f64,
+    pub last_raw_key: String,
+    pub last_action: String,
+    pub decision_log: Vec<String>,
 }
 
 impl Engine {
@@ -158,6 +183,10 @@ impl Engine {
                 let _ = d.load_from_file("src/dictionaries/vi.dic");
                 d
             },
+            decision_log: Vec::new(),
+            processing_time_ms: 0.0,
+            last_raw_key: "None".to_string(),
+            last_action: "Initial".to_string(),
         }
     }
 
@@ -169,7 +198,7 @@ impl Engine {
     }
 
     /// Get the current internal state of the engine.
-    pub fn get_state(&self) -> EngineState {
+    pub fn get_state(&mut self) -> EngineState {
         let score = if self.config.spell_check && self.config.vietnamese_mode {
             phonology::validate_syllable(
                 &self.current_syllable,
@@ -199,10 +228,51 @@ impl Engine {
     }
 
     /// Get detailed diagnostic info for developer mode.
-    pub fn get_diagnostic_info(&self) -> DiagnosticData {
+    pub fn get_diagnostic_info(&mut self) -> DiagnosticData {
         let score = validate_syllable(&self.current_syllable, self.config.allow_foreign_consonants);
+        let reconstructed = if self.config.vietnamese_mode && !self.literal_mode {
+            self.reconstruct()
+        } else {
+            self.apply_case(&self.buffer)
+        };
+
+        let is_shorthand = if self.is_shorthand_active() && !self.buffer.is_empty() {
+            let macro_part = self.buffer.clone();
+            // Handle trigger character if it was just added (usually whitespace/punct)
+            // But get_diagnostic_info is usually called after a key press but before word boundary.
+            // Still, checking shorthand_dict is useful.
+            self.shorthand_dict
+                .lookup(&macro_part.to_lowercase())
+                .is_some()
+        } else {
+            false
+        };
+
+        let in_dictionary = self.dictionary.contains(&reconstructed.to_lowercase());
+
+        let mut active_window = "N/A".to_string();
+        let mut keyboard_layout = "N/A".to_string();
+
+        #[cfg(windows)]
+        {
+            unsafe {
+                let hwnd = GetForegroundWindow();
+                if !hwnd.0.is_null() {
+                    let mut buffer = [0u16; 256];
+                    let len = GetWindowTextW(hwnd, &mut buffer);
+                    if len > 0 {
+                        active_window = String::from_utf16_lossy(&buffer[..len as usize]);
+                    }
+                }
+
+                let hkl = GetKeyboardLayout(0);
+                keyboard_layout = format!("0x{:08x}", hkl.0 as usize);
+            }
+        }
+
         DiagnosticData {
             buffer: self.buffer.clone(),
+            reconstructed,
             onset: self.current_syllable.onset.clone(),
             vowel: self.current_syllable.vowel.clone(),
             coda: self.current_syllable.coda.clone(),
@@ -211,6 +281,19 @@ impl Engine {
             literal_mode: self.literal_mode,
             z_level: self.z_level,
             mode: format!("{:?}", self.mode),
+            is_shorthand,
+            in_dictionary,
+            last_buffer: self.last_committed_buffer.clone(),
+            last_reconstructed: self.last_committed_word.clone(),
+            raw_history: crate::hook::get_raw_history(),
+            is_dev_password_matched: crate::hook::check_and_reset_raw_match(),
+            active_window,
+            keyboard_layout,
+            last_raw_key: self.last_raw_key.clone(),
+            last_action: self.last_action.clone(),
+            processing_time_ms: self.processing_time_ms,
+            decision_log: self.decision_log.clone(),
+            vietnamese_mode: self.config.vietnamese_mode,
         }
     }
 
@@ -274,7 +357,13 @@ impl Engine {
         self.pre_z_syllable = None;
         self.pre_z_buffer = None;
         self.literal_mode = false;
-        self.capitalize_next = false;
+    }
+
+    pub fn log_decision(&mut self, message: String) {
+        self.decision_log.push(message);
+        if self.decision_log.len() > 10 {
+            self.decision_log.remove(0);
+        }
     }
 
     /// Hard reset: clear everything including committed history and capitalization flags.
@@ -305,11 +394,17 @@ impl Engine {
         }
     }
 
-    /// Process a single key press and return the current word output.
-    ///
-    /// This is the primary API. Feed characters one by one and get the
-    /// progressively transformed Vietnamese text.
     pub fn process_key(&mut self, key: char) -> String {
+        let start = Instant::now();
+        self.decision_log.clear();
+
+        let res = self.process_key_internal(key);
+
+        self.processing_time_ms = start.elapsed().as_secs_f64() * 1000.0;
+        res
+    }
+
+    fn process_key_internal(&mut self, key: char) -> String {
         // P1 FIX: Guard against buffer overflow (max 50 chars per word)
         // Longest valid Vietnamese word is ~10 chars; 50 is generous safety margin
         if self.buffer.chars().count() >= 50 {
@@ -320,6 +415,10 @@ impl Engine {
         // Optimized: Avoid string creation if possible
         if key.is_whitespace() || (key.is_ascii_punctuation() && !self.is_special_punctuation(key))
         {
+            self.log_decision(format!(
+                "Separator '{}' detected. Resetting word boundary.",
+                key
+            ));
             let mut transformed = if self.config.vietnamese_mode && !self.literal_mode {
                 self.reconstruct()
             } else {
@@ -336,6 +435,7 @@ impl Engine {
 
                 // If shorthand expanded, it cleared the buffer and updated `transformed` (including trigger)
                 if self.buffer.is_empty() && old_len > 0 {
+                    self.log_decision("Shorthand matched and expanded.".to_string());
                     return transformed;
                 }
             }
@@ -348,6 +448,7 @@ impl Engine {
             self.last_committed_case_map = self.case_map.clone();
 
             // P8: Update capitalization state after sentence-ending punctuation
+            // Note: We set this BEFORE reset_soft(), which no longer clears it.
             if self.config.auto_capitalize_sentence && ".!?".contains(key) {
                 self.capitalize_next = true;
             }
@@ -365,12 +466,14 @@ impl Engine {
             && !self.buffer.is_empty()
             && self.current_syllable.has_vowel()
         {
+            self.log_decision("Progressive Z triggered.".to_string());
             return self.handle_progressive_z();
         }
 
         self.reset_z_state();
 
         if self.literal_mode {
+            self.log_decision("Literal Mode active (bypass Vietnamese).".to_string());
             // Smart break: If we are in literal mode (English/Non-VN) and type a CAPITAL letter,
             // or if the buffer is getting long, start a new word.
             if key.is_uppercase() && self.buffer.chars().count() > 1 {
@@ -384,11 +487,16 @@ impl Engine {
 
         // P8: Auto-capitalize the first character of a new word if flagged
         let mut final_key = key;
-        if self.capitalize_next && self.buffer.is_empty() && key.is_lowercase() {
-            final_key = key.to_uppercase().next().unwrap_or(key);
-            self.capitalize_next = false;
+        if self.capitalize_next && self.buffer.is_empty() {
+            if key.is_lowercase() {
+                final_key = key.to_uppercase().next().unwrap_or(key);
+            }
+            // Clear flag if we are processing ANY non-whitespace character (even if it's a digit or already uppercase)
+            if !key.is_whitespace() {
+                self.capitalize_next = false;
+            }
         } else if !self.buffer.is_empty() {
-            // If we are already in a word, clear the flag (it only applies to the start)
+            // If we are already mid-word, any flag is stale
             self.capitalize_next = false;
         }
 
@@ -774,6 +882,10 @@ impl Engine {
             InputMode::Vni => vni::extract_tone(&input),
             InputMode::Viqr => viqr::extract_tone(&input),
         };
+        self.log_decision(format!(
+            "Tone: [{}] -> [{}] (Tone: {})",
+            input, core, tone_idx
+        ));
 
         // Step 2: Apply character modifiers (aa→â, dd→đ, etc.)
         let transformed = match self.mode {
@@ -782,17 +894,18 @@ impl Engine {
             InputMode::Vni => vni::apply_modifiers(&core),
             InputMode::Viqr => viqr::apply_modifiers(&core),
         };
+        self.log_decision(format!("Modifiers: [{}] -> [{}]", core, transformed));
 
         // Step 3: Parse into onset/vowel/coda structure
         self.current_syllable = syllable::parse(&transformed, tone_idx);
     }
 
     /// Internal: reconstruct the output string from current syllable + apply case.
-    fn reconstruct(&self) -> String {
+    fn reconstruct(&mut self) -> String {
         if self.literal_mode {
             return self.apply_case(&self.buffer);
         }
-        // CRITICAL: Place tone ONLY on onset+vowel, then append coda.
+        // ...
         let core = format!(
             "{}{}",
             self.current_syllable.onset, self.current_syllable.vowel
@@ -812,7 +925,18 @@ impl Engine {
             core
         };
         let toned = format!("{}{}", toned_core, self.current_syllable.coda);
-        self.apply_case(&toned)
+        let result = self.apply_case(&toned);
+
+        self.log_decision(format!(
+            "Reconstruct: [{}] + [{}] + [{}] (Tone: {}) -> '{}'",
+            self.current_syllable.onset,
+            self.current_syllable.vowel,
+            self.current_syllable.coda,
+            self.current_syllable.tone,
+            result
+        ));
+
+        result
     }
 
     /// Apply casing from case_map to a target string.

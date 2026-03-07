@@ -7,7 +7,16 @@ namespace VNKey.Windows
     {
         private static System.Threading.Mutex? _mutex;
 
-        public static Core.AppConfig Config { get; set; } = Core.AppConfig.Load();
+        public static Models.AppConfig Config { get; set; } = Models.AppConfig.Load();
+
+        // Services
+        public static Services.IEngineService EngineService { get; private set; } = null!;
+        public static Services.IConfigService ConfigService { get; private set; } = null!;
+        public static Services.IThemeService ThemeService { get; private set; } = null!;
+
+        // ViewModels
+        public static ViewModels.MainViewModel MainViewModel { get; private set; } = null!;
+        public static ViewModels.DiagnosticsViewModel DiagnosticsViewModel { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -22,12 +31,30 @@ namespace VNKey.Windows
                 return;
             }
 
-            Config = Core.AppConfig.Load();
+            // Initialize Services
+            ConfigService = new Services.ConfigService();
+            EngineService = new Services.EngineService();
+            ThemeService = new Services.ThemeService();
+
+            // Initialize ViewModels
+            DiagnosticsViewModel = new ViewModels.DiagnosticsViewModel(EngineService);
+            MainViewModel = new ViewModels.MainViewModel(EngineService, ConfigService, ThemeService, DiagnosticsViewModel);
+
+            Config = ConfigService.Config;
+            
+            // Start Engine Hook
+            EngineService.StartHook();
+
+            // Show MainWindow
+            var mainWindow = new Views.MainWindow(MainViewModel);
+            mainWindow.Show();
+
             base.OnStartup(e);
         }
 
         protected override void OnExit(System.Windows.ExitEventArgs e)
         {
+            (EngineService as IDisposable)?.Dispose();
             _mutex?.ReleaseMutex();
             base.OnExit(e);
         }

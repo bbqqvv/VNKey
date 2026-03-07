@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::thread;
 use windows::Win32::Foundation::{HINSTANCE, LPARAM, LRESULT, WPARAM};
+use windows::Win32::System::Diagnostics::Debug::Beep;
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState,
@@ -62,10 +63,26 @@ lazy_static! {
         e.set_config(cfg);
         e
     });
+    static ref RAW_HISTORY: Mutex<String> = Mutex::new(String::new());
+    static ref RAW_MATCH_FOUND: Mutex<bool> = Mutex::new(false);
     static ref CURRENT_WORD: Mutex<String> = Mutex::new(String::new());
     static ref HOOK_HANDLE: Mutex<Option<isize>> = Mutex::new(None);
     static ref MOUSE_HOOK_HANDLE: Mutex<Option<isize>> = Mutex::new(None);
     static ref TOGGLE_CALLBACK: Mutex<Option<extern "C" fn(bool)>> = Mutex::new(None);
+}
+
+pub fn check_and_reset_raw_match() -> bool {
+    if let Ok(mut lock) = RAW_MATCH_FOUND.lock() {
+        let val = *lock;
+        *lock = false;
+        val
+    } else {
+        false
+    }
+}
+
+pub fn get_raw_history() -> String {
+    RAW_HISTORY.lock().map(|h| h.clone()).unwrap_or_default()
 }
 
 pub fn set_toggle_callback(cb: extern "C" fn(bool)) {
@@ -166,14 +183,12 @@ unsafe extern "system" fn keyboard_hook_callback(
         let vk_code = kbd_struct.vkCode;
 
         // === EARLY MODIFIER BYPASS ===
-        // Check Ctrl/Alt/Win state BEFORE any mutex locks or char conversion.
-        // Modifier combos are NEVER Vietnamese input — safe to bypass 100%.
         let is_ctrl_down = is_key_down(VK_CONTROL.0 as i32);
         let is_alt_down = is_key_down(VK_LMENU.0 as i32) || is_key_down(VK_RMENU.0 as i32);
         let is_win_down = is_key_down(VK_LWIN.0 as i32) || is_key_down(VK_RWIN.0 as i32);
         let is_shift_down = is_key_down(VK_SHIFT.0 as i32);
 
-        // Dynamic toggle shortcut: handle BEFORE bypass
+        // Dynamic toggle shortcut
         if is_shortcut_triggered(
             vk_code,
             is_ctrl_down,
@@ -188,6 +203,8 @@ unsafe extern "system" fn keyboard_hook_callback(
                 new_state = cfg.vietnamese_mode;
                 engine.set_config(cfg);
                 engine.reset();
+                engine.last_raw_key = format!("VK_{:02X}", vk_code);
+                engine.last_action = "Toggled Mode".to_string();
             }
             if let Ok(mut cw) = CURRENT_WORD.lock() {
                 cw.clear();
@@ -200,10 +217,37 @@ unsafe extern "system" fn keyboard_hook_callback(
             return LRESULT(1);
         }
 
-        // Bypass ALL modifier combos (Ctrl+C, Ctrl+V, Alt+Tab, Win+D, etc.)
-        // IMPORTANT: Reset engine because these actions likely change text/selection context!
+        // Bypass logic: Only bypass if it's a real systemic shortcut (Ctrl+..., Alt+..., Win+...)
+        // We exclude Shift-only because it's used for capitalization.
+        // We handle AltGr (LControl + RMenu) carefully for international layouts.
+        let is_modifier_key = vk_code == VK_CONTROL.0 as u32
+            || vk_code == VK_LCONTROL.0 as u32
+            || vk_code == VK_RCONTROL.0 as u32
+            || vk_code == VK_MENU.0 as u32
+            || vk_code == VK_LMENU.0 as u32
+            || vk_code == VK_RMENU.0 as u32
+            || vk_code == VK_LWIN.0 as u32
+            || vk_code == VK_RWIN.0 as u32;
+
         if is_ctrl_down || is_alt_down || is_win_down {
+            // If it's just the modifier key itself being pressed/released, we just reset state and let it pass through.
+            if is_modifier_key {
+                if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+                    engine.last_raw_key = format!("Modifier (VK_{:02X})", vk_code);
+                    engine.last_action = "Bypassed (System)".to_string();
+                    engine.reset();
+                }
+                if let Ok(mut cw) = CURRENT_WORD.lock() {
+                    cw.clear();
+                }
+                return CallNextHookEx(None, n_code, w_param, l_param);
+            }
+
+            // If it's a regular key while a modifier is down, it's a combo (e.g. Ctrl+C).
+            // We bypass these but log them clearly.
             if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+                engine.last_raw_key = format!("Combo (VK_{:02X})", vk_code);
+                engine.last_action = "Bypassed (Combo)".to_string();
                 engine.reset();
             }
             if let Ok(mut cw) = CURRENT_WORD.lock() {
@@ -212,20 +256,7 @@ unsafe extern "system" fn keyboard_hook_callback(
             return CallNextHookEx(None, n_code, w_param, l_param);
         }
 
-        // === END EARLY MODIFIER BYPASS ===
-
-        let mut shorthand_active = false;
-        let mut vietnamese_enabled = true;
-        if let Ok(engine) = GLOBAL_ENGINE.lock() {
-            vietnamese_enabled = engine.config().vietnamese_mode;
-            shorthand_active = engine.config().macro_enabled && engine.config().shorthand_while_off;
-        }
-
-        if !vietnamese_enabled && !shorthand_active {
-            return CallNextHookEx(None, n_code, w_param, l_param);
-        }
-
-        // Navigation keys, Enter, and Delete should just reset the engine state
+        // Navigation keys, Enter, and Delete
         if vk_code == VK_LEFT.0 as u32
             || vk_code == VK_RIGHT.0 as u32
             || vk_code == VK_UP.0 as u32
@@ -242,19 +273,25 @@ unsafe extern "system" fn keyboard_hook_callback(
             || is_key_down(VK_MBUTTON.0 as i32)
         {
             if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+                engine.last_raw_key = format!("VK_{:02X}", vk_code);
                 if vk_code == VK_RETURN.0 as u32 {
                     let expansion = engine.on_enter();
                     if let Ok(mut cw) = CURRENT_WORD.lock() {
                         if !expansion.is_empty() && expansion != *cw {
-                            // Shorthand expansion happened!
                             let backspaces = cw.chars().count();
                             unsafe {
                                 apply_changes_atomic(backspaces, &expansion);
                             }
+                            engine.last_action = "Shorthand Expanded".to_string();
+                        } else {
+                            engine.last_action = "Reset (Enter)".to_string();
                         }
                         cw.clear();
+                    } else {
+                        engine.last_action = "Reset (Enter)".to_string();
                     }
                 } else {
+                    engine.last_action = "Reset (Nav/Mouse)".to_string();
                     engine.reset();
                     if let Ok(mut cw) = CURRENT_WORD.lock() {
                         cw.clear();
@@ -264,116 +301,101 @@ unsafe extern "system" fn keyboard_hook_callback(
             return CallNextHookEx(None, n_code, w_param, l_param);
         }
 
+        // Backspace handling
         if vk_code == VK_BACK.0 as u32 {
-            // Engine handles backspace internally
-            let backspace_action = if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+            if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+                engine.last_raw_key = "VK_BACK".to_string();
                 let current_on_screen = if let Ok(cw) = CURRENT_WORD.lock() {
                     cw.clone()
                 } else {
                     String::new()
                 };
-
-                let handled = engine.process_backspace();
-                if handled {
+                if engine.process_backspace() {
+                    engine.last_action = "Absorbed (Engine)".to_string();
                     let new_transformed = engine.get_state().transformed;
-
-                    // Logic to sync: compare current screen with new state
-                    let common_prefix_len = current_on_screen
+                    let prefix = get_common_prefix(&current_on_screen, &new_transformed);
+                    let backspaces = current_on_screen.chars().count() - prefix.chars().count();
+                    let text = new_transformed
                         .chars()
-                        .zip(new_transformed.chars())
-                        .take_while(|(a, b)| a == b)
-                        .count();
-
-                    let backspaces_needed = current_on_screen.chars().count() - common_prefix_len;
-                    let text_to_send: String =
-                        new_transformed.chars().skip(common_prefix_len).collect();
-
-                    Some((backspaces_needed, text_to_send, new_transformed))
+                        .skip(prefix.chars().count())
+                        .collect::<String>();
+                    if let Ok(mut cw) = CURRENT_WORD.lock() {
+                        *cw = new_transformed;
+                    }
+                    unsafe {
+                        apply_changes_atomic(backspaces, &text);
+                    }
+                    return LRESULT(1);
                 } else {
-                    None
+                    engine.last_action = "Passed (Normal)".to_string();
+                    if let Ok(mut cw) = CURRENT_WORD.lock() {
+                        cw.clear();
+                    }
                 }
-            } else {
-                None
-            };
-
-            if let Some((backspaces, text, new_cw)) = backspace_action {
-                if let Ok(mut cw) = CURRENT_WORD.lock() {
-                    *cw = new_cw;
-                }
-                unsafe {
-                    apply_changes_atomic(backspaces, &text);
-                }
-                return LRESULT(1); // Suppress original backspace
-            } else {
-                // If not handled by engine (e.g., buffer already empty), let Windows handle it normally
-                if let Ok(mut cw) = CURRENT_WORD.lock() {
-                    cw.clear();
-                }
-                // Also reset engine just in case it was in Literal Mode or had a dirty buffer
-                if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
-                    engine.reset();
-                }
-                return CallNextHookEx(None, n_code, w_param, l_param);
             }
+            return CallNextHookEx(None, n_code, w_param, l_param);
         }
 
         let ch = get_char_from_vk_code(vk_code);
-        if ch != '\0' && !ch.is_control() {
-            // Sequential lock: engine first — process key and get result
-            let engine_result = if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+        if ch != '\0' {
+            // Raw history tracking for Dev Mode password
+            if let Ok(mut history) = RAW_HISTORY.lock() {
+                history.push(ch);
+                if history.len() > 30 {
+                    history.remove(0);
+                }
+                if history.to_lowercase().contains("vnkdev") {
+                    if let Ok(mut match_lock) = RAW_MATCH_FOUND.lock() {
+                        *match_lock = true;
+                    }
+                    history.clear();
+                }
+            }
+
+            let mut absorbed = false;
+            let mut engine_result = None;
+            if let Ok(mut engine) = GLOBAL_ENGINE.lock() {
+                engine.last_raw_key = format!("'{}' (VK_{:02X})", ch, vk_code);
                 let is_separator = ch.is_whitespace()
                     || (ch.is_ascii_punctuation() && !engine.is_special_punctuation(ch));
                 let old_buffer_empty = engine.get_state().buffer.is_empty();
 
                 let new_word = engine.process_key(ch);
+                if new_word != format!("{}{}", engine.get_state().buffer, ch) {
+                    absorbed = true;
+                    engine.last_action = "Absorbed (Processed)".to_string();
+                } else {
+                    engine.last_action = "Passed (Literal)".to_string();
+                }
 
-                // NEW SENIOR LOGIC:
-                // If buffer was empty and we type a NON-separator -> start of a new word -> reset CW sync
                 let should_reset_sync = old_buffer_empty && !is_separator;
-
-                // If we type a separator but the buffer was ALREADY empty -> outside any word -> reset CW sync
                 let is_hard_reset = is_separator && old_buffer_empty;
+                engine_result = Some((new_word, should_reset_sync, is_hard_reset, absorbed));
+            }
 
-                Some((new_word, should_reset_sync, is_hard_reset))
-            } else {
-                None
-            };
-
-            if let Some((new_word, should_reset_sync, is_hard_reset)) = engine_result {
-                let send_action = if let Ok(mut cw) = CURRENT_WORD.lock() {
+            if let Some((new_word, should_reset_sync, is_hard_reset, absorbed)) = engine_result {
+                let mut send_action = None;
+                if let Ok(mut cw) = CURRENT_WORD.lock() {
                     if should_reset_sync || is_hard_reset {
                         cw.clear();
                     }
-
                     let mut base_word = cw.clone();
                     base_word.push(ch);
-
-                    let action = if new_word != base_word {
-                        let common_prefix_len = cw
+                    if new_word != base_word {
+                        let prefix = get_common_prefix(&*cw, &new_word);
+                        let backspaces = cw.chars().count() - prefix.chars().count();
+                        let text = new_word
                             .chars()
-                            .zip(new_word.chars())
-                            .take_while(|(a, b)| a == b)
-                            .count();
-
-                        let backspaces_needed = cw.chars().count() - common_prefix_len;
-                        let text_to_send: String =
-                            new_word.chars().skip(common_prefix_len).collect();
-                        Some((backspaces_needed, text_to_send))
-                    } else {
-                        None
-                    };
-
-                    // Update CURRENT_WORD with what's actually on screen now
+                            .skip(prefix.chars().count())
+                            .collect::<String>();
+                        send_action = Some((backspaces, text));
+                    }
                     if is_hard_reset {
                         cw.clear();
                     } else {
                         *cw = new_word;
                     }
-
-                    action
-                } else {
-                    None
-                };
+                }
 
                 if let Some((backspaces, text)) = send_action {
                     unsafe {
@@ -385,6 +407,14 @@ unsafe extern "system" fn keyboard_hook_callback(
         }
     }
     CallNextHookEx(None, n_code, w_param, l_param)
+}
+
+fn get_common_prefix(s1: &str, s2: &str) -> String {
+    s1.chars()
+        .zip(s2.chars())
+        .take_while(|(a, b)| a == b)
+        .map(|(a, _)| a)
+        .collect()
 }
 
 fn is_shortcut_triggered(vk_code: u32, ctrl: bool, alt: bool, shift: bool, win: bool) -> bool {
