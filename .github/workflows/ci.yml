@@ -1,4 +1,4 @@
-name: VNKey CI
+name: VNKey Professional CI/CD
 
 on:
   push:
@@ -8,23 +8,35 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  # 1. Rust Core: Test, Lint, and Format
   test-rust-core:
     name: Rust Core (Test & Lint)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Rust
+    - name: Install Rust (${{ matrix.rust }})
       uses: dtolnay/rust-toolchain@stable
       with:
+        toolchain: ${{ matrix.rust }}
         components: clippy, rustfmt
 
     - name: Rust Cache
       uses: Swatinem/rust-cache@v2
       with:
         workspaces: "core -> target"
+
+    - name: Check Formatting
+      run: cargo fmt --all -- --check
+      working-directory: core
 
     - name: Run Tests
       run: cargo test --verbose
@@ -34,9 +46,12 @@ jobs:
       run: cargo clippy -- -D warnings
       working-directory: core
 
+  # 2. Windows Build: DLL and EXE Artifacts
   build-windows-wpf:
-    name: Windows Build Check (WPF)
+    name: Windows Build & Artifacts
     runs-on: windows-latest
+    needs: test-rust-core
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v4
 
@@ -48,6 +63,9 @@ jobs:
     - name: Install Rust (Windows)
       uses: dtolnay/rust-toolchain@stable
       
+    - name: Rust Cache (Windows)
+      uses: Swatinem/rust-cache@v2
+
     - name: Build Rust Core DLL
       run: cargo build --release
       working-directory: core
@@ -63,3 +81,17 @@ jobs:
 
     - name: Build WPF Project
       run: dotnet build platforms/windows/VNKey.Windows/VNKey.Windows.csproj --configuration Release --no-restore
+
+    - name: Prepare Artifacts
+      run: |
+        mkdir -p publish
+        cp platforms/windows/VNKey.Windows/bin/Release/net9.0-windows/VNKey.exe publish/
+        cp target/release/vnkey_core.dll publish/
+      shell: bash
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: VNKey-Latest-Build
+        path: publish/
+        retention-days: 7
