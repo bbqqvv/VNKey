@@ -6,7 +6,7 @@ fn test_nfc_nfd_normalization_consistency() {
 
     // NFC (composed): "ế" is U+1EBF
     // NFD (decomposed): "ê" + "́" (combining acute)
-    
+
     // Testing if engine handles NFD input by treating it logically or normalizing.
     // Given the current architecture, NFD input might be processed char by char.
     
@@ -23,7 +23,13 @@ fn test_nfc_nfd_normalization_consistency() {
 
     // Check byte lengths to see if they are both NFC (1EBF is 3 bytes in UTF-8)
     // NFD (ê + acute) would be 2 bytes (ê) + 2 bytes (acute) = 4 bytes.
-    println!("NFC out: {} (len {}), NFD out: {} (len {})", out_nfc, out_nfc.len(), out_nfd, out_nfd.len());
+    println!(
+        "NFC out: {} (len {}), NFD out: {} (len {})",
+        out_nfc,
+        out_nfc.len(),
+        out_nfd,
+        out_nfd.len()
+    );
 }
 
 #[test]
@@ -35,8 +41,11 @@ fn test_emoji_interspersion() {
     engine.feed_str("tiế");
     let out_emoji = engine.feed_str("😀");
     let out_final = engine.feed_str("ng");
-    
-    println!("Emoji output: '{}', Final output: '{}'", out_emoji, out_final);
+
+    println!(
+        "Emoji output: '{}', Final output: '{}'",
+        out_emoji, out_final
+    );
     // Based on engine logic, any non-word char should reset the word buffer.
     assert_eq!(out_final, "ng"); // 'ng' should be a new word
 }
