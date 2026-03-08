@@ -250,25 +250,29 @@ impl Engine {
 
         let in_dictionary = self.dictionary.contains(&reconstructed.to_lowercase());
 
-        let mut active_window = "N/A".to_string();
-        let mut keyboard_layout = "N/A".to_string();
-
-        #[cfg(windows)]
-        {
-            unsafe {
-                let hwnd = GetForegroundWindow();
-                if !hwnd.0.is_null() {
-                    let mut buffer = [0u16; 256];
-                    let len = GetWindowTextW(hwnd, &mut buffer);
-                    if len > 0 {
-                        active_window = String::from_utf16_lossy(&buffer[..len as usize]);
+        let (active_window, keyboard_layout) = {
+            #[cfg(windows)]
+            {
+                let mut aw = "N/A".to_string();
+                let mut kl = "N/A".to_string();
+                unsafe {
+                    let hwnd = GetForegroundWindow();
+                    if !hwnd.0.is_null() {
+                        let mut buffer = [0u16; 256];
+                        let len = GetWindowTextW(hwnd, &mut buffer);
+                        if len > 0 {
+                            aw = String::from_utf16_lossy(&buffer[..len as usize]);
+                        }
                     }
-                }
 
-                let hkl = GetKeyboardLayout(0);
-                keyboard_layout = format!("0x{:08x}", hkl.0 as usize);
+                    let hkl = GetKeyboardLayout(0);
+                    kl = format!("0x{:08x}", hkl.0 as usize);
+                }
+                (aw, kl)
             }
-        }
+            #[cfg(not(windows))]
+            ("N/A".to_string(), "N/A".to_string())
+        };
 
         DiagnosticData {
             buffer: self.buffer.clone(),
