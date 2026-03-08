@@ -9,7 +9,7 @@
     <SolidColorBrush x:Key="AppSecondaryText" Color="#969696"/>
     <SolidColorBrush x:Key="AppButtonBackground" Color="#333333"/>
     <SolidColorBrush x:Key="AppButtonHoverBackground" Color="#3F3F46"/>
-    <SolidColorBrush x:Key="AppAccentForeground" Color="#1E1E1E"/>
+    <SolidColorBrush x:Key="AppAccentForeground" Color="White"/>
     <SolidColorBrush x:Key="AppAccentHoverBackground" Color="#80F2FF"/>
     <SolidColorBrush x:Key="AppCardBackground" Color="#2D2D30"/>
     <SolidColorBrush x:Key="AppScrollbarThumb" Color="#00E5FF"/>
@@ -38,6 +38,71 @@
     </Style>
     <Style TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+    </Style>
+
+    <!-- Button base style -->
+    <Style x:Key="AppButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource AppButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="15,5"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}">
+                            <ContentPresenter.Resources>
+                                <!-- Force child TextBlocks to inherit the Button's Foreground, overriding global style -->
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource AppButtonHoverBackground}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#007ACC"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource AppButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource AppAccent}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="0" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource AppAccentHoverBackground}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#00B3CC"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ComboBox Style -->
