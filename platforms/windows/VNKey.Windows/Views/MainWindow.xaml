@@ -470,7 +470,7 @@
                                 <TextBlock Text="Gõ tắt" FontSize="18" FontWeight="Bold"/>
                                 <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Padding="6,1" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="0,0,5,0" Opacity="0.5"/>
+                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="2,0,8,0" Opacity="0.5"/>
                                         <TextBox Width="100" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="12" VerticalContentAlignment="Center" MaxLength="20" Text="{Binding ShorthandSearchText, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                 </Border>
@@ -493,7 +493,7 @@
                                         <TextBlock Text="THAY THẾ" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
                                         <TextBox Text="{Binding NewExpansion, UpdateSourceTrigger=PropertyChanged}" Height="22" VerticalContentAlignment="Center" Padding="5,0"/>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Bottom" Margin="10,0,0,0">
                                         <!-- Height matching label + margin to align with textboxes -->
                                         <Border Height="13" Visibility="Hidden"/> 
                                         <Button Content="Thêm" Command="{Binding AddShorthandCommand}" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="60" Height="22"/>
