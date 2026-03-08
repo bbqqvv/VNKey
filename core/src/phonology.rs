@@ -19,11 +19,11 @@ pub const CODAS: &[&str] = &[
 
 /// Valid Vietnamese Vowel Clusters (Vần) - Sorted for binary search
 pub const VOWEL_CLUSTERS: &[&str] = &[
-    "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iu", "iê", "iêu", "o", "oa", "oai", "oao",
-    "oay", "oe", "oi", "oo", "oă", "u", "ua", "ui", "uy", "uya", "uyê", "uâ", "uân", "uâng", "uê",
-    "uô", "uôi", "uôn", "uông", "uă", "uơ", "uyn", "uyu", "uất", "y", "ya", "yê", "yêu", "â", "âu",
-    "ây", "ê", "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu",
-    "ươ", "ươi", "ươn", "ương",
+    "a", "ai", "ao", "au", "ay", "â", "âu", "ây", "e", "eo", "ê", "êu", "i", "ia", "iê", "iêu",
+    "iu", "o", "oa", "oai", "oao", "oay", "oe", "oi", "oo", "oă", "ô", "ôi", "ôn", "ông", "ơ",
+    "ơi", "ơm", "ơn", "ơng", "u", "ua", "uâ", "uân", "uâng", "uă", "uê", "ui", "uô", "uôi", "uôn",
+    "uông", "uo", "uơ", "uất", "ư", "ưa", "ưu", "ươ", "ươi", "ươn", "ương", "uy", "uya", "uyê",
+    "uyn", "uyu", "y", "ya", "yê", "yêu",
 ];
 
 /// Intermediate Vowel Clusters - valid during typing but not as final words
@@ -34,7 +34,7 @@ pub const INTERMEDIATE_VOWEL_CLUSTERS: &[&str] = &[
 /// Check if an onset is linguistically valid.
 pub fn is_valid_onset(onset: &str, allow_foreign: bool) -> bool {
     let lower = onset.to_lowercase();
-    if ONSETS.binary_search(&lower.as_str()).is_ok() {
+    if ONSETS.contains(&lower.as_str()) {
         return true;
     }
     // Optimization: Allow 'ww', 'dd', etc. as they might be intermediate Telex states
@@ -53,7 +53,7 @@ pub fn is_valid_onset(onset: &str, allow_foreign: bool) -> bool {
 /// Check if a coda is linguistically valid.
 pub fn is_valid_coda(coda: &str, allow_foreign: bool) -> bool {
     let lower = coda.to_lowercase();
-    if CODAS.binary_search(&lower.as_str()).is_ok() {
+    if CODAS.contains(&lower.as_str()) {
         return true;
     }
     if allow_foreign {
@@ -117,7 +117,7 @@ pub fn validate_syllable(syl: &Syllable, allow_foreign: bool) -> u8 {
     let lower_vowel = syl.vowel.to_lowercase();
 
     // P13: Strict validation for perfection
-    if VOWEL_CLUSTERS.binary_search(&lower_vowel.as_str()).is_ok() {
+    if VOWEL_CLUSTERS.contains(&lower_vowel.as_str()) {
         return 100;
     }
 

@@ -570,6 +570,18 @@ impl Engine {
         let onset_len = self.current_syllable.onset.chars().count();
         let coda_len = self.current_syllable.coda.chars().count();
 
+        // 1. Strict onset check: If allow_foreign_consonants is OFF,
+        // characters like z, f, j, w (at the start) should trigger literal mode immediately.
+        if !self.config.allow_foreign_consonants {
+            if let Some(first_char) = self.buffer.chars().next() {
+                let fc = first_char.to_lowercase().next().unwrap();
+                if matches!(fc, 'z' | 'f' | 'j' | 'w') {
+                    self.literal_mode = true;
+                    return;
+                }
+            }
+        }
+
         // Structural checks
         if (onset_len > 5 || coda_len > 5) || self.buffer.chars().count() > 30 {
             self.literal_mode = true;
@@ -577,7 +589,8 @@ impl Engine {
         }
 
         // Garbage scoring checks
-        if phonetic_score <= 2 && self.buffer.chars().count() > 10 {
+        // P13 FIX: If onset is invalid (score <= 5), trigger literal mode much earlier (buffer > 2)
+        if phonetic_score <= 5 && self.buffer.chars().count() > 2 {
             self.literal_mode = true;
             return;
         }
@@ -1166,6 +1179,28 @@ mod tests {
         assert_eq!(e.feed_str("viEejt"), vi_et);
         e.reset();
         assert_eq!(e.feed_str("VIEEJT"), "VI\u{1EC6}T");
+    }
+
+    #[test]
+    fn test_foreign_consonants_disabled() {
+        let mut e = Engine::new(InputMode::Telex);
+        let mut cfg = e.config().clone();
+        cfg.vietnamese_mode = true;
+        cfg.allow_foreign_consonants = false;
+        e.set_config(cfg);
+
+        // z, f, j, w at start should be literal
+        assert_eq!(e.feed_str("zas"), "zas");
+        e.reset();
+        assert_eq!(e.feed_str("fas"), "fas");
+        e.reset();
+        assert_eq!(e.feed_str("jas"), "jas");
+        e.reset();
+        assert_eq!(e.feed_str("wa"), "wa");
+
+        // But w as modifier should still work (e.g. aw -> ă)
+        e.reset();
+        assert_eq!(e.feed_str("aw"), "\u{0103}");
     }
 
     // ---- VNI basics ----
