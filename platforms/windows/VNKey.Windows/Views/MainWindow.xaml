@@ -140,7 +140,8 @@
     </ResourceDictionary>
 </Window.Resources>
 
-    <Border Background="{DynamicResource AppBackground}" CornerRadius="8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1">
+    <Border Background="{DynamicResource AppBackground}" CornerRadius="8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"
+            TextElement.Foreground="{DynamicResource AppText}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="34"/>
