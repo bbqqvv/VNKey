@@ -134,9 +134,6 @@
             <Setter Property="Margin" Value="0,2"/>
         </Style>
 
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
-        </Style>
     </ResourceDictionary>
 </Window.Resources>
 
