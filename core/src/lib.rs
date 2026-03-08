@@ -285,8 +285,14 @@ impl Engine {
             in_dictionary,
             last_buffer: self.last_committed_buffer.clone(),
             last_reconstructed: self.last_committed_word.clone(),
+            #[cfg(windows)]
             raw_history: crate::hook::get_raw_history(),
+            #[cfg(not(windows))]
+            raw_history: String::from("N/A (Windows Only)"),
+            #[cfg(windows)]
             is_dev_password_matched: crate::hook::check_and_reset_raw_match(),
+            #[cfg(not(windows))]
+            is_dev_password_matched: false,
             active_window,
             keyboard_layout,
             last_raw_key: self.last_raw_key.clone(),
