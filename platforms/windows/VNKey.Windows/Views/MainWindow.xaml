@@ -607,13 +607,68 @@
                             </StackPanel.Style>
                             <TextBlock Text="Thông tin" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
                             
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="VNKEY" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource AppAccent}"/>
-                                    <TextBlock Text="Phiên bản 2.0.0" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,15" MouseLeftButtonDown="VersionText_MouseLeftButtonDown"/>
-                                    <TextBlock Text="Phần mềm gõ tiếng Việt thế hệ mới, mã nguồn mở, hỗ trợ nhiều bảng mã và tính năng thông minh." TextWrapping="Wrap" Margin="0,0,0,10"/>
-                                    <TextBlock Text="Phát triển bởi VNKDEV" FontStyle="Italic"/>
-                                </StackPanel>
+                            <Border Style="{StaticResource CardStyle}" Padding="25">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/> <!-- Header with Logo -->
+                                        <RowDefinition Height="Auto"/> <!-- Description -->
+                                        <RowDefinition Height="Auto"/> <!-- Resources -->
+                                        <RowDefinition Height="Auto"/> <!-- Footer -->
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Top Section: Logo & Brand -->
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,25">
+                                        <Border Width="64" Height="64" Background="{DynamicResource AppControlBackground}" CornerRadius="12" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,20,0">
+                                            <Image Source="/Assets/VNKey.png" Margin="10"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="VNKey" FontSize="28" FontWeight="ExtraBold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="Phiên bản 2.0.0 Stable" FontSize="12" Foreground="{DynamicResource AppSecondaryText}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Description Area -->
+                                    <Border Grid.Row="1" Background="{DynamicResource AppBackground}" CornerRadius="6" Padding="15" Margin="0,0,0,25">
+                                        <TextBlock Text="Bộ gõ tiếng Việt thế hệ mới với hiệu năng cao, mã nguồn mở và khả năng tùy biến tuyệt vời. Được thiết kế để mang lại trải nghiệm gõ mượt mà và thông minh nhất trên Windows." 
+                                                   TextWrapping="Wrap" FontSize="12" LineHeight="18" Foreground="{DynamicResource AppText}" Opacity="0.9"/>
+                                    </Border>
+
+                                    <!-- Resource Links -->
+                                    <StackPanel Grid.Row="2" Margin="0,0,0,20">
+                                        <TextBlock Text="TÀI NGUYÊN &amp; CỘNG ĐỒNG" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <!-- GitHub Link -->
+                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,20,0" ToolTip="GitHub Repository">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xEC40;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
+                                                    <TextBlock Text="Mã nguồn GitHub" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <!-- Website Link -->
+                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,20,0" ToolTip="Official Website">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
+                                                    <TextBlock Text="Trang chủ" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <!-- Issues Link -->
+                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" ToolTip="Report Issues">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE939;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
+                                                    <TextBlock Text="Báo lỗi" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Footer info -->
+                                    <Border Grid.Row="3" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="0,15,0,0">
+                                        <Grid>
+                                            <TextBlock Text="© 2024 VNKDEV. Bảo lưu mọi quyền." FontSize="10" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Phát triển với ❤️ tại Việt Nam" HorizontalAlignment="Right" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
                             </Border>
                         </StackPanel>
                     </Grid>
