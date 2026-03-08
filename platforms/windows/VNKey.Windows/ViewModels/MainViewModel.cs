@@ -28,6 +28,7 @@ namespace VNKey.Windows.ViewModels
 
         // UI Properties
         private bool _isNavVertical = true;
+        private bool _isSidebarExpanded = true;
 
         public bool IsVietnameseMode
         {
@@ -81,6 +82,12 @@ namespace VNKey.Windows.ViewModels
                     SyncAndSave();
                 }
             }
+        }
+
+        public bool IsSidebarExpanded
+        {
+            get => _isSidebarExpanded;
+            set => SetProperty(ref _isSidebarExpanded, value);
         }
 
         public string ShorthandSearchText
@@ -235,6 +242,7 @@ namespace VNKey.Windows.ViewModels
         public ICommand ReturnDiagnosticsCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand RecordShortcutCommand { get; }
+        public ICommand ToggleSidebarCommand { get; }
 
         public MainViewModel(IEngineService engineService, IConfigService configService, IThemeService themeService, DiagnosticsViewModel diagnostics)
         {
@@ -268,6 +276,7 @@ namespace VNKey.Windows.ViewModels
             DeleteShorthandCommand = new RelayCommand(p => DeleteShorthand(p as Models.ShorthandItem));
             ImportShorthandCommand = new RelayCommand(_ => ImportShorthand());
             ExportShorthandCommand = new RelayCommand(_ => ExportShorthand());
+            ToggleSidebarCommand = new RelayCommand(_ => IsSidebarExpanded = !IsSidebarExpanded);
 
             // Subscribe to engine events
             _engineService.OnVietnameseModeChanged += (enabled) => 

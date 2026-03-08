@@ -26,29 +26,46 @@
 
             <!-- Sidebar Nav Button -->
             <Style x:Key="NavButtonStyle" TargetType="RadioButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Margin="4,2" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppBorder}"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AppControlBackground}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource AppAccent}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+                <Setter Property="Padding" Value="10,6"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Margin="4,2" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AppBorder}"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AppControlBackground}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AppAccent}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LogoButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent">
+                                <ContentPresenter/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
         <!-- Card style -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -150,9 +167,13 @@
             <!-- ═══ Title Bar ═══ -->
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent" Cursor="Hand">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
-                    <TextBlock x:Name="LogoIcon" Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="VNKey" FontWeight="Bold" Foreground="{DynamicResource AppText}" FontSize="14" VerticalAlignment="Center"/>
-                    <TextBlock Text=" 2.0" Foreground="{DynamicResource AppSecondaryText}" FontSize="14" VerticalAlignment="Center"/>
+                    <Button Command="{Binding ToggleSidebarCommand}" Style="{StaticResource LogoButtonStyle}" Margin="0,0,10,0" ToolTip="Thu gọn/Mở rộng bảng điều khiển">
+                        <TextBlock x:Name="LogoIcon" Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="18" VerticalAlignment="Center"/>
+                    </Button>
+                    <TextBlock Text="VNKey" FontWeight="Bold" Foreground="{DynamicResource AppText}" FontSize="14" VerticalAlignment="Center" 
+                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <TextBlock Text=" 2.0" Foreground="{DynamicResource AppSecondaryText}" FontSize="14" VerticalAlignment="Center" 
+                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Button Width="36" Height="34" Background="Transparent" BorderThickness="0" Command="{Binding ToggleThemeCommand}" Cursor="Arrow">
@@ -260,10 +281,24 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- LEFT SIDEBAR -->
-                <Border x:Name="SidebarBorder" Grid.Column="0" Width="140" Background="{DynamicResource AppSidebarBackground}" CornerRadius="0,0,0,8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,1,0" Visibility="{Binding IsNavVertical, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border x:Name="SidebarBorder" Grid.Column="0" Background="{DynamicResource AppSidebarBackground}" CornerRadius="0,0,0,8" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,1,0" 
+                        Visibility="{Binding IsNavVertical, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True">
+                                    <Setter Property="Width" Value="140"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                    <Setter Property="Width" Value="48"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <StackPanel x:Name="NavButtonsStack" Margin="0,5" Orientation="Vertical">
                         <!-- Mode indicator -->
-                        <Border x:Name="SideModeIndicator" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="10,0,10,8" Padding="10,2">
+                        <Border x:Name="SideModeIndicator" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="10,0,10,8" Padding="10,2"
+                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel>
                                 <TextBlock Text="Chế độ" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
                                 <StackPanel Orientation="Horizontal">
@@ -282,40 +317,44 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Bộ gõ" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Bộ gõ" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                           Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
                         <RadioButton x:Name="NavShorthand" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Command="{Binding NavigateCommand}" CommandParameter="Shorthand">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Gõ tắt" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Gõ tắt" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                           Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
                         <RadioButton x:Name="NavSystem" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Command="{Binding NavigateCommand}" CommandParameter="System">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Hệ thống" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Hệ thống" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                           Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
                         <RadioButton x:Name="NavAbout" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Command="{Binding NavigateCommand}" CommandParameter="About">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Thông tin" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Thông tin" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                           Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
 
@@ -323,10 +362,11 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
-                                <TextBlock Grid.Column="1" Text="Dev Mode" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
+                                <TextBlock Grid.Column="1" Text="Dev Mode" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"
+                                           Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
                     </StackPanel>
