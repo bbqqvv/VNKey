@@ -54,6 +54,11 @@ fn test_tone_sweep() {
 #[test]
 fn test_telex_cancellation() {
     let mut e = setup_engine(InputMode::Telex);
+    let mut cfg = e.config().clone();
+    cfg.spell_check = false;
+    cfg.auto_restore = false;
+    e.set_config(cfg);
+
     assert_eq!(e.feed_str("aa"), "\u{00E2}");
     e.reset();
     assert_eq!(e.feed_str("aaa"), "aa");

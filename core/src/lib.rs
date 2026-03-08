@@ -967,12 +967,12 @@ impl Engine {
         // Determine semantic case pattern from input
         let is_all_upper = self.case_map.iter().all(|&c| c);
         let first_is_upper = self.case_map.first().copied().unwrap_or(false);
-        let has_lower = self.case_map.iter().any(|&c| !c);
-        let is_title_case = first_is_upper && has_lower;
+        let second_is_lower = self.case_map.get(1).is_some_and(|&c| !c);
 
         if is_all_upper {
             target.to_uppercase()
-        } else if is_title_case {
+        } else if first_is_upper && second_is_lower {
+            // Standard Title Case: Vn...
             let mut chars = target.chars();
             match chars.next() {
                 Some(first) => {
@@ -982,10 +982,9 @@ impl Engine {
                 }
                 None => target.to_string(),
             }
-        } else if !first_is_upper && self.case_map.iter().any(|&c| c) {
-            // Mixed case but not title case (e.g. nGUYEN)
-            // Try to map character by character if lengths are similar,
-            // otherwise fallback to lowercase if it's mostly lowercase.
+        } else {
+            // Mixed case (e.g. VNkey) or lowercase
+            // Always try character-by-character mapping first if lengths are similar.
             let target_chars: Vec<char> = target.chars().collect();
             if target_chars.len() == self.case_map.len() {
                 let mut res = String::new();
@@ -997,11 +996,15 @@ impl Engine {
                     }
                 }
                 res
+            } else if first_is_upper {
+                // If length differs but first is upper, treat as "Loose Title Case"
+                let mut chars = target.chars();
+                let first = chars.next().unwrap();
+                let upper: String = first.to_uppercase().collect();
+                upper + &chars.as_str().to_lowercase()
             } else {
                 target.to_lowercase()
             }
-        } else {
-            target.to_lowercase()
         }
     }
 }
