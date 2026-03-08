@@ -40,6 +40,124 @@
         <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
     </Style>
 
+    <!-- ComboBox Style -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource AppInputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppInputForeground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="ToggleButton" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    Background="{TemplateBinding Background}" 
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Grid.Column="0" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                    Focusable="false" ClickMode="Press">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="templateRoot" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="24"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path x:Name="Arrow" Grid.Column="1" Fill="{DynamicResource AppSecondaryText}" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0 Z" Margin="0,1,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="true">
+                                            <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource AppButtonHoverBackground}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="true">
+                                            <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource AppAccent}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,3,24,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                            <Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                <Border x:Name="DropDownBorder" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" CornerRadius="6" Margin="0,2,0,4">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="10" Opacity="0.3" ShadowDepth="2"/>
+                                    </Border.Effect>
+                                    <ScrollViewer Margin="0,2" SnapsToDevicePixels="True">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0" CornerRadius="4" Margin="4,1" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AppBorder}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AppAccent}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- TextBox Style -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource AppInputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppInputForeground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource AppAccent}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="border" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="4" 
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="true">
+                            <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Slim Scrollbar Style -->
     <Style TargetType="ScrollBar">
         <Setter Property="Width" Value="3"/>
