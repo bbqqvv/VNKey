@@ -13,6 +13,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
+        PreviewMouseDown="Window_PreviewMouseDown"
         Icon="/Assets/VNKey.png">
 
     <Window.Resources>
@@ -464,13 +465,6 @@
                                 <TextBlock Text="Gõ tắt" FontSize="19" FontWeight="Bold" VerticalAlignment="Center"/>
                                 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                    <Border Background="{DynamicResource AppControlBackground}" CornerRadius="6" Padding="8,0" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,8,0" Height="24">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.5"/>
-                                            <TextBox Width="90" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="11.5" VerticalContentAlignment="Center" MaxLength="20" Text="{Binding ShorthandSearchText, UpdateSourceTrigger=PropertyChanged}" Padding="0"/>
-                                        </StackPanel>
-                                    </Border>
-                                    
                                     <Button Content="Mẫu gõ tắt" Click="TemplateButton_Click" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" Margin="0,0,6,0" FontWeight="SemiBold" Height="24">
                                         <Button.ContextMenu>
                                             <ContextMenu>
@@ -507,23 +501,76 @@
                                         </Button.ContextMenu>
                                     </Button>
                                     <Button Content="Nhập" Command="{Binding ImportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" Margin="0,0,6,0" ToolTip="Nhập danh sách từ file JSON" Height="24"/>
-                                    <Button Content="Xuất" Command="{Binding ExportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" ToolTip="Xuất danh sách ra file JSON" Height="24"/>
+                                    <Button Content="Xuất" Command="{Binding ExportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" Margin="0,0,6,0" ToolTip="Xuất danh sách ra file JSON" Height="24"/>
+                                    
+                                    <Border x:Name="SearchBorder" Background="{DynamicResource AppControlBackground}" CornerRadius="6" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,0,0" Height="24" Width="26" ClipToBounds="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="24"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <ToggleButton x:Name="SearchToggle" Cursor="Hand" ToolTip="Tìm kiếm" Checked="SearchToggle_Checked" Unchecked="SearchToggle_Unchecked">
+                                                <ToggleButton.Template>
+                                                    <ControlTemplate TargetType="ToggleButton">
+                                                        <Border Background="Transparent">
+                                                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.8"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </ToggleButton.Template>
+                                                <ToggleButton.Triggers>
+                                                    <EventTrigger RoutedEvent="ToggleButton.Checked">
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetName="SearchBorder" Storyboard.TargetProperty="Width" To="140" Duration="0:0:0.25">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <QuadraticEase EasingMode="EaseOut"/>
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </EventTrigger>
+                                                    <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetName="SearchBorder" Storyboard.TargetProperty="Width" To="26" Duration="0:0:0.25">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <QuadraticEase EasingMode="EaseOut"/>
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </EventTrigger>
+                                                </ToggleButton.Triggers>
+                                            </ToggleButton>
+                                            
+                                            <TextBox x:Name="SearchTextBox" Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="11.5" VerticalContentAlignment="Center" MaxLength="20" Text="{Binding ShorthandSearchText, UpdateSourceTrigger=PropertyChanged}" Padding="2,0,5,0" Margin="0"/>
+                                        </Grid>
+                                    </Border>
                                 </StackPanel>
                             </Grid>
 
                             <!-- Integrated Quick Add Row -->
-                            <Border Style="{StaticResource CardStyle}" Padding="12,6" Margin="0,0,0,8" Background="Transparent" BorderThickness="0,0,0,1">
+                            <Border Style="{StaticResource CardStyle}" Padding="0,6" Margin="0,0,0,8" Background="Transparent" BorderThickness="0,0,0,1">
                                 <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="30"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="15"/>
-                                        <ColumnDefinition Width="1.5*"/>
                                         <ColumnDefinition Width="15"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     
-                                    <Grid Grid.Column="0">
-                                        <TextBlock Text="Viết tắt..." Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
+                                    <!-- Labels -->
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="VIẾT TẮT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="2,0,0,4"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="THAY THẾ BẰNG" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="2,0,0,4"/>
+                                    
+                                    <Grid Grid.Row="1" Grid.Column="0">
+                                        <TextBlock Text="VD: vn" Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -538,11 +585,14 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBox Text="{Binding NewMacro, UpdateSourceTrigger=PropertyChanged}" Height="24" VerticalContentAlignment="Center" Padding="5,0" FontSize="11" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
+                                        <TextBox Text="{Binding NewMacro, UpdateSourceTrigger=PropertyChanged}" Height="26" VerticalContentAlignment="Center" Padding="5,0" FontSize="11.5" Background="{DynamicResource AppInputBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
                                     </Grid>
                                     
-                                    <Grid Grid.Column="2">
-                                        <TextBlock Text="Thay thế bằng..." Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
+                                    <!-- Arrow -->
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    
+                                    <Grid Grid.Row="1" Grid.Column="2">
+                                        <TextBlock Text="VD: Việt Nam" Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -557,10 +607,10 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBox Text="{Binding NewExpansion, UpdateSourceTrigger=PropertyChanged}" Height="24" VerticalContentAlignment="Center" Padding="5,0" FontSize="11" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
+                                        <TextBox Text="{Binding NewExpansion, UpdateSourceTrigger=PropertyChanged}" Height="26" VerticalContentAlignment="Center" Padding="5,0" FontSize="11.5" Background="{DynamicResource AppInputBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
                                     </Grid>
                                     
-                                    <Button Grid.Column="4" Command="{Binding AddShorthandCommand}" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="100" Height="24" Padding="0">
+                                    <Button Grid.Row="1" Grid.Column="4" Command="{Binding AddShorthandCommand}" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="95" Height="26" Padding="0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                             <TextBlock Text="Thêm mới" FontSize="10.5" VerticalAlignment="Center"/>

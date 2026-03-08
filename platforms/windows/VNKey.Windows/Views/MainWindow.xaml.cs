@@ -142,6 +142,36 @@ namespace VNKey.Windows.Views
             Activate();
         }
 
+        private void SearchToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            // Focus the search box when it expands
+            SearchTextBox.Focus();
+        }
+
+        private void SearchToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Clear the search text when it collapses
+            if (DataContext is ViewModels.MainViewModel vm)
+            {
+                vm.ShorthandSearchText = string.Empty;
+            }
+        }
+
+        private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Auto close search box if clicking outside of it
+            if (SearchToggle.IsChecked == true)
+            {
+                var point = e.GetPosition(SearchBorder);
+                if (point.X < 0 || point.Y < 0 || point.X > SearchBorder.ActualWidth || point.Y > SearchBorder.ActualHeight)
+                {
+                    SearchToggle.IsChecked = false;
+                    // Ensure focus is restored to the window or previous element so typing works
+                    Keyboard.ClearFocus(); 
+                }
+            }
+        }
+
         private void Cleanup()
         {
             _notifyIcon?.Dispose();

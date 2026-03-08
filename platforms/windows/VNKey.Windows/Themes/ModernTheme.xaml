@@ -310,10 +310,6 @@
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource AppButtonHoverBackground}"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter TargetName="HeaderHost" Property="TextElement.Foreground" Value="White"/>
-                            <Setter TargetName="Icon" Property="TextElement.Foreground" Value="White"/>
-                            <Setter TargetName="RightArrow" Property="Fill" Value="White"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
