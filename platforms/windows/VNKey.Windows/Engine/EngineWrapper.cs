@@ -7,6 +7,9 @@ namespace VNKey.Windows.Engine
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void ToggleCallbackDelegate([MarshalAs(UnmanagedType.I1)] bool isEnabled);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void OpenWindowCallbackDelegate();
+
     public class EngineWrapper : IDisposable
     {
         private const string LibName = "vnkey_core.dll";
@@ -25,6 +28,9 @@ namespace VNKey.Windows.Engine
 
         [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void vnkey_set_toggle_callback(IntPtr callbackMethod);
+
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void vnkey_set_open_window_callback(IntPtr callbackMethod);
 
         [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void vnkey_global_set_config_json([MarshalAs(UnmanagedType.LPUTF8Str)] string json);

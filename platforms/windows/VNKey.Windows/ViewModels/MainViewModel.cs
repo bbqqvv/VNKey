@@ -9,6 +9,9 @@ using VNKey.Windows.Models;
 using VNKey.Windows.Infrastructure;
 using VNKey.Windows.Services;
 
+using System.IO;
+using System.Reflection;
+
 namespace VNKey.Windows.ViewModels
 {
     public class MainViewModel : ViewModelBase
@@ -46,8 +49,8 @@ namespace VNKey.Windows.ViewModels
                         {
                             try
                             {
-                                if (value) Console.Beep(800, 100);
-                                else Console.Beep(400, 100);
+                                if (value) System.Media.SystemSounds.Asterisk.Play(); // High "Ting" (Vietnamese)
+                                else System.Media.SystemSounds.Hand.Play(); // Low "Thud" (English)
                             }
                             catch { }
                         });
@@ -111,6 +114,8 @@ namespace VNKey.Windows.ViewModels
         private ObservableCollection<Models.ShorthandItem> _shorthandList = new ObservableCollection<Models.ShorthandItem>();
         public ObservableCollection<Models.ShorthandItem> ShorthandList => _shorthandList;
 
+        public ObservableCollection<ShorthandTemplate> BuiltInTemplates { get; } = new ObservableCollection<ShorthandTemplate>();
+
         public IEnumerable<Models.ShorthandItem> FilteredShorthandList
         {
             get
@@ -151,55 +156,61 @@ namespace VNKey.Windows.ViewModels
         public bool ModernTone
         {
             get => _configService.Config.ModernTone;
-            set { if (_configService.Config.ModernTone != value) { _configService.Config.ModernTone = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.ModernTone != value) { _configService.Config.ModernTone = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool SpellCheck
         {
             get => _configService.Config.SpellCheck;
-            set { if (_configService.Config.SpellCheck != value) { _configService.Config.SpellCheck = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.SpellCheck != value) { _configService.Config.SpellCheck = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool AutoRestore
         {
             get => _configService.Config.AutoRestore;
-            set { if (_configService.Config.AutoRestore != value) { _configService.Config.AutoRestore = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.AutoRestore != value) { _configService.Config.AutoRestore = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool SmartLiteralMode
         {
             get => _configService.Config.SmartLiteralMode;
-            set { if (_configService.Config.SmartLiteralMode != value) { _configService.Config.SmartLiteralMode = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.SmartLiteralMode != value) { _configService.Config.SmartLiteralMode = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool AllowForeignConsonants
         {
             get => _configService.Config.AllowForeignConsonants;
-            set { if (_configService.Config.AllowForeignConsonants != value) { _configService.Config.AllowForeignConsonants = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.AllowForeignConsonants != value) { _configService.Config.AllowForeignConsonants = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool AutoCapitalizeSentence
         {
             get => _configService.Config.AutoCapitalizeSentence;
-            set { if (_configService.Config.AutoCapitalizeSentence != value) { _configService.Config.AutoCapitalizeSentence = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.AutoCapitalizeSentence != value) { _configService.Config.AutoCapitalizeSentence = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool AutoCapitalizeEnter
         {
             get => _configService.Config.AutoCapitalizeEnter;
-            set { if (_configService.Config.AutoCapitalizeEnter != value) { _configService.Config.AutoCapitalizeEnter = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.AutoCapitalizeEnter != value) { _configService.Config.AutoCapitalizeEnter = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool BeepOnModeChange
         {
             get => _configService.Config.BeepOnModeChange;
-            set { if (_configService.Config.BeepOnModeChange != value) { _configService.Config.BeepOnModeChange = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.BeepOnModeChange != value) { _configService.Config.BeepOnModeChange = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
+        }
+
+        public bool PlaySoundOnAction
+        {
+            get => _configService.Config.PlaySoundOnAction;
+            set { if (_configService.Config.PlaySoundOnAction != value) { _configService.Config.PlaySoundOnAction = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool IsRunAtStartup
         {
             get => _configService.Config.StartWithWindows;
-            set { if (_configService.Config.StartWithWindows != value) { _configService.Config.StartWithWindows = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.StartWithWindows != value) { _configService.Config.StartWithWindows = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public string SwitchShortcut
@@ -224,13 +235,13 @@ namespace VNKey.Windows.ViewModels
         public bool ShorthandWhileOff
         {
             get => _configService.Config.ShorthandWhileOff;
-            set { if (_configService.Config.ShorthandWhileOff != value) { _configService.Config.ShorthandWhileOff = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.ShorthandWhileOff != value) { _configService.Config.ShorthandWhileOff = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public bool ShorthandAutoCase
         {
             get => _configService.Config.ShorthandAutoCase;
-            set { if (_configService.Config.ShorthandAutoCase != value) { _configService.Config.ShorthandAutoCase = value; OnPropertyChanged(); SyncAndSave(); } }
+            set { if (_configService.Config.ShorthandAutoCase != value) { _configService.Config.ShorthandAutoCase = value; OnPropertyChanged(); PlayToggleSound(); SyncAndSave(); } }
         }
 
         public DiagnosticsViewModel Diagnostics { get; }
@@ -243,6 +254,9 @@ namespace VNKey.Windows.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand RecordShortcutCommand { get; }
         public ICommand ToggleSidebarCommand { get; }
+        public ICommand ApplyTemplateCommand { get; }
+        public ICommand OpenTemplatesCommand { get; }
+        public ICommand RefreshTemplatesCommand { get; }
 
         public MainViewModel(IEngineService engineService, IConfigService configService, IThemeService themeService, DiagnosticsViewModel diagnostics)
         {
@@ -277,6 +291,11 @@ namespace VNKey.Windows.ViewModels
             ImportShorthandCommand = new RelayCommand(_ => ImportShorthand());
             ExportShorthandCommand = new RelayCommand(_ => ExportShorthand());
             ToggleSidebarCommand = new RelayCommand(_ => IsSidebarExpanded = !IsSidebarExpanded);
+            ApplyTemplateCommand = new RelayCommand(p => ApplyTemplate(p as ShorthandTemplate));
+            OpenTemplatesCommand = new RelayCommand(_ => OpenTemplatesFolder());
+            RefreshTemplatesCommand = new RelayCommand(_ => LoadBuiltInTemplates());
+
+            LoadBuiltInTemplates();
 
             // Subscribe to engine events
             _engineService.OnVietnameseModeChanged += (enabled) => 
@@ -294,8 +313,8 @@ namespace VNKey.Windows.ViewModels
                             {
                                 try
                                 {
-                                    if (enabled) Console.Beep(800, 100);
-                                    else Console.Beep(400, 100);
+                                    if (enabled) System.Media.SystemSounds.Asterisk.Play(); // High "Ting" (Vietnamese)
+                                    else System.Media.SystemSounds.Hand.Play(); // Low "Thud" (English)
                                 }
                                 catch { }
                             });
@@ -338,6 +357,31 @@ namespace VNKey.Windows.ViewModels
         public ICommand DeleteShorthandCommand { get; }
         public ICommand ImportShorthandCommand { get; }
         public ICommand ExportShorthandCommand { get; }
+
+        private void ApplyTemplate(ShorthandTemplate? template)
+        {
+            if (template == null) return;
+            
+            int addedCount = 0;
+            foreach (var item in template.Items)
+            {
+                if (!_shorthandList.Any(x => x.Macro == item.Macro))
+                {
+                    _shorthandList.Add(new Models.ShorthandItem { Macro = item.Macro, Expansion = item.Expansion });
+                    addedCount++;
+                }
+            }
+            
+            if (addedCount > 0)
+            {
+                SyncAndSave();
+                System.Windows.MessageBox.Show($"Đã thêm {addedCount} mục gõ tắt từ mẫu '{template.Name}'.");
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Các mục trong mẫu này đã tồn tại trong danh sách của bạn.");
+            }
+        }
 
         private void ResetConfig()
         {
@@ -448,6 +492,76 @@ namespace VNKey.Windows.ViewModels
             }
         }
 
+        private void OpenTemplatesFolder()
+        {
+            try
+            {
+                string templatesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNKey", "ShorthandTemplates.json");
+                
+                // If it doesn't exist in AppData yet, create the directory and copy the default
+                if (!File.Exists(templatesPath))
+                {
+                    string appDataDir = Path.GetDirectoryName(templatesPath)!;
+                    if (!Directory.Exists(appDataDir)) Directory.CreateDirectory(appDataDir);
+                    
+                    string defaultTemplatesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "ShorthandTemplates.json");
+                    if (File.Exists(defaultTemplatesPath))
+                    {
+                        File.Copy(defaultTemplatesPath, templatesPath);
+                    }
+                }
+
+                if (File.Exists(templatesPath))
+                {
+                    // Open the file with the default text editor
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = templatesPath,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Lỗi khi mở file mẫu: {ex.Message}", "Lỗi", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadBuiltInTemplates()
+        {
+            try
+            {
+                BuiltInTemplates.Clear();
+                string appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VNKey");
+                if (!Directory.Exists(appDataDir)) Directory.CreateDirectory(appDataDir);
+                
+                string templatesPath = Path.Combine(appDataDir, "ShorthandTemplates.json");
+                string defaultTemplatesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "ShorthandTemplates.json");
+
+                if (!File.Exists(templatesPath) && File.Exists(defaultTemplatesPath))
+                {
+                    File.Copy(defaultTemplatesPath, templatesPath);
+                }
+
+                if (File.Exists(templatesPath))
+                {
+                    string json = File.ReadAllText(templatesPath);
+                    var templates = JsonSerializer.Deserialize<List<ShorthandTemplate>>(json);
+                    if (templates != null)
+                    {
+                        foreach (var template in templates)
+                        {
+                            BuiltInTemplates.Add(template);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Lỗi khi nạp danh sách mẫu: {ex.Message}", "Lỗi", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
         private void ApplyConfigToEngine()
         {
             var config = _configService.Config;
@@ -486,6 +600,21 @@ namespace VNKey.Windows.ViewModels
                     .ToDictionary(x => x.Macro, x => x.Expansion ?? "");
                 string jsonShorthand = JsonSerializer.Serialize(shorthandMap);
                 _engineService.SetShorthand(jsonShorthand);
+            }
+        }
+
+        private void PlayToggleSound()
+        {
+            if (PlaySoundOnAction)
+            {
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Media.SystemSounds.Exclamation.Play(); // Snappy feedback
+                    }
+                    catch { }
+                });
             }
         }
     }

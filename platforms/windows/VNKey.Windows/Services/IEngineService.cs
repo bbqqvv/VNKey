@@ -15,6 +15,7 @@ namespace VNKey.Windows.Services
         void LoadDictionary(string path);
         string GetDiagnosticInfo();
         
+        event Action? OnOpenWindowRequested;
         event Action<bool>? OnVietnameseModeChanged;
         event Action<string>? OnError;
     }

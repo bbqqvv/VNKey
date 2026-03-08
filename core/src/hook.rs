@@ -69,6 +69,7 @@ lazy_static! {
     static ref HOOK_HANDLE: Mutex<Option<isize>> = Mutex::new(None);
     static ref MOUSE_HOOK_HANDLE: Mutex<Option<isize>> = Mutex::new(None);
     static ref TOGGLE_CALLBACK: Mutex<Option<extern "C" fn(bool)>> = Mutex::new(None);
+    static ref OPEN_WINDOW_CALLBACK: Mutex<Option<extern "C" fn()>> = Mutex::new(None);
 }
 
 pub fn check_and_reset_raw_match() -> bool {
@@ -91,6 +92,12 @@ pub fn set_toggle_callback(cb: extern "C" fn(bool)) {
     }
 }
 
+pub fn set_open_window_callback(cb: extern "C" fn()) {
+    if let Ok(mut lock) = OPEN_WINDOW_CALLBACK.lock() {
+        *lock = Some(cb);
+    }
+}
+
 pub fn start_hook() {
     let handle = HOOK_HANDLE.lock().unwrap();
     if handle.is_some() {
@@ -100,13 +107,8 @@ pub fn start_hook() {
     thread::spawn(|| unsafe {
         let h_instance = GetModuleHandleW(None).unwrap_or_default();
         let h_inst = HINSTANCE(h_instance.0);
-        let kb_hook = SetWindowsHookExW(
-            WH_KEYBOARD_LL,
-            Some(keyboard_hook_callback),
-            Some(h_inst),
-            0,
-        );
-        let ms_hook = SetWindowsHookExW(WH_MOUSE_LL, Some(mouse_hook_callback), Some(h_inst), 0);
+        let kb_hook = SetWindowsHookExW(WH_KEYBOARD_LL, Some(keyboard_hook_callback), h_inst, 0);
+        let ms_hook = SetWindowsHookExW(WH_MOUSE_LL, Some(mouse_hook_callback), h_inst, 0);
         if let Ok(h) = kb_hook {
             *HOOK_HANDLE.lock().unwrap() = Some(h.0 as isize);
         }
@@ -114,7 +116,7 @@ pub fn start_hook() {
             *MOUSE_HOOK_HANDLE.lock().unwrap() = Some(m.0 as isize);
         }
         let mut msg = MSG::default();
-        while GetMessageW(&mut msg, None, 0, 0).into() {}
+        while GetMessageW(&mut msg, None, 0, 0).as_bool() {}
     });
 }
 
@@ -212,6 +214,16 @@ unsafe extern "system" fn keyboard_hook_callback(
             if let Ok(cb_lock) = TOGGLE_CALLBACK.lock() {
                 if let Some(cb) = *cb_lock {
                     cb(new_state);
+                }
+            }
+            return LRESULT(1);
+        }
+
+        // Global Hotkey: CTRL + SHIFT + SPACE (Show/Hide Window)
+        if vk_code == 0x20 && is_ctrl_down && is_shift_down && !is_alt_down && !is_win_down {
+            if let Ok(cb_lock) = OPEN_WINDOW_CALLBACK.lock() {
+                if let Some(cb) = *cb_lock {
+                    cb();
                 }
             }
             return LRESULT(1);
@@ -625,6 +637,8 @@ unsafe fn apply_changes_atomic(backspaces: usize, text: &str) {
 
     // 3. Send all in one atomic batch!
     if !inputs.is_empty() {
-        let _ = SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
+        unsafe {
+            let _ = SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
+        }
     }
 }

@@ -9,7 +9,7 @@
         xmlns:ctrl="clr-namespace:VNKey.Windows.Controls"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         mc:Ignorable="d"
-        Title="VNKey" Height="410" Width="600"
+        Title="VNKey" Height="420" Width="600"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -28,13 +28,13 @@
             <Style x:Key="NavButtonStyle" TargetType="RadioButton">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
-                <Setter Property="Padding" Value="10,6"/>
+                <Setter Property="Padding" Value="0,4"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="HorizontalContentAlignment" Value="Left"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Margin="4,2" Padding="{TemplateBinding Padding}">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Margin="13,2" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -70,9 +70,9 @@
         <!-- Card style -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
@@ -97,7 +97,7 @@
             <Setter Property="Foreground" Value="{DynamicResource AppSecondaryText}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
-            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Padding" Value="10,2"/>
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
@@ -158,7 +158,7 @@
             TextElement.Foreground="{DynamicResource AppText}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="34"/>
+                <RowDefinition Height="38"/>
                 <RowDefinition x:Name="RowHorizontalNav" Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="40"/>
@@ -166,13 +166,15 @@
 
             <!-- ═══ Title Bar ═══ -->
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent" Cursor="Hand">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
-                    <Button Command="{Binding ToggleSidebarCommand}" Style="{StaticResource LogoButtonStyle}" Margin="0,0,10,0" ToolTip="Thu gọn/Mở rộng bảng điều khiển">
-                        <TextBlock x:Name="LogoIcon" Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="18" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="13,0">
+                    <Button Command="{Binding ToggleSidebarCommand}" Style="{StaticResource LogoButtonStyle}" Margin="0" ToolTip="Thu gọn/Mở rộng bảng điều khiển">
+                        <Grid Width="24">
+                            <TextBlock x:Name="LogoIcon" Text="&#xE7BC;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AppAccent}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Button>
-                    <TextBlock Text="VNKey" FontWeight="Bold" Foreground="{DynamicResource AppText}" FontSize="14" VerticalAlignment="Center" 
+                    <TextBlock Text="VNKey" FontWeight="Bold" Foreground="{DynamicResource AppText}" FontSize="15" VerticalAlignment="Center" 
                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    <TextBlock Text=" 2.0" Foreground="{DynamicResource AppSecondaryText}" FontSize="14" VerticalAlignment="Center" 
+                    <TextBlock Text=" 2.0" Foreground="{DynamicResource AppSecondaryText}" FontSize="15" VerticalAlignment="Center" 
                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -226,48 +228,48 @@
             </Grid>
 
             <!-- ═══ Horizontal Nav Bar ═══ -->
-            <Border x:Name="HorizontalNavBorder" Grid.Row="1" Height="40" Background="{DynamicResource AppSidebarBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,0,1" Visibility="{Binding IsNavVertical, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Padding="10,0">
+            <Border x:Name="HorizontalNavBorder" Grid.Row="1" Height="44" Background="{DynamicResource AppSidebarBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,0,0,1" Visibility="{Binding IsNavVertical, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Padding="10,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Mode indicator (Parity with Sidebar) -->
-                    <Border Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="0,0,15,0" Padding="8,2">
+                    <Border Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="0,0,15,0" Padding="10,4">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton GroupName="ModeH" IsChecked="{Binding IsVietnameseMode}" Margin="0,0,8,0">
-                                <TextBlock Text="VN" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="VN" FontSize="12" FontWeight="Bold"/>
                             </RadioButton>
                             <RadioButton GroupName="ModeH" IsChecked="{Binding IsVietnameseMode, Converter={StaticResource InverseBooleanConverter}, FallbackValue=False}">
-                                <TextBlock Text="EN" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="EN" FontSize="12" FontWeight="Bold"/>
                             </RadioButton>
                         </StackPanel>
                     </Border>
 
                     <RadioButton Style="{StaticResource NavButtonStyle}" IsChecked="{Binding CurrentPage, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Input}" GroupName="NavH" Command="{Binding NavigateCommand}" CommandParameter="Input" Margin="0,0,5,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Bộ gõ" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Bộ gõ" FontSize="13" VerticalAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton Style="{StaticResource NavButtonStyle}" IsChecked="{Binding CurrentPage, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Shorthand}" GroupName="NavH" Command="{Binding NavigateCommand}" CommandParameter="Shorthand" Margin="0,0,5,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Gõ tắt" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Gõ tắt" FontSize="13" VerticalAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton Style="{StaticResource NavButtonStyle}" IsChecked="{Binding CurrentPage, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=System}" GroupName="NavH" Command="{Binding NavigateCommand}" CommandParameter="System" Margin="0,0,5,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Hệ thống" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Hệ thống" FontSize="13" VerticalAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton Style="{StaticResource NavButtonStyle}" IsChecked="{Binding CurrentPage, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=About}" GroupName="NavH" Command="{Binding NavigateCommand}" CommandParameter="About" Margin="0,0,5,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Thông tin" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Thông tin" FontSize="13" VerticalAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton Style="{StaticResource NavButtonStyle}" IsChecked="{Binding CurrentPage, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Diagnostics}" GroupName="NavH" Visibility="{Binding IsDevModeEnabled, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource AppAccent}"/>
-                            <TextBlock Text="Dev Mode" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource AppAccent}"/>
+                            <TextBlock Text="Dev Mode" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
                         </StackPanel>
                     </RadioButton>
                 </StackPanel>
@@ -287,17 +289,17 @@
                         <Style TargetType="Border">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True">
-                                    <Setter Property="Width" Value="140"/>
+                                    <Setter Property="Width" Value="160"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
-                                    <Setter Property="Width" Value="48"/>
+                                    <Setter Property="Width" Value="50"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
                     <StackPanel x:Name="NavButtonsStack" Margin="0,5" Orientation="Vertical">
                         <!-- Mode indicator -->
-                        <Border x:Name="SideModeIndicator" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="10,0,10,8" Padding="10,2"
+                        <Border x:Name="SideModeIndicator" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Margin="13,0,13,8" Padding="12,6"
                                 Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel>
                                 <TextBlock Text="Chế độ" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
@@ -319,8 +321,8 @@
                                     <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Bộ gõ" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="0" Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Bộ gõ" FontSize="14" Margin="12,0,0,0" VerticalAlignment="Center"
                                            Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
@@ -330,8 +332,8 @@
                                     <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Gõ tắt" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="0" Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Gõ tắt" FontSize="14" Margin="12,0,0,0" VerticalAlignment="Center"
                                            Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
@@ -341,8 +343,8 @@
                                     <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Hệ thống" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Hệ thống" FontSize="14" Margin="12,0,0,0" VerticalAlignment="Center"
                                            Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
@@ -352,8 +354,8 @@
                                     <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Thông tin" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Thông tin" FontSize="14" Margin="12,0,0,0" VerticalAlignment="Center"
                                            Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
@@ -364,8 +366,8 @@
                                     <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
-                                <TextBlock Grid.Column="1" Text="Dev Mode" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"
+                                <TextBlock Grid.Column="0" Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"/>
+                                <TextBlock Grid.Column="1" Text="Dev Mode" FontSize="14" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource AppAccent}"
                                            Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </RadioButton>
@@ -373,8 +375,8 @@
                 </Border>
 
                 <!-- RIGHT CONTENT AREA -->
-                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Margin="18,6,18,6">
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="12,6,12,6">
 
                         <!-- ═══ PAGE: Tiếng Việt ═══ -->
                         <StackPanel x:Name="PageInput">
@@ -388,12 +390,12 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="Bộ gõ" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+                            <TextBlock Text="Bộ gõ" FontSize="17" FontWeight="Bold" Margin="0,0,0,8"/>
 
                             <!-- Card: Input Method -->
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="PHƯƠNG THỨC NHẬP" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,10"/>
+                                    <TextBlock Text="PHƯƠNG THỨC NHẬP" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,6"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -432,7 +434,7 @@
                             <!-- Card: Spell Check -->
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="CHÍNH TẢ VÀ KHÔI PHỤC" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="CHÍNH TẢ VÀ KHÔI PHỤC" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,6"/>
                                      <CheckBox IsChecked="{Binding SpellCheck}" Content="Kiểm tra chính tả" ToolTip="Ngăn chặn các tổ hợp vần lạ không tồn tại trong tiếng Việt (Ví dụ: qqw, hhh)."/>
                                      <CheckBox IsChecked="{Binding AutoRestore}" Content="Tự khôi phục phím với từ sai" ToolTip="Tự động trả lại các phím gốc nếu bạn gõ một từ sai chính tả hoặc sai quy tắc gõ."/>
                                      <CheckBox IsChecked="{Binding SmartLiteralMode}" Content="Tự động nhận diện tiếng Anh/Từ dài" ToolTip="Tự động nhận diện khi gõ tiếng Anh hoặc chuỗi dài (code, mật khẩu) để không bỏ dấu nhầm. Tắt nếu muốn gõ chuỗi dài vô tận."/>
@@ -453,46 +455,125 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <Grid Margin="0,0,0,8">
-                                <TextBlock Text="Gõ tắt" FontSize="18" FontWeight="Bold"/>
-                                <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource AppControlBackground}" CornerRadius="6" Padding="6,1" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="2,0,8,0" Opacity="0.5"/>
-                                        <TextBox Width="100" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="12" VerticalContentAlignment="Center" MaxLength="20" Text="{Binding ShorthandSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                </Border>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Gõ tắt" FontSize="19" FontWeight="Bold" VerticalAlignment="Center"/>
+                                
+                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                    <Border Background="{DynamicResource AppControlBackground}" CornerRadius="6" Padding="8,0" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,8,0" Height="24">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.5"/>
+                                            <TextBox Width="90" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AppText}" FontSize="11.5" VerticalContentAlignment="Center" MaxLength="20" Text="{Binding ShorthandSearchText, UpdateSourceTrigger=PropertyChanged}" Padding="0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <Button Content="Mẫu gõ tắt" Click="TemplateButton_Click" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" Margin="0,0,6,0" FontWeight="SemiBold" Height="24">
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Tải lại danh sách mẫu" Command="{Binding RefreshTemplatesCommand}">
+                                                    <MenuItem.Icon>
+                                                        <TextBlock Text="&#xE149;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Chỉnh sửa mẫu..." Command="{Binding OpenTemplatesCommand}" ToolTip="Mở thư mục chứa các mẫu để tùy chỉnh">
+                                                    <MenuItem.Icon>
+                                                        <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Thêm từ mẫu có sẵn" ItemsSource="{Binding BuiltInTemplates}">
+                                                    <MenuItem.Icon>
+                                                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    </MenuItem.Icon>
+                                                    <MenuItem.ItemContainerStyle>
+                                                        <Style TargetType="MenuItem">
+                                                            <Setter Property="Header" Value="{Binding Name}"/>
+                                                            <Setter Property="Command" Value="{Binding DataContext.ApplyTemplateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                                                            <Setter Property="ToolTip" Value="{Binding Description}"/>
+                                                            <Setter Property="Icon">
+                                                                <Setter.Value>
+                                                                    <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </MenuItem.ItemContainerStyle>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                    <Button Content="Nhập" Command="{Binding ImportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" Margin="0,0,6,0" ToolTip="Nhập danh sách từ file JSON" Height="24"/>
+                                    <Button Content="Xuất" Command="{Binding ExportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="8,1" FontSize="10" ToolTip="Xuất danh sách ra file JSON" Height="24"/>
+                                </StackPanel>
                             </Grid>
 
-                            <!-- Quick Add Area -->
-                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="15"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        
-                                        <!-- Row 0: Labels -->
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="VIẾT TẮT" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="THAY THẾ" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,4"/>
-                                        
-                                        <!-- Row 1: Controls -->
-                                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding NewMacro, UpdateSourceTrigger=PropertyChanged}" Height="22" VerticalContentAlignment="Center" Padding="5,0"/>
-                                        <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding NewExpansion, UpdateSourceTrigger=PropertyChanged}" Height="22" VerticalContentAlignment="Center" Padding="5,0"/>
-                                        <Button Grid.Row="1" Grid.Column="3" Content="Thêm" Command="{Binding AddShorthandCommand}" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="60" Height="22" Margin="10,0,0,0" Padding="0"/>
+                            <!-- Integrated Quick Add Row -->
+                            <Border Style="{StaticResource CardStyle}" Padding="12,6" Margin="0,0,0,8" Background="Transparent" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="15"/>
+                                        <ColumnDefinition Width="1.5*"/>
+                                        <ColumnDefinition Width="15"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Grid Grid.Column="0">
+                                        <TextBlock Text="Viết tắt..." Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding NewMacro.Length}" Value="0">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding NewMacro}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBox Text="{Binding NewMacro, UpdateSourceTrigger=PropertyChanged}" Height="24" VerticalContentAlignment="Center" Padding="5,0" FontSize="11" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
                                     </Grid>
+                                    
+                                    <Grid Grid.Column="2">
+                                        <TextBlock Text="Thay thế bằng..." Foreground="{DynamicResource AppSecondaryText}" FontSize="11" VerticalAlignment="Center" Margin="8,0" IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding NewExpansion.Length}" Value="0">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding NewExpansion}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBox Text="{Binding NewExpansion, UpdateSourceTrigger=PropertyChanged}" Height="24" VerticalContentAlignment="Center" Padding="5,0" FontSize="11" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1"/>
+                                    </Grid>
+                                    
+                                    <Button Grid.Column="4" Command="{Binding AddShorthandCommand}" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Width="100" Height="24" Padding="0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Thêm mới" FontSize="10.5" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
                             </Border>
 
                             <!-- Main Table Area -->
                             <Border Style="{StaticResource CardStyle}" Padding="0" VerticalAlignment="Stretch">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="180"/>
+                                        <RowDefinition Height="240"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <DataGrid Grid.Row="0" 
@@ -501,7 +582,7 @@
                                               Background="Transparent" 
                                               BorderThickness="0"
                                               HeadersVisibility="Column"
-                                              RowHeight="28">
+                                              RowHeight="24">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="VIẾT TẮT" Binding="{Binding Macro}" Width="100" IsReadOnly="True" />
                                             <DataGridTextColumn Header="THAY THẾ BẰNG" Binding="{Binding Expansion}" Width="*" IsReadOnly="True" />
@@ -521,18 +602,15 @@
                                         </DataGrid.Columns>
                                     </DataGrid>
                                     
-                                    <!-- Options & Import/Export -->
-                                    <Border Grid.Row="1" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="12,8" CornerRadius="0,0,8,8">
-                                        <DockPanel>
-                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                                <CheckBox IsChecked="{Binding ShorthandWhileOff}" Content="Gõ tắt khi tắt TV" VerticalAlignment="Center" Margin="0,0,15,0" FontSize="10.5" ToolTip="Vẫn áp dụng các từ gõ tắt ngay cả khi bạn đang tắt chế độ gõ tiếng Việt."/>
-                                                <CheckBox IsChecked="{Binding ShorthandAutoCase}" Content="Tự động hoa/thường" VerticalAlignment="Center" FontSize="10.5" ToolTip="Tự động điều chỉnh viết hoa từ thay thế dựa trên cách bạn gõ từ viết tắt (Ví dụ: ko -> không, Ko -> Không)."/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                <Button Content="Nhập File" Command="{Binding ImportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="10,2" FontSize="10" Margin="0,0,8,0"/>
-                                                <Button Content="Xuất File" Command="{Binding ExportShorthandCommand}" Style="{StaticResource AppButtonStyle}" Padding="10,2" FontSize="10"/>
-                                            </StackPanel>
-                                        </DockPanel>
+                                    <Border Grid.Row="1" Background="{DynamicResource AppControlBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="15,10" CornerRadius="0,0,10,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding ShorthandWhileOff}" Content="Gõ tắt khi tắt Tiếng Việt" VerticalAlignment="Center" FontSize="11"/>
+                                            <CheckBox Grid.Column="1" IsChecked="{Binding ShorthandAutoCase}" Content="Tự động hoa/thường" VerticalAlignment="Center" FontSize="11"/>
+                                        </Grid>
                                     </Border>
                                 </Grid>
                             </Border>
@@ -550,15 +628,19 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="Hệ thống" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+                            <TextBlock Text="Hệ thống" FontSize="17" FontWeight="Bold" Margin="0,0,0,6"/>
+
+                            <Border Style="{StaticResource CardStyle}">
+                                <CheckBox IsChecked="{Binding PlaySoundOnAction}" Content="Phát âm thanh khi thay đổi thiết lập" FontSize="11"/>
+                            </Border>
 
                             <!-- Card: Giao diện -->
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="GIAO DIỆN" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                        <RadioButton IsChecked="{Binding IsNavVertical}" Content="Menu dọc (trái)" GroupName="UINavLayout" Margin="0,0,15,0"/>
-                                        <RadioButton IsChecked="{Binding IsNavVertical, Converter={StaticResource InverseBooleanConverter}}" Content="Menu ngang (trên)" GroupName="UINavLayout"/>
+                                    <TextBlock Text="GIAO DIỆN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,6"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton IsChecked="{Binding IsNavVertical}" Content="Menu dọc" GroupName="UINavLayout" Margin="0,0,12,0" FontSize="10.5"/>
+                                        <RadioButton IsChecked="{Binding IsNavVertical, Converter={StaticResource InverseBooleanConverter}}" Content="Menu ngang" GroupName="UINavLayout" FontSize="10.5"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -566,12 +648,12 @@
                             <!-- Card: Phím tắt -->
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="PHÍM TẮT CHUYỂN NGÔN NGỮ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,8"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,8">
-                                        <RadioButton Content="Alt + Z" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Alt+Z'}" GroupName="UIHotkey" Margin="0,0,15,0" ToolTip="Sử dụng Alt + Z."/>
-                                        <RadioButton Content="Ctrl + Shift" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Ctrl+Shift'}" GroupName="UIHotkey" Margin="0,0,15,0" ToolTip="Sử dụng Ctrl + Shift."/>
-                                        <RadioButton x:Name="RbHotkeyCustom" Content="Tùy chỉnh:" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Custom'}" GroupName="UIHotkey" Margin="0,0,5,0" ToolTip="Tự cài đặt phím tắt theo ý muốn."/>
-                                        <TextBlock Text="{Binding CustomShortcut}" Foreground="{DynamicResource AppAccent}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <TextBlock Text="PHÍM TẮT CHUYỂN NGÔN NGỮ" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,6"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <RadioButton Content="Alt + Z" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Alt+Z'}" GroupName="UIHotkey" Margin="0,0,12,0" FontSize="11"/>
+                                        <RadioButton Content="Ctrl + Shift" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Ctrl+Shift'}" GroupName="UIHotkey" Margin="0,0,12,0" FontSize="11"/>
+                                        <RadioButton x:Name="RbHotkeyCustom" Content="Tùy chỉnh:" IsChecked="{Binding SwitchShortcut, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter='Custom'}" GroupName="UIHotkey" Margin="0,0,4,0" FontSize="11"/>
+                                        <TextBlock Text="{Binding CustomShortcut}" Foreground="{DynamicResource AppAccent}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -600,14 +682,14 @@
                                             </Button.Style>
                                         </Button>
                                     </StackPanel>
-                                    <CheckBox IsChecked="{Binding BeepOnModeChange}" Content="Kêu beep khi chuyển ngôn ngữ" ToolTip="Phát âm thanh bíp ngắn khi bạn chuyển đổi giữa chế độ gõ Tiếng Việt và Tiếng Anh."/>
+                                    <CheckBox IsChecked="{Binding BeepOnModeChange}" Content="Kêu beep khi chuyển ngôn ngữ" FontSize="11"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Card: Startup -->
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <CheckBox IsChecked="{Binding IsRunAtStartup}" Content="Khởi động cùng Windows (Beta)" ToolTip="VNKey sẽ tự động khởi chạy cùng Windows mỗi khi bạn mở máy."/>
+                                    <CheckBox IsChecked="{Binding IsRunAtStartup}" Content="Khởi động cùng Windows" FontSize="11"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -645,67 +727,60 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="Thông tin" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+                            <TextBlock Text="Thông tin" FontSize="17" FontWeight="Bold" Margin="0,0,0,6"/>
                             
-                            <Border Style="{StaticResource CardStyle}" Padding="25">
+                            <Border Style="{StaticResource CardStyle}" Padding="15">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/> <!-- Header with Logo -->
-                                        <RowDefinition Height="Auto"/> <!-- Description -->
-                                        <RowDefinition Height="Auto"/> <!-- Resources -->
-                                        <RowDefinition Height="Auto"/> <!-- Footer -->
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-
+                                    
                                     <!-- Top Section: Logo & Brand -->
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,25">
-                                        <Border Width="64" Height="64" Background="{DynamicResource AppControlBackground}" CornerRadius="12" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,20,0">
-                                            <Image Source="/Assets/VNKey.png" Margin="10"/>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                        <Border Width="48" Height="48" Background="{DynamicResource AppControlBackground}" CornerRadius="10" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" Margin="0,0,15,0">
+                                            <Image Source="/Assets/VNKey.png" Margin="6"/>
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="VNKey" FontSize="28" FontWeight="ExtraBold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,2"/>
-                                            <TextBlock Text="Phiên bản 2.0.0 Stable" FontSize="12" Foreground="{DynamicResource AppSecondaryText}"/>
+                                            <TextBlock Text="VNKey" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource AppAccent}" Margin="0,0,0,0"/>
+                                            <TextBlock Text="Phiên bản 2.0.0 Stable" FontSize="11" Foreground="{DynamicResource AppSecondaryText}"/>
                                         </StackPanel>
                                     </StackPanel>
 
                                     <!-- Description Area -->
-                                    <Border Grid.Row="1" Background="{DynamicResource AppBackground}" CornerRadius="6" Padding="15" Margin="0,0,0,25">
-                                        <TextBlock Text="Bộ gõ tiếng Việt thế hệ mới với hiệu năng cao, mã nguồn mở và khả năng tùy biến tuyệt vời. Được thiết kế để mang lại trải nghiệm gõ mượt mà và thông minh nhất trên Windows." 
-                                                   TextWrapping="Wrap" FontSize="12" LineHeight="18" Foreground="{DynamicResource AppText}" Opacity="0.9"/>
+                                    <Border Grid.Row="1" Background="{DynamicResource AppBackground}" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
+                                        <TextBlock Text="Bộ gõ tiếng Việt hiệu năng cao, mã nguồn mở và khả năng tùy biến tuyệt vời cho trải nghiệm gõ mượt mà." 
+                                                   TextWrapping="Wrap" FontSize="11" LineHeight="16" Foreground="{DynamicResource AppText}" Opacity="0.9"/>
                                     </Border>
 
                                     <!-- Resource Links -->
-                                    <StackPanel Grid.Row="2" Margin="0,0,0,20">
-                                        <TextBlock Text="TÀI NGUYÊN &amp; CỘNG ĐỒNG" FontSize="9" FontWeight="SemiBold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,12"/>
+                                    <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                                        <TextBlock Text="TÀI NGUYÊN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AppSecondaryText}" Margin="0,0,0,8"/>
                                         <StackPanel Orientation="Horizontal">
                                             <!-- GitHub Link -->
-                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,20,0" ToolTip="GitHub Repository">
+                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,15,0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xEC40;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
-                                                    <TextBlock Text="Mã nguồn GitHub" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
+                                                    <TextBlock Text="&#xEC40;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource AppAccent}"/>
+                                                    <TextBlock Text="GitHub" FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
                                                 </StackPanel>
                                             </Button>
                                             <!-- Website Link -->
-                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,20,0" ToolTip="Official Website">
+                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" Margin="0,0,15,0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
-                                                    <TextBlock Text="Trang chủ" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
-                                                </StackPanel>
-                                            </Button>
-                                            <!-- Issues Link -->
-                                            <Button Cursor="Hand" Background="Transparent" BorderThickness="0" ToolTip="Report Issues">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE939;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource AppAccent}"/>
-                                                    <TextBlock Text="Báo lỗi" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
+                                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource AppAccent}"/>
+                                                    <TextBlock Text="Trang chủ" FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource AppText}"/>
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
                                     </StackPanel>
 
                                     <!-- Footer info -->
-                                    <Border Grid.Row="3" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="0,15,0,0">
+                                    <Border Grid.Row="3" BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                         <Grid>
-                                            <TextBlock Text="© 2024 VNKDEV. Bảo lưu mọi quyền." FontSize="10" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Phát triển với ❤️ tại Việt Nam" HorizontalAlignment="Right" FontSize="10" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="© 2026 VNKey." FontSize="9" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Phát triển bởi Van Quoc Bui" HorizontalAlignment="Right" FontSize="9" Foreground="{DynamicResource AppSecondaryText}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                 </Grid>
@@ -716,9 +791,9 @@
             </Grid>
 
             <!-- ═══ Bottom Bar ═══ -->
-            <Grid Grid.Row="3" Margin="20,0">
+            <Grid Grid.Row="3" Margin="20,0" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Command="{Binding ResetCommand}" Style="{DynamicResource AppButtonStyle}" Width="95" Height="28" Margin="0,0,8,0">
+                    <Button Command="{Binding ResetCommand}" Style="{DynamicResource AppButtonStyle}" Width="95" Height="26" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                                 <TextBlock.RenderTransform>
@@ -728,10 +803,10 @@
                             <TextBlock Text="Mặc định" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{DynamicResource AppButtonStyle}" Width="80" Height="28" Click="ExitButton_Click" Margin="0,0,8,0">
+                    <Button Style="{DynamicResource AppButtonStyle}" Width="80" Height="26" Click="ExitButton_Click" Margin="0,0,8,0">
                         <TextBlock Text="Thoát" FontSize="11" VerticalAlignment="Center"/>
                     </Button>
-                    <Button Style="{StaticResource AccentButtonStyle}" Width="80" Height="28" Click="CloseButton_Click">
+                    <Button Style="{StaticResource AccentButtonStyle}" Width="80" Height="26" Click="CloseButton_Click">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <TextBlock Text="Đóng" FontSize="11" VerticalAlignment="Center"/>

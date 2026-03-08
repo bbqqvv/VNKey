@@ -34,6 +34,28 @@ namespace VNKey.Windows.Views
                     UpdateTrayIcon(_viewModel.IsVietnameseMode);
                 }
             };
+
+            // Register global hotkey callback
+            App.EngineService.OnOpenWindowRequested += () => Dispatcher.Invoke(ToggleWindowVisibility);
+        }
+
+        private void ToggleWindowVisibility()
+        {
+            if (IsVisible)
+            {
+                if (WindowState == WindowState.Minimized)
+                {
+                    ShowWindow();
+                }
+                else
+                {
+                    Hide();
+                }
+            }
+            else
+            {
+                ShowWindow();
+            }
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -64,6 +86,13 @@ namespace VNKey.Windows.Views
             _notifyIcon.Visible = true;
             _notifyIcon.Text = "VNKey 2.0 (MVVM)";
             _notifyIcon.DoubleClick += (s, e) => ShowWindow();
+            _notifyIcon.MouseClick += (s, e) =>
+            {
+                if (e.Button == System.Windows.Forms.MouseButtons.Left)
+                {
+                    _viewModel.IsVietnameseMode = !_viewModel.IsVietnameseMode;
+                }
+            };
 
             var contextMenu = new System.Windows.Forms.ContextMenuStrip();
             contextMenu.Items.Add("Hiện bảng điều khiển", null, (s, e) => ShowWindow());
@@ -187,9 +216,16 @@ namespace VNKey.Windows.Views
             base.OnPreviewKeyDown(e);
         }
 
-        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
+        private void TemplateButton_Click(object sender, RoutedEventArgs e)
         {
-            base.OnKeyDown(e);
+            if (sender is FrameworkElement element)
+            {
+                if (element.ContextMenu != null)
+                {
+                    element.ContextMenu.PlacementTarget = element;
+                    element.ContextMenu.IsOpen = true;
+                }
+            }
         }
     }
 }

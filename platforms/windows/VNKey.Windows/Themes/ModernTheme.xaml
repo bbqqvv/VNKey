@@ -21,7 +21,7 @@
     <Style x:Key="CardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
         <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="15,8"/>
+        <Setter Property="Padding" Value="10,6"/>
         <Setter Property="Margin" Value="0,6"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -43,7 +43,7 @@
         <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="15,5"/>
+        <Setter Property="Padding" Value="10,3"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -95,7 +95,7 @@
         <Setter Property="Foreground" Value="{DynamicResource AppInputForeground}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Padding" Value="8,2"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -180,7 +180,7 @@
         <Setter Property="Foreground" Value="{DynamicResource AppInputForeground}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="Padding" Value="6,2"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource AppAccent}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -232,6 +232,107 @@
                             </Thumb>
                         </Track.Thumb>
                     </Track>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ContextMenu Style -->
+    <Style TargetType="ContextMenu">
+        <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Margin="4"
+                            Padding="2">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" Opacity="0.4" ShadowDepth="2" Direction="270" Color="Black"/>
+                        </Border.Effect>
+                        <ItemsPresenter SnapsToDevicePixels="True"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- MenuItem Style -->
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource AppText}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="10,4,10,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="templateRoot"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="0"
+                            CornerRadius="4"
+                            Margin="2,1"
+                            SnapsToDevicePixels="True">
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="20" Width="Auto" SharedSizeGroup="MenuItemIconColumnGroup"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="MenuItemIGTColumnGroup"/>
+                                <ColumnDefinition Width="14"/>
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter x:Name="Icon" ContentSource="Icon" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <ContentPresenter x:Name="HeaderHost" ContentSource="Header" Grid.Column="1" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="InputGestureText" Grid.Column="3" Text="{TemplateBinding InputGestureText}" Margin="10,0,0,0" Opacity="0.6" VerticalAlignment="Center" Foreground="{DynamicResource AppSecondaryText}"/>
+                            <Path x:Name="RightArrow" Grid.Column="4" Visibility="Collapsed" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,4,0"/>
+                            
+                            <!-- Submenu Popup -->
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorder}" BorderThickness="1" CornerRadius="8" Margin="0,0,8,8" Padding="2">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="8" Opacity="0.4" ShadowDepth="2" Direction="270" Color="Black"/>
+                                    </Border.Effect>
+                                    <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
+                                        <Grid RenderOptions.ClearTypeHint="Enabled">
+                                            <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="RightArrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource AppButtonHoverBackground}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter TargetName="HeaderHost" Property="TextElement.Foreground" Value="White"/>
+                            <Setter TargetName="Icon" Property="TextElement.Foreground" Value="White"/>
+                            <Setter TargetName="RightArrow" Property="Fill" Value="White"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Separator Style -->
+    <Style TargetType="Separator">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Margin" Value="6,4"/>
+        <Setter Property="Background" Value="{DynamicResource AppBorder}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border BorderBrush="{TemplateBinding Background}" BorderThickness="0,1,0,0" SnapsToDevicePixels="true"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

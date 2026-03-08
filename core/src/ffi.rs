@@ -226,6 +226,12 @@ pub extern "C" fn vnkey_set_toggle_callback(cb: extern "C" fn(bool)) {
     crate::hook::set_toggle_callback(cb);
 }
 
+#[no_mangle]
+#[cfg(windows)]
+pub extern "C" fn vnkey_set_open_window_callback(cb: extern "C" fn()) {
+    crate::hook::set_open_window_callback(cb);
+}
+
 /// Sets the global engine configuration.
 ///
 /// # Safety

@@ -1,0 +1,56 @@
+[
+  {
+    "Name": "Giao tiếp công việc",
+    "Icon": "\uE779",
+    "Description": "Các mẫu câu chào hỏi và xã giao trong môi trường làm việc chuyên nghiệp.",
+    "Items": [
+      { "Macro": "dc", "Expansion": "được" },
+      { "Macro": "kh", "Expansion": "không" },
+      { "Macro": "cmon", "Expansion": "Cảm ơn" },
+      { "Macro": "tr", "Expansion": "Trước" },
+      { "Macro": "kt", "Expansion": "Kiểm tra" },
+      { "Macro": "ok", "Expansion": "Đồng ý" },
+      { "Macro": "vde", "Expansion": "Vấn đề" },
+      { "Macro": "cg", "Expansion": "Cái gì" }
+    ]
+  },
+  {
+    "Name": "Hành chính & Địa danh",
+    "Icon": "\uE80F",
+    "Description": "Tên các cơ quan hành chính và địa danh phổ biến.",
+    "Items": [
+      { "Macro": "vn", "Expansion": "Việt Nam" },
+      { "Macro": "hcm", "Expansion": "TP. Hồ Chí Minh" },
+      { "Macro": "hn", "Expansion": "Hà Nội" },
+      { "Macro": "ubnd", "Expansion": "Ủy ban nhân dân" },
+      { "Macro": "chxhcnvn", "Expansion": "Cộng hòa Xã hội Chủ nghĩa Việt Nam" },
+      { "Macro": "bhxh", "Expansion": "Bảo hiểm xã hội" }
+    ]
+  },
+  {
+    "Name": "Lập trình & Kỹ thuật",
+    "Icon": "\uE943",
+    "Description": "Các thuật ngữ kỹ thuật và lập trình cơ bản.",
+    "Items": [
+      { "Macro": "js", "Expansion": "JavaScript" },
+      { "Macro": "html", "Expansion": "HyperText Markup Language" },
+      { "Macro": "css", "Expansion": "Cascading Style Sheets" },
+      { "Macro": "api", "Expansion": "Application Programming Interface" },
+      { "Macro": "db", "Expansion": "Database" },
+      { "Macro": "repo", "Expansion": "Repository" }
+    ]
+  },
+  {
+    "Name": "Teen Code & Chat",
+    "Icon": "\uE8BD",
+    "Description": "Các từ viết tắt phổ biến khi nhắn tin với bạn bè.",
+    "Items": [
+      { "Macro": "bt", "Expansion": "Biết" },
+      { "Macro": "th", "Expansion": "Thì" },
+      { "Macro": "ny", "Expansion": "Người yêu" },
+      { "Macro": "fa", "Expansion": "Độc thân" },
+      { "Macro": "vcl", "Expansion": "Vui quá" },
+      { "Macro": "clgt", "Expansion": "Cái gì thế" }
+    ]
+  }
+]

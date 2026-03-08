@@ -9,8 +9,12 @@ namespace VNKey.Windows.Services
     {
         private readonly EngineWrapper _engine;
         private ToggleCallbackDelegate? _callbackDelegate;
+        private OpenWindowCallbackDelegate? _openWindowCallbackDelegate;
         private IntPtr _callbackPtr;
+        private IntPtr _openWindowCallbackPtr;
         private bool _isHookRunning;
+
+        public event Action? OnOpenWindowRequested;
 
         public event Action<bool>? OnVietnameseModeChanged;
         public event Action<string>? OnError;
@@ -26,6 +30,15 @@ namespace VNKey.Windows.Services
             _callbackDelegate = new ToggleCallbackDelegate(HandleToggleCallback);
             _callbackPtr = Marshal.GetFunctionPointerForDelegate(_callbackDelegate);
             EngineWrapper.vnkey_set_toggle_callback(_callbackPtr);
+
+            _openWindowCallbackDelegate = new OpenWindowCallbackDelegate(HandleOpenWindowCallback);
+            _openWindowCallbackPtr = Marshal.GetFunctionPointerForDelegate(_openWindowCallbackDelegate);
+            EngineWrapper.vnkey_set_open_window_callback(_openWindowCallbackPtr);
+        }
+
+        private void HandleOpenWindowCallback()
+        {
+            OnOpenWindowRequested?.Invoke();
         }
 
         private void HandleToggleCallback(bool isEnabled)
