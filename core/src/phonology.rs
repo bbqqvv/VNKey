@@ -21,9 +21,9 @@ pub const CODAS: &[&str] = &[
 pub const VOWEL_CLUSTERS: &[&str] = &[
     "a", "ai", "ao", "au", "ay", "e", "eo", "i", "ia", "iu", "iê", "iêu", "o", "oa", "oai", "oao",
     "oay", "oe", "oi", "oo", "oă", "u", "ua", "ui", "uy", "uya", "uyê", "uâ", "uân", "uâng", "uê",
-    "uô", "uôi", "uôn", "uông", "uă", "uơ", "uất", "y", "ya", "yê", "yêu", "â", "âu", "ây", "ê",
-    "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu", "ươ", "ươi",
-    "ươn", "ương",
+    "uô", "uôi", "uôn", "uông", "uă", "uơ", "uyn", "uyu", "uất", "y", "ya", "yê", "yêu", "â", "âu",
+    "ây", "ê", "êu", "ô", "ôi", "ôn", "ông", "ă", "ơ", "ơi", "ơm", "ơn", "ơng", "ư", "ưa", "ưu",
+    "ươ", "ươi", "ươn", "ương",
 ];
 
 /// Intermediate Vowel Clusters - valid during typing but not as final words

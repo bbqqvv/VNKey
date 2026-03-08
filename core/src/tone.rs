@@ -74,37 +74,45 @@ pub fn place_tone(word: &str, tone: u8) -> Option<String> {
     let lower = |c: char| -> char { c.to_lowercase().next().unwrap_or(c) };
 
     // Determine which vowel gets the tone
-    let target = if vowel_indices.len() == 1 {
-        vowel_indices[0]
-    } else if vowel_indices.len() == 2 {
-        let pair: String = vowel_indices.iter().map(|&i| lower(chars[i])).collect();
-        let lower_word = word.to_lowercase();
+    let lower_word = word.to_lowercase();
+    let has_gi_qu_onset =
+        (lower_word.starts_with("qu") || lower_word.starts_with("gi")) && vowel_indices.len() >= 2;
 
-        if (lower_word.starts_with("qu") && ["ua", "uâ", "uơ", "uô"].contains(&pair.as_str()))
-            || (lower_word.starts_with("gi") && pair == "ia")
-        {
-            vowel_indices[1]
-        } else if has_modifier(chars[vowel_indices[0]]) && has_modifier(chars[vowel_indices[1]]) {
+    let v_indices = if has_gi_qu_onset {
+        &vowel_indices[1..]
+    } else {
+        &vowel_indices[..]
+    };
+
+    let target = if v_indices.len() == 1 {
+        v_indices[0]
+    } else if v_indices.len() == 2 {
+        let pair: String = v_indices.iter().map(|&i| lower(chars[i])).collect();
+
+        if has_modifier(chars[v_indices[0]]) && has_modifier(chars[v_indices[1]]) {
             // Nếu cả 2 đều có modifier (ươ), ưu tiên cái thứ 2 (ươ -> ườn, ướt)
-            vowel_indices[1]
-        } else if has_modifier(chars[vowel_indices[0]]) {
-            vowel_indices[0]
-        } else if has_modifier(chars[vowel_indices[1]]) {
-            vowel_indices[1]
+            v_indices[1]
+        } else if has_modifier(chars[v_indices[0]]) {
+            v_indices[0]
+        } else if has_modifier(chars[v_indices[1]]) {
+            v_indices[1]
         } else if ["oa", "oe", "uy", "ue", "uo", "uô"].contains(&pair.as_str()) {
-            // place_tone default is traditional
-            if pair == "uy" || pair == "uô" || chars.len() > vowel_indices[1] + 1 {
-                // if uy, uô OR if there's a coda consonant (e.g. oán, uý, uốn) -> second vowel
-                vowel_indices[1]
+            if pair == "uô" || chars.len() > v_indices[1] + 1 {
+                v_indices[1]
             } else {
-                vowel_indices[0] // hòa, xòe
+                v_indices[0]
             }
         } else {
-            vowel_indices[0]
+            v_indices[0]
         }
     } else {
-        // 3+ vowels: tone goes on the middle one
-        vowel_indices[1]
+        // 3+ vowels
+        let tri: String = v_indices.iter().take(3).map(|&i| lower(chars[i])).collect();
+        if tri == "uyê" || tri == "uyê" {
+            v_indices[2] // nguyễn, tuyển
+        } else {
+            v_indices[v_indices.len() / 2]
+        }
     };
 
     // Look up the toned character
@@ -153,36 +161,46 @@ pub fn place_tone_with_style(
 
     let lower = |c: char| -> char { c.to_lowercase().next().unwrap_or(c) };
 
-    let target = if vowel_indices.len() == 1 {
-        vowel_indices[0]
-    } else if vowel_indices.len() == 2 {
-        let pair: String = vowel_indices.iter().map(|&i| lower(chars[i])).collect();
-        let lower_word = word.to_lowercase();
+    let lower_word = word.to_lowercase();
+    let has_gi_qu_onset =
+        (lower_word.starts_with("qu") || lower_word.starts_with("gi")) && vowel_indices.len() >= 2;
 
-        if (lower_word.starts_with("qu") && ["ua", "uâ", "uơ", "uô"].contains(&pair.as_str()))
-            || (lower_word.starts_with("gi") && pair == "ia")
-            || (has_modifier(chars[vowel_indices[0]]) && has_modifier(chars[vowel_indices[1]]))
-        {
-            vowel_indices[1]
-        } else if has_modifier(chars[vowel_indices[0]]) {
-            vowel_indices[0]
-        } else if has_modifier(chars[vowel_indices[1]]) {
-            vowel_indices[1]
+    let v_indices = if has_gi_qu_onset {
+        &vowel_indices[1..]
+    } else {
+        &vowel_indices[..]
+    };
+
+    let target = if v_indices.len() == 1 {
+        v_indices[0]
+    } else if v_indices.len() == 2 {
+        let pair: String = v_indices.iter().map(|&i| lower(chars[i])).collect();
+
+        if has_modifier(chars[v_indices[0]]) && has_modifier(chars[v_indices[1]]) {
+            v_indices[1]
+        } else if has_modifier(chars[v_indices[0]]) {
+            v_indices[0]
+        } else if has_modifier(chars[v_indices[1]]) {
+            v_indices[1]
         } else if ["oa", "oe", "uy", "ue", "uo", "uô"].contains(&pair.as_str()) {
-            // Style-dependent: oa/oe/uy/ue/uo diphthongs
-            if pair == "uô" || chars.len() > vowel_indices[1] + 1 {
-                vowel_indices[1] // if it has a coda consonant, tone always goes to 2nd (oán, oét, uýnh, uốn)
+            if pair == "uô" || chars.len() > v_indices[1] + 1 {
+                v_indices[1]
             } else {
                 match style {
-                    crate::config::TonePlacement::Modern => vowel_indices[1], // hoà, tuý, thuý, xoè
-                    crate::config::TonePlacement::Traditional => vowel_indices[0], // hòa, túy, thúy, xòe
+                    crate::config::TonePlacement::Modern => v_indices[1],
+                    crate::config::TonePlacement::Traditional => v_indices[0],
                 }
             }
         } else {
-            vowel_indices[0]
+            v_indices[0]
         }
     } else {
-        vowel_indices[1]
+        let tri: String = v_indices.iter().map(|&i| lower(chars[i])).collect();
+        if tri.starts_with("uyê") {
+            v_indices[2]
+        } else {
+            v_indices[v_indices.len() / 2]
+        }
     };
 
     let target_char = chars[target];

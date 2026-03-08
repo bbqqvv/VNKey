@@ -80,36 +80,32 @@ pub fn parse(transformed: &str, tone: u8) -> Syllable {
 
         // Special onset cases: GI and QU
         // "gi" + vowel(s)
-        if chars[..vowel_idx_start]
+        let is_gi = chars[..vowel_idx_start]
             .iter()
             .collect::<String>()
             .to_lowercase()
             == "g"
-            && chars[vowel_idx_start] == 'i'
-        {
-            // "gi" + optional vowels
-            // If it's just "gi", we can treat 'i' as a vowel OR as part of onset.
-            // Linguistics: "gì" (onset=gi, vowel=i - omitted), "già" (onset=gi, vowel=a).
-            // To be consistent with tone placement, let's keep 'i' in vowel if it's the ONLY vowel.
-            if vowel_idx_start == v_end as usize {
-                // Keep "g" + "i" as onset="g", vowel="i"
-            } else {
-                // "gi" + more vowels -> onset="gi", strip first 'i' from vowel
-                onset_idx += 1; // onset takes the 'i'
-                vowel_idx_start += 1;
-            }
-        } else if chars[..vowel_idx_start]
+            && chars[vowel_idx_start] == 'i';
+
+        let is_qu = chars[..vowel_idx_start]
             .iter()
             .collect::<String>()
             .to_lowercase()
             == "q"
-            && chars[vowel_idx_start] == 'u'
-        {
-            // "qu" + vowels (e.g. "quan", "quê")
-            // Always treat "qu" as onset if there's at least one more vowel OR if it's the only vowel but has a coda
-            if vowel_idx_start < v_end as usize || (v_end as usize + 1) < chars.len() {
-                onset_idx += 1; // onset takes the 'u'
-                vowel_idx_start += 1; // remove 'u' from vowel
+            && chars[vowel_idx_start] == 'u';
+
+        if is_gi {
+            if vowel_idx_start == v_end as usize {
+                // Keep "g" + "i" as onset="g", vowel="i" if i is the only vowel
+            } else {
+                // "gi" + more vowels -> onset="gi", strip first 'i' from vowel
+                onset_idx += 1;
+                vowel_idx_start += 1;
+            }
+        } else if is_qu {
+            if vowel_idx_start <= v_end as usize {
+                onset_idx += 1;
+                vowel_idx_start += 1;
             }
         }
 

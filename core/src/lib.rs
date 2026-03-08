@@ -815,14 +815,15 @@ impl Engine {
     fn handle_progressive_z(&mut self) -> String {
         match self.z_level {
             0 => {
+                if self.pre_z_syllable.is_none() {
+                    self.pre_z_syllable = Some(self.current_syllable.clone());
+                    self.pre_z_buffer = Some(self.buffer.clone());
+                }
+
                 if self.current_syllable.tone == 0 {
                     self.z_level = 1;
                     return self.handle_progressive_z();
                 }
-
-                // Save state before first Z
-                self.pre_z_syllable = Some(self.current_syllable.clone());
-                self.pre_z_buffer = Some(self.buffer.clone());
 
                 self.current_syllable.tone = 0;
                 self.z_level = 1;
@@ -864,10 +865,14 @@ impl Engine {
             }
             _ => {
                 // Level 3+: append literal 'z' to the completely demodified buffer
+                if let Some(old_buffer) = self.pre_z_buffer.take() {
+                    self.buffer = old_buffer;
+                }
                 self.buffer.push('z');
                 self.case_map.push(false);
                 self.z_level = 0;
-                self.current_syllable.coda.push('z');
+                self.pre_z_syllable = None;
+                self.parse_buffer();
                 self.reconstruct()
             }
         }
@@ -961,41 +966,42 @@ impl Engine {
 
         // Determine semantic case pattern from input
         let is_all_upper = self.case_map.iter().all(|&c| c);
-        let is_first_upper = self.case_map.first().copied().unwrap_or(false);
-        let is_title_case = is_first_upper && !is_all_upper;
+        let first_is_upper = self.case_map.first().copied().unwrap_or(false);
+        let has_lower = self.case_map.iter().any(|&c| !c);
+        let is_title_case = first_is_upper && has_lower;
 
-        let target_char_count = target.chars().count();
-
-        if target_char_count == self.case_map.len() {
-            // Perfect length match: apply case mapping character by character
-            let mut result = String::new();
-            for (c, &is_upper) in target.chars().zip(self.case_map.iter()) {
-                if is_upper {
-                    result.extend(c.to_uppercase());
-                } else {
-                    result.extend(c.to_lowercase());
+        if is_all_upper {
+            target.to_uppercase()
+        } else if is_title_case {
+            let mut chars = target.chars();
+            match chars.next() {
+                Some(first) => {
+                    let upper: String = first.to_uppercase().collect();
+                    let rest: String = chars.as_str().to_lowercase();
+                    upper + &rest
                 }
+                None => target.to_string(),
             }
-            result
-        } else {
-            // Lengths differ (due to modifiers): use semantic case pattern
-            if is_all_upper {
-                target.to_uppercase()
-            } else if is_title_case {
-                // Title Case: capitalize first char, lowercase the rest
-                let mut chars = target.chars();
-                match chars.next() {
-                    Some(first) => {
-                        let upper: String = first.to_uppercase().collect();
-                        let rest: String = chars.as_str().to_lowercase();
-                        upper + &rest
+        } else if !first_is_upper && self.case_map.iter().any(|&c| c) {
+            // Mixed case but not title case (e.g. nGUYEN)
+            // Try to map character by character if lengths are similar,
+            // otherwise fallback to lowercase if it's mostly lowercase.
+            let target_chars: Vec<char> = target.chars().collect();
+            if target_chars.len() == self.case_map.len() {
+                let mut res = String::new();
+                for (i, &is_upper) in self.case_map.iter().enumerate() {
+                    if is_upper {
+                        res.extend(target_chars[i].to_uppercase());
+                    } else {
+                        res.extend(target_chars[i].to_lowercase());
                     }
-                    None => target.to_string(),
                 }
+                res
             } else {
-                // All lowercase
                 target.to_lowercase()
             }
+        } else {
+            target.to_lowercase()
         }
     }
 }

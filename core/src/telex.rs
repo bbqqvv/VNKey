@@ -4,61 +4,40 @@ use crate::unicode_map::TELEX_MODIFIERS;
 pub fn extract_tone(input: &str) -> (String, u8) {
     let mut core = String::new();
     let mut tone: u8 = 0;
+    let mut last_tone_key: Option<char> = None;
 
     for c in input.chars() {
         let has_vowel = core.chars().any(is_vowel);
 
         if has_vowel {
-            match c {
-                's' => {
-                    if tone == 1 {
-                        tone = 0;
-                        core.push('s');
-                    } else {
-                        tone = 1;
-                    }
-                }
-                'f' => {
-                    if tone == 2 {
-                        tone = 0;
-                        core.push('f');
-                    } else {
-                        tone = 2;
-                    }
-                }
-                'r' => {
-                    if tone == 3 {
-                        tone = 0;
-                        core.push('r');
-                    } else {
-                        tone = 3;
-                    }
-                }
-                'x' => {
-                    if tone == 4 {
-                        tone = 0;
-                        core.push('x');
-                    } else {
-                        tone = 4;
-                    }
-                }
-                'j' => {
-                    if tone == 5 {
-                        tone = 0;
-                        core.push('j');
-                    } else {
-                        tone = 5;
-                    }
-                }
-                'z' => {
-                    tone = 0;
-                }
-                _ => {
-                    core.push(c);
-                }
+            let next_tone = match c {
+                's' => 1,
+                'f' => 2,
+                'r' => 3,
+                'x' => 4,
+                'j' => 5,
+                'z' => 0,
+                _ => 255, // Not a tone key
+            };
+
+            if next_tone == 255 {
+                core.push(c);
+                last_tone_key = None;
+            } else if next_tone == 0 {
+                tone = 0;
+                last_tone_key = Some(c);
+            } else if Some(c) == last_tone_key {
+                // Double tap: cancel tone and keep literal key
+                tone = 0;
+                core.push(c);
+                last_tone_key = None;
+            } else {
+                tone = next_tone;
+                last_tone_key = Some(c);
             }
         } else {
             core.push(c);
+            last_tone_key = None;
         }
     }
 
@@ -66,26 +45,12 @@ pub fn extract_tone(input: &str) -> (String, u8) {
 }
 
 pub fn apply_modifiers(input: &str) -> String {
-    let mut res = input.to_string();
-
-    // Step 1: Bracket keys
-    res = res.replace('[', "ư").replace(']', "ơ");
-
-    // Step 2: Compound modifiers
-    // Special case: quow -> quơ (to avoid qươ)
-    res = res.replace("quow", "quơ");
-    res = res.replace("uow", "ươ");
-
-    // Step 3: Sequential processing for cycles and cancellations
     let mut processed = String::new();
-    let chars: Vec<char> = res.chars().collect();
+    let chars: Vec<char> = input.chars().collect();
     let mut i = 0;
-    let mut cancelled = false;
 
     while i < chars.len() {
         let c = chars[i];
-
-        // Count consecutive identical chars
         let mut run = 0;
         while i + run < chars.len() && chars[i + run] == c {
             run += 1;
@@ -93,75 +58,57 @@ pub fn apply_modifiers(input: &str) -> String {
 
         let mut done = false;
 
-        if !cancelled {
-            // Check for triple-tap run on cycle keys (a, e, o, d)
-            if run >= 3 && matches!(c, 'a' | 'e' | 'o' | 'd') {
-                for _ in 0..(run - 1) {
-                    processed.push(c);
-                }
-                cancelled = true;
-                done = true;
-            }
-            // Check for double-tap cycle
-            else if run == 2 {
-                match c {
-                    'a' => {
-                        processed.push('â');
-                        done = true;
+        // Unified modifier logic
+        match c {
+            // Cycle keys: a, e, o, d
+            'a' | 'e' | 'o' | 'd' => {
+                if run >= 3 {
+                    // aaa -> aa (cancellation)
+                    for _ in 0..2 {
+                        processed.push(c);
                     }
-                    'e' => {
-                        processed.push('ê');
-                        done = true;
-                    }
-                    'o' => {
-                        processed.push('ô');
-                        done = true;
-                    }
-                    'd' => {
-                        processed.push('đ');
-                        done = true;
-                    }
-                    _ => {}
-                }
-            }
-
-            // Check for w-modifiers (aw, ow, uw) - only if run == 1
-            if !done && run == 1 && i + 1 < chars.len() && chars[i + 1] == 'w' {
-                // Peek next to avoid run of w's
-                let is_w_run = i + 2 < chars.len() && chars[i + 2] == 'w';
-                if !is_w_run {
+                    done = true;
+                } else if run == 2 {
+                    // aa -> â, ee -> ê, oo -> ô, dd -> đ
                     match c {
-                        'a' => {
-                            processed.push('ă');
-                            i += 2;
-                            continue;
-                        }
-                        'o' => {
-                            processed.push('ơ');
-                            i += 2;
-                            continue;
-                        }
-                        'u' => {
-                            processed.push('ư');
-                            i += 2;
-                            continue;
-                        }
-                        _ => {}
+                        'a' => processed.push('â'),
+                        'e' => processed.push('ê'),
+                        'o' => processed.push('ô'),
+                        'd' => processed.push('đ'),
+                        _ => unreachable!(),
                     }
+                    done = true;
                 }
             }
+            // Bracket keys: [ -> ư, ] -> ơ
+            '[' | ']' => {
+                if run >= 2 {
+                    // [[ -> [, ]] -> ] (cancellation)
+                    processed.push(c);
+                    done = true;
+                } else {
+                    match c {
+                        '[' => processed.push('ư'),
+                        ']' => processed.push('ơ'),
+                        _ => unreachable!(),
+                    }
+                    done = true;
+                }
+            }
+            _ => {}
         }
+
+        // W-modifier will be handled by resolve_remaining_w
 
         if !done {
             for _ in 0..run {
                 processed.push(c);
             }
         }
-
         i += run;
     }
 
-    // Step 4: Final 'w' resolution (always handles its own runs)
+    // Pass through smart W resolution (ww -> w, etc.)
     resolve_remaining_w(&processed)
 }
 
@@ -210,19 +157,41 @@ fn resolve_remaining_w(input: &str) -> String {
                     }
                 } else {
                     // In middle of string: apply inline smart w logic
-                    let prev_char = result.chars().last();
-                    if let Some(prev) = prev_char {
-                        let horn = match prev {
-                            'u' => Some('ư'),
-                            'o' => Some('ơ'),
-                            'a' => Some('ă'),
-                            _ => None,
-                        };
-                        if let Some(h) = horn {
-                            result.pop();
-                            result.push(h);
-                        } else {
-                            result.push('ư');
+                    let mut chars_so_far: Vec<char> = result.chars().collect();
+                    if let Some(&prev) = chars_so_far.last() {
+                        let mut replaced = false;
+                        if prev == 'o' && chars_so_far.len() >= 2 {
+                            let prev_prev = chars_so_far[chars_so_far.len() - 2];
+                            if prev_prev == 'u' {
+                                let is_qu = chars_so_far.len() >= 3
+                                    && chars_so_far[chars_so_far.len() - 3].to_lowercase().next()
+                                        == Some('q');
+                                if is_qu {
+                                    result.pop();
+                                    result.push('ơ');
+                                } else {
+                                    result.pop();
+                                    result.pop();
+                                    result.push('ư');
+                                    result.push('ơ');
+                                }
+                                replaced = true;
+                            }
+                        }
+
+                        if !replaced {
+                            let horn = match prev {
+                                'u' => Some('ư'),
+                                'o' => Some('ơ'),
+                                'a' => Some('ă'),
+                                _ => None,
+                            };
+                            if let Some(h) = horn {
+                                result.pop();
+                                result.push(h);
+                            } else {
+                                result.push('ư');
+                            }
                         }
                     } else {
                         result.push('ư');
@@ -254,9 +223,13 @@ fn apply_late_w(s: &str) -> String {
     // Try to find "uo" pair first (scan from right)
     for i in (1..len).rev() {
         if chars[i] == 'o' && chars[i - 1] == 'u' {
-            chars[i] = 'ơ';
-            // Only modify 'u' if NOT preceded by 'q' (quơ, quở...)
-            if i < 2 || chars[i - 2] != 'q' {
+            let is_qu = i >= 2 && chars[i - 2] == 'q';
+            if is_qu {
+                // "qu" + "ow" -> "qu" + "ơ" (only 'o' gets horn)
+                chars[i] = 'ơ';
+            } else {
+                // "u" + "o" + "w" -> "ư" + "ơ" (both get horn)
+                chars[i] = 'ơ';
                 chars[i - 1] = 'ư';
             }
             return chars.into_iter().collect();
